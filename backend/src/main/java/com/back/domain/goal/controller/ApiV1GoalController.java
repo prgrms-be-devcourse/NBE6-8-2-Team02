@@ -2,8 +2,10 @@ package com.back.domain.goal.controller;
 
 import com.back.domain.goal.dto.GoalDto;
 import com.back.domain.goal.entity.Goal;
+import com.back.domain.goal.entity.GoalType;
 import com.back.domain.goal.service.GoalService;
 import com.back.domain.member.entity.Member;
+import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,7 +13,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,44 +56,55 @@ public class ApiV1GoalController {
             @NotNull
             int targetAmount,
             @NotNull
-            LocalDateTime deadline
+            LocalDateTime deadline,
+            GoalType goalType
     ) {
     }
 
     @PostMapping
     @Transactional
     @Operation(summary = "생성")
-    public ResponseEntity<String> create(
+    public RsData<GoalDto> create(
             @Valid @RequestBody GoalReqBody reqBody
     ) {
         Member user = new Member(); //임시
 
         Goal goal = goalService.create(user, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline);
 
-        return ResponseEntity.ok("목표가 생성되었습니다. (ID: %d)".formatted(goal.getId()));
+        return new RsData<>(
+                "201-1",
+                "목표(id: %d)가 작성되었습니다.".formatted(goal.getId()),
+                new GoalDto(goal)
+        );
     }
 
     @PutMapping("/{id}")
     @Transactional
     @Operation(summary = "수정")
-    public ResponseEntity<String> modify(
+    public RsData<GoalDto> modify(
             @PathVariable int id,
             @Valid @RequestBody GoalReqBody reqBody
     ) {
         Goal goal = goalService.findById(id).get();
-        goalService.modify(goal, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline);
+        goalService.modify(goal, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline, reqBody.goalType);
 
-        return ResponseEntity.ok("목표가 수정되었습니다. (ID: %d)".formatted(goal.getId()));
+        return new RsData<>(
+                "200-1",
+                "목표(id: %d)가 수정되었습니다.".formatted(goal.getId())
+        );
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "삭제")
-    public ResponseEntity<String> delete(@PathVariable int id) {
+    public RsData<GoalDto> delete(@PathVariable int id) {
         Goal goal = goalService.findById(id).get();
 
         goalService.delete(goal);
 
-        return ResponseEntity.ok("목표가 삭제되었습니다. (ID: %d)".formatted(id));
+        return new RsData<>(
+                "200-1",
+                "목표(id: %d)가 삭제되었습니다.".formatted(goal.getId())
+        );
     }
 }
