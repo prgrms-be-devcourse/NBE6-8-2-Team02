@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class AssetService {
     // 엔티티 빌더
     public Asset createAsset(CreateAssetRequestDto createAssetRequestDto) {
         Member member = memberRepository.findById(createAssetRequestDto.memberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Asset asset = Asset.builder()
                 .member(member)
@@ -42,7 +43,7 @@ public class AssetService {
 
     public Asset deleteById(int id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 id는 존재하지 않는 상품입니다. id:" + id));
+                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + id));
         if (asset != null) {
             assetRepository.deleteById(id);
         }
@@ -51,7 +52,7 @@ public class AssetService {
 
     public Asset updateById(UpdateAssetRequestDto updateAssetRequestDto) {
         Asset asset = assetRepository.findById(updateAssetRequestDto.id())
-                .orElseThrow(() -> new IllegalArgumentException("해당 id는 존재하지 않는 상품입니다. id:" + updateAssetRequestDto.id()));
+                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + updateAssetRequestDto.id()));
 
         asset.setName(updateAssetRequestDto.name());
         asset.setAssetType(AssetType.valueOf(updateAssetRequestDto.assetType()));
