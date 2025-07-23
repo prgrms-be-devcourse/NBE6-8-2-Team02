@@ -13,10 +13,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    /*
-    NoSuchElementException
-    해당 id에 맞는 데이터가 조회되지 않을 경우.
-     */
+    // 다시 되돌림(임시메세지)
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<RsData<Void>> handleIllegalArgument(IllegalArgumentException e) {
         return new ResponseEntity<>(
