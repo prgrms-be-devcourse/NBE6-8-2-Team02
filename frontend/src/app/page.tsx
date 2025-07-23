@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { WelcomePage } from "./components/WelcomePage";
 import { LoginPage } from "./components/LoginPage";
+
 import { SignupPage } from "./components/SignupPage";
 import { MyPage } from "./components/MyPage";
 
@@ -12,12 +13,14 @@ type ViewType = "welcome" | "login" | "signup" | "mypage";
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>("welcome");
 
+
   const handleStart = () => {
     setCurrentView("login");
   };
 
   const handleLogin = (loginData: { id: string; password: string }) => {
     console.log("로그인 시도:", loginData);
+
     // 간단한 로그인 검증 (실제로는 서버 API 호출)
     if (loginData.id && loginData.password) {
       setCurrentView("mypage");
@@ -47,6 +50,7 @@ export default function App() {
     return <MyPage onLogout={handleLogout} />;
   }
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4 relative overflow-hidden">
       <AnimatePresence mode="wait">
@@ -58,13 +62,6 @@ export default function App() {
           <LoginPage 
             onLogin={handleLogin}
             onSignupClick={handleSignupClick}
-          />
-        )}
-
-        {currentView === "signup" && (
-          <SignupPage 
-            onSignup={handleSignup}
-            onBackToLogin={handleBackToLogin}
           />
         )}
       </AnimatePresence>
