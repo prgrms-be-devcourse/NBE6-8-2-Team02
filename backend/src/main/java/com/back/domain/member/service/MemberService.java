@@ -42,20 +42,12 @@ public class MemberService {
         return MemberResponseDto.from(member);
     }
 
-    // 이메일로 회원 조회
-    public MemberResponseDto getMemberByEmail(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    // 이름과 이메일로 회원 조회
+    public MemberResponseDto getMemberByEmailAndName(String email, String name) {
+        Member member = memberRepository.findByEmailAndName(email, name)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return MemberResponseDto.from(member);
-    }
-
-    // 이름으로 회원 조회
-    public List<MemberResponseDto> searchMembersByName(String name) {
-        List<Member> members = memberRepository.findByNameContaining(name);
-        return members.stream()
-                .map(MemberResponseDto::from)
-                .collect(Collectors.toList());
     }
 
     // 모든 회원 조회(관리자)

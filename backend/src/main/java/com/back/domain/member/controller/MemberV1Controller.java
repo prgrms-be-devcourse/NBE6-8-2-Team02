@@ -1,5 +1,6 @@
 package com.back.domain.member.controller;
 
+import com.back.domain.member.dto.MemberPasswordChangeDto;
 import com.back.domain.member.dto.MemberRequestDto;
 import com.back.domain.member.dto.MemberResponseDto;
 import com.back.domain.member.dto.MemberUpdateDto;
@@ -79,4 +80,41 @@ public class MemberV1Controller {
         MemberResponseDto response = memberService.activateMember(memberId);
         return ResponseEntity.ok(response);
     }
+
+    // 8 . 비밀번호 변경
+    @PatchMapping("/{memberId}/password")
+    @Operation(summary = "비밀번호 변경", description = "회원의 비밀번호를 변경합니다.")
+    public ResponseEntity<MemberResponseDto> changePassword(
+            @PathVariable int memberId,
+            @RequestBody @Valid MemberPasswordChangeDto passwordChangeDto) {
+        MemberResponseDto response = memberService.changePassword(memberId,  passwordChangeDto.newPassword());
+        return ResponseEntity.ok(response);
+    }
+
+    // 9. 이메일 중복 검사
+    @GetMapping("/check-email")
+    @Operation(summary = "이메일 중복 검사", description = "이메일 중복 여부를 확인합니다.")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
+        boolean isDuplicate = memberService.isEmailDuplicate(email);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
+    // 10. 활성화된 회원 목록 조회
+    @GetMapping("/active")
+    @Operation(summary = "활성화된 회원 조회", description = "활성화된 회원 목록을 조회합니다.")
+    public ResponseEntity<List<MemberResponseDto>> getActiveMembers() {
+        List<MemberResponseDto> response = memberService.getActiveMembers();
+        return ResponseEntity.ok(response);
+    }
+
+    // 11. 이메일과 이름으로 회원 조회
+    @GetMapping("/search/{email}/{name}")
+    @Operation(summary = "이메일과 이름으로 회원 조회", description = "이메일과 이름으로 회원을 조회합니다.")
+    public ResponseEntity<MemberResponseDto> getMemberByEmailAndNamePath(
+            @PathVariable String email,
+            @PathVariable String name) {
+        MemberResponseDto response = memberService.getMemberByEmailAndName(email, name);
+        return ResponseEntity.ok(response);
+    }
+
 }
