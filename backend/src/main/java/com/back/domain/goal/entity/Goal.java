@@ -41,6 +41,10 @@ public class Goal extends BaseEntity {
         goalType = GoalType.NOT_STARTED;
     }
 
+    public int getMemberId() {
+        return member.getId();
+    }
+
     public void modifyDescription(String description) {
         this.description = description;
     }

@@ -1,6 +1,7 @@
 package com.back.domain.goal.service;
 
 import com.back.domain.goal.entity.Goal;
+import com.back.domain.goal.entity.GoalType;
 import com.back.domain.goal.repository.GoalRepository;
 import com.back.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class GoalService {
     }
 
     public List<Goal> findByMemberId(int memberId) {
-        return goalRepository.findByMemberId(memberId);
+        return goalRepository.findByMember_Id(memberId);
     }
 
     public Goal create(
@@ -40,12 +41,14 @@ public class GoalService {
             String description,
             int currentAmount,
             int targetAmount,
-            LocalDateTime deadline
+            LocalDateTime deadline,
+            GoalType goalType
     ) {
         goal.modifyDescription(description);
         goal.modifyCurrentAmount(currentAmount);
         goal.modifyTargetAmount(targetAmount);
         goal.modifyDeadline(deadline);
+        goal.modifyGoalType(goalType);
     }
 
     public void delete(Goal post) {
