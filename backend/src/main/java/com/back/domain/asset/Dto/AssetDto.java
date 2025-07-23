@@ -5,19 +5,26 @@ import com.back.domain.asset.entity.AssetType;
 import com.back.domain.member.entity.Member;
 import lombok.NonNull;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 public record AssetDto (
-        Member member,
+        int memberId,
         String name,
         String assetType,
-        int value
+        int value,
+        LocalDateTime createDate,
+        LocalDateTime modifyDate
 ) {
     public AssetDto(Asset asset)
     {
         this(
-                asset.getMember(),
+                asset.getMember().getId(),
                 asset.getName(),
                 asset.getAssetType().toString(),
-                asset.getValue()
+                asset.getValue(),
+                asset.getCreateDate(),
+                asset.getModifyDate()
         );
     }
 }
