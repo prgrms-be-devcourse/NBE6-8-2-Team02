@@ -64,6 +64,13 @@ export default function App() {
             onSignupClick={handleSignupClick}
           />
         )}
+        
+        {currentView === "signup" && (
+          <SignupPage 
+            onSignup={handleSignup}
+            onBackToLogin={handleBackToLogin}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
