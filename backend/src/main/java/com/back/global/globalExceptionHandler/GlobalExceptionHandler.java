@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     해당 id에 맞는 데이터가 조회되지 않을 경우.
      */
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<RsData<Void>> handleNoSuchElement(NoSuchElementException e) {
+    public ResponseEntity<RsData<Void>> handleIllegalArgument(IllegalArgumentException e) {
         return new ResponseEntity<>(
                 new RsData<>(
                         "400-1",
