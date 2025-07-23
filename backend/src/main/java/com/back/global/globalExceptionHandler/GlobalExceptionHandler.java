@@ -1,13 +1,14 @@
 package com.back.global.globalExceptionHandler;
 
 import com.back.global.rsData.RsData;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.NoSuchElementException;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,7 +18,7 @@ public class GlobalExceptionHandler {
     해당 id에 맞는 데이터가 조회되지 않을 경우.
      */
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<RsData<Void>> handleIllegalArgument(IllegalArgumentException e) {
+    public ResponseEntity<RsData<Void>> handleNoSuchElement(NoSuchElementException e) {
         return new ResponseEntity<>(
                 new RsData<>(
                         "400-1",

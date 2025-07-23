@@ -45,7 +45,7 @@ public class MemberService {
     // 이메일로 회원 조회
     public MemberResponseDto getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         return MemberResponseDto.from(member);
     }
