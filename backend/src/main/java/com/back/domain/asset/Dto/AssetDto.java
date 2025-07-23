@@ -1,28 +1,26 @@
 package com.back.domain.asset.Dto;
 
 import com.back.domain.asset.entity.Asset;
-import com.back.domain.asset.entity.AssetType;
-import com.back.domain.member.entity.Member;
-import lombok.NonNull;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record AssetDto (
+        int id,
         int memberId,
         String name,
         String assetType,
-        int value,
+        int assetValue,
         LocalDateTime createDate,
         LocalDateTime modifyDate
 ) {
     public AssetDto(Asset asset)
     {
         this(
+                asset.getId(),
                 asset.getMember().getId(),
                 asset.getName(),
                 asset.getAssetType().toString(),
-                asset.getValue(),
+                asset.getAssetValue(),
                 asset.getCreateDate(),
                 asset.getModifyDate()
         );

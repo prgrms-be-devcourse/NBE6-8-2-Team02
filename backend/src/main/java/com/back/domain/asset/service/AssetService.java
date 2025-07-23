@@ -28,7 +28,7 @@ public class AssetService {
                 .member(member)
                 .name(createAssetRequestDto.name())
                 .assetType(AssetType.valueOf(createAssetRequestDto.assetType()))
-                .value(createAssetRequestDto.value())
+                .assetValue(createAssetRequestDto.assetValue())
                 .build();
 
         assetRepository.save(asset);
@@ -55,7 +55,7 @@ public class AssetService {
 
         asset.setName(updateAssetRequestDto.name());
         asset.setAssetType(AssetType.valueOf(updateAssetRequestDto.assetType()));
-        asset.setValue(updateAssetRequestDto.value());
+        asset.setAssetValue(updateAssetRequestDto.assetValue());
 
         return assetRepository.save(asset);
     }

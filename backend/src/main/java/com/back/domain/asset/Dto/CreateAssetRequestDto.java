@@ -8,16 +8,17 @@ public record CreateAssetRequestDto (
     int memberId,
     String name,
     String assetType,
-    int value
+    int assetValue
     ) {
     public CreateAssetRequestDto(int memberId,
                                  String name,
                                  String assetType,
-                                 int value)
+                                 int assetValue
+    )
     {
         this.memberId = memberId;
         this.name = name;
         this.assetType = assetType;
-        this.value = value;
+        this.assetValue = assetValue;
     }
 }

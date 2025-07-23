@@ -4,12 +4,12 @@ public record UpdateAssetRequestDto (
         int id,
         String name,
         String assetType,
-        int value
+        int assetValue
 ) {
-    public UpdateAssetRequestDto(int id, String name, String assetType, int value) {
+    public UpdateAssetRequestDto(int id, String name, String assetType, int assetValue) {
         this.id = id;
         this.name = name;
         this.assetType = assetType;
-        this.value = value;
+        this.assetValue = assetValue;
     }
 }
