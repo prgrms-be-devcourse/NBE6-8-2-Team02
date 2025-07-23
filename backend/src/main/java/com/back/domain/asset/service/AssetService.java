@@ -43,7 +43,7 @@ public class AssetService {
 
     public Asset deleteById(int id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 상품입니다. id:" + id));
+                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + id));
         if (asset != null) {
             assetRepository.deleteById(id);
         }
@@ -52,7 +52,7 @@ public class AssetService {
 
     public Asset updateById(UpdateAssetRequestDto updateAssetRequestDto) {
         Asset asset = assetRepository.findById(updateAssetRequestDto.id())
-                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 상품입니다. id:" + updateAssetRequestDto.id()));
+                .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + updateAssetRequestDto.id()));
 
         asset.setName(updateAssetRequestDto.name());
         asset.setAssetType(AssetType.valueOf(updateAssetRequestDto.assetType()));
