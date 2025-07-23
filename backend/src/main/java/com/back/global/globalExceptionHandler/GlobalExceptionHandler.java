@@ -13,7 +13,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 다시 되돌림(임시메세지)
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<RsData<Void>> handleIllegalArgument(IllegalArgumentException e) {
         return new ResponseEntity<>(
