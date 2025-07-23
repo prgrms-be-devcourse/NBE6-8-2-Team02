@@ -31,10 +31,10 @@ export function WelcomePage({ onStart }: WelcomePageProps) {
           </svg>
         </div>
         <h1 className="text-3xl tracking-tight text-gray-900">
-          자산관리 서비스
+          자산관리 서비스 입니다
         </h1>
         <p className="text-gray-600 leading-relaxed">
-          효율적이고 편리한 자산관리를 시작해보세요
+          안전하고 효율적인 자산관리를 시작해보세요
         </p>
       </div>
       <Button 
