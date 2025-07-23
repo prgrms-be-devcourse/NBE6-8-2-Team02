@@ -59,4 +59,12 @@ public class Member extends BaseEntity {
         User, Admin
     }
 
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
 }

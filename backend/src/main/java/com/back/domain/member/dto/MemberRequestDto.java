@@ -13,6 +13,16 @@ public record MemberRequestDto(
         String phoneNumber
 ) {
 
+    // MemberRequestDto에 추가:
+    public Member toEntity() {
+        return Member.builder()
+                .email(email)
+                .password(password) // 원본 비밀번호 (연습용)
+                .name(name)
+                .phoneNumber(phoneNumber)
+                .build();
+    }
+
     // 암호화된 비밀번호를 사용하여 Member 엔티티로 변환하는 메서드
     public Member toEntity(String encodedPassword) {
         return Member.builder()
