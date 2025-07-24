@@ -2,6 +2,7 @@ package com.back.domain.account.controller;
 
 import com.back.domain.account.dto.AccountDto;
 import com.back.domain.account.dto.RqCreateAccountDto;
+import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.service.AccountService;
 import com.back.global.rsData.RsData;
@@ -48,6 +49,15 @@ public class ApiV1AccountController {
         AccountDto accountDto = new AccountDto(account);
 
         return new RsData<>("200-1", "%d번 계좌를 조회했습니다.".formatted(accountId), accountDto);
+    }
+
+    @PutMapping("/{accountId}")
+    @Operation(summary = "계좌 수정", description = "계좌 수정")
+    public RsData<AccountDto> updateAccount(@PathVariable int accountId,@RequestBody RqUpdateAccountDto rqUpdateAccountDto){
+        Account account = accountService.updateAccount(accountId, rqUpdateAccountDto);
+        AccountDto accountDto = new AccountDto(account);
+
+        return new RsData<>("200-1", "%d번 계좌가 수정되었습니다.".formatted(accountId), accountDto);
     }
 
     @DeleteMapping("/{accountId}")
