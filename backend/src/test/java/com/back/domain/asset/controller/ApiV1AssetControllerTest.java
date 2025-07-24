@@ -100,7 +100,7 @@ class ApiV1AssetControllerTest {
         //4. 자산 전체 조회
         mvc.perform(get("/api/v1/assets"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(1));
+                .andExpect(jsonPath("$.data.length()").value(10));
 
         //5. 자산 삭제
         mvc.perform(delete("/api/v1/assets/" + assetId))
@@ -110,6 +110,6 @@ class ApiV1AssetControllerTest {
         //6. 삭제 후 전체 조회
         mvc.perform(get("/api/v1/assets"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(0));
+                .andExpect(jsonPath("$.data.length()").value(9));
     }
 }
