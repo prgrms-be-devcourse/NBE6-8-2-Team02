@@ -49,7 +49,15 @@ class ApiV1AssetControllerTest {
 
     @BeforeEach
     void setUp() {
-        member = memberRepository.save(new Member());
+        member = memberRepository.save(
+                Member.builder()
+                        .email("test@example.com")
+                        .password("test1234")
+                        .name("테스트유저")
+                        .phoneNumber("010-1234-5678")
+                        .role(Member.MemberRole.User)
+                        .build()
+        );
     }
 
     @Test
