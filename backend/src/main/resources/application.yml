@@ -21,6 +21,12 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+
+
+jwt:
+  secret-key: mySecretKeyForJWTTokenGenerationAndValidation1234567890
+  access-token-validity: 86400000  # 24시간
+  refresh-token-validity: 604800000 # 7일
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
 logging:

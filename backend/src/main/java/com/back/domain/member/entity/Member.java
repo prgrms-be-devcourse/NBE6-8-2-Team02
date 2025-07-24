@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Member extends BaseEntity {
+
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -59,5 +60,10 @@ public class Member extends BaseEntity {
 
     public void activate() {
         this.isActive = true;
+    }
+
+    public enum MemberRole {
+        ADMIN, // 관리자
+        USER   // 일반 사용자
     }
 }
