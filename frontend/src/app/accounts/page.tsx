@@ -6,6 +6,13 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AccountsPage() {
   const { accounts, addAccount, updateAccount, deleteAccount } =
@@ -34,6 +41,13 @@ export default function AccountsPage() {
 
   const [editId, setEditId] = useState<number | null>(null);
   const [newAccountNumber, setNewAccountNumber] = useState("");
+  const bankOptions = [
+    "국민은행",
+    "신한은행",
+    "카카오뱅크",
+    "농협",
+    "토스뱅크",
+  ];
 
   return (
     <div className="max-w-2xl mx-auto py-10">
@@ -44,11 +58,21 @@ export default function AccountsPage() {
 
       {showForm && (
         <div className="mb-4 space-y-2">
-          <Input
-            placeholder="은행 이름"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          {/* 은행 선택 */}
+          <Select onValueChange={(value: string) => setName(value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="은행 선택" />
+            </SelectTrigger>
+            <SelectContent>
+              {bankOptions.map((bank) => (
+                <SelectItem key={bank} value={bank}>
+                  {bank}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* 계좌번호 입력 */}
           <Input
             placeholder="계좌번호"
             value={accountNumber}
@@ -56,6 +80,8 @@ export default function AccountsPage() {
               setAccountNumber(e.target.value.replace(/[^0-9-]/g, ""))
             }
           />
+
+          {/* 잔고 입력 */}
           <Input
             placeholder="잔고"
             type="number"
@@ -63,6 +89,7 @@ export default function AccountsPage() {
             value={balance}
             onChange={(e) => setBalance(e.target.value)}
           />
+
           <Button onClick={handleAdd}>추가</Button>
         </div>
       )}
