@@ -97,6 +97,7 @@ public class BaseInitData {
     }
 
     @Transactional
+    @Profile("!test")
     public void memberInit() {
         // 기존 테스트 데이터가 있으면 건너뛰기
         if(memberRepository.existsByEmail("user1@user.com"))
@@ -118,6 +119,7 @@ public class BaseInitData {
     }
 
     @Transactional
+    @Profile("!test")
     public void accountInit() {
         if(accountRepository.count() > 0)
             return;
@@ -136,6 +138,7 @@ public class BaseInitData {
     }
 
     @Transactional
+    @Profile("!test")
     public void assetInit() {
         if(assetRepository.count() > 0)
             return;
@@ -157,6 +160,7 @@ public class BaseInitData {
     }
 
     @Transactional
+    @Profile("!test")
     public void transactionInit() {
         if(transactionRepository.count() > 0)
             return;
@@ -175,6 +179,7 @@ public class BaseInitData {
     }
 
     @Transactional
+    @Profile("!test")
     public void goalInit() {
         if(goalRepository.count() > 0)
             return;
