@@ -1,11 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
+import { useRouter } from "./Router";
 
-interface WelcomePageProps {
-  onStart: () => void;
-}
+export function WelcomePage() {
+  const { navigate } = useRouter();
 
-export function WelcomePage({ onStart }: WelcomePageProps) {
+  const handleStart = () => {
+    navigate("/login");
+  };
+
   return (
     <motion.div
       key="welcome"
@@ -34,11 +37,11 @@ export function WelcomePage({ onStart }: WelcomePageProps) {
           자산관리 서비스
         </h1>
         <p className="text-gray-600 leading-relaxed">
-          효율적이고 편리한 자산관리를 시작해보세요
+          효율적이고 편리하게게 자산관리를 시작해보세요
         </p>
       </div>
       <Button 
-        onClick={onStart}
+        onClick={handleStart}
         size="lg"
         className="px-8 py-3"
       >

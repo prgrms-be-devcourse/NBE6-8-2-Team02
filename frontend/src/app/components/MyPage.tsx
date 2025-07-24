@@ -2,14 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
+import { useRouter } from "./Router";
 import { ArrowRight, Wallet, BarChart2, Coins, House } from 'lucide-react';
 import { ReactNode } from "react";
 import { Card as UICard, CardContent } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
-interface MyPageProps {
-  onLogout: () => void;
-}
 
 const assetChartData = [
   { name: "1월", total: 5500000},
@@ -21,8 +18,13 @@ const assetChartData = [
 ];
 
 
+export function MyPage() {
+  const { navigate } = useRouter();
 
-export function MyPage({ onLogout }: MyPageProps) {
+  const onLogout = () => {
+    navigate("/");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}

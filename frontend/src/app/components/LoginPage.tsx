@@ -3,17 +3,26 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useRouter } from "./Router";
 
-interface LoginPageProps {
-  onLogin: (data: { id: string; password: string }) => void;
-  onSignupClick: () => void;
-}
-
-export function LoginPage({ onLogin, onSignupClick }: LoginPageProps) {
+export function LoginPage() {
   const [loginData, setLoginData] = useState({ id: "", password: "" });
+  const { navigate } = useRouter();
 
   const handleLogin = () => {
-    onLogin(loginData);
+    console.log("로그인 시도:", loginData);
+
+    // 로그인 검증 (API 호출)
+    //
+    //
+
+    if (loginData.id && loginData.password) {
+      navigate("/mypage");
+    }
+  };
+
+  const handleSignupClick = () => {
+    navigate("/signup");
   };
 
   return (
@@ -51,7 +60,7 @@ export function LoginPage({ onLogin, onSignupClick }: LoginPageProps) {
           <Input
             id="id"
             type="text"
-            placeholder="아이디를 입력하세요"
+            placeholder="아이디(이메일)를 입력하세요"
             value={loginData.id}
             onChange={(e) => setLoginData({ ...loginData, id: e.target.value })}
           />
@@ -78,7 +87,7 @@ export function LoginPage({ onLogin, onSignupClick }: LoginPageProps) {
 
       <div className="text-center">
         <button
-          onClick={onSignupClick}
+          onClick={handleSignupClick}
           className="text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           아직 계정이 없나요?
