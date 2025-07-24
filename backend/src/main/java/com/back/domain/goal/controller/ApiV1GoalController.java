@@ -5,6 +5,7 @@ import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.entity.GoalType;
 import com.back.domain.goal.service.GoalService;
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.entity.MemberRole;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,7 +68,7 @@ public class ApiV1GoalController {
     public RsData<GoalDto> create(
             @Valid @RequestBody GoalReqBody reqBody
     ) {
-        Member user = new Member("abc@abc.com", "Name", "pw", "01012341234", Member.MemberRole.User); //임시
+        Member user = new Member("abc@abc.com", "Name", "pw", "01012341234", MemberRole.USER); //임시
 
         Goal goal = goalService.create(user, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline);
 
