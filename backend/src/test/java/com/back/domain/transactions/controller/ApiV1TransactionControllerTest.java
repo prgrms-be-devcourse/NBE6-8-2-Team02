@@ -5,7 +5,7 @@ import com.back.domain.asset.entity.AssetType;
 import com.back.domain.asset.repository.AssetRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
-import com.back.domain.transactions.Dto.CreateTransactionRequestDto;
+import com.back.domain.transactions.dto.CreateTransactionRequestDto;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
 import com.back.domain.transactions.service.TransactionService;
@@ -57,7 +57,12 @@ class ApiV1TransactionControllerTest {
     @DisplayName("거래 등록 API가 정상 동작한다")
     void createTransaction_정상_등록() throws Exception {
         // given - 테스트 데이터 생성
-        Member member = new Member();
+        Member member = Member.builder()
+                .email("test@test.com")
+                .password("password123")
+                .name("테스트 사용자")
+                .phoneNumber("010-1234-5678")
+                .build();
         memberRepository.save(member);
 
         Asset asset = Asset.builder()

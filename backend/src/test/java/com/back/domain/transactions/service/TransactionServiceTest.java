@@ -2,7 +2,8 @@ package com.back.domain.transactions.service;
 
 import com.back.domain.asset.entity.Asset;
 import com.back.domain.asset.repository.AssetRepository;
-import com.back.domain.transactions.Dto.CreateTransactionRequestDto;
+import com.back.domain.account.repository.AccountRepository;
+import com.back.domain.transactions.dto.CreateTransactionRequestDto;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
 import com.back.domain.transactions.repository.TransactionRepository;
@@ -25,7 +26,8 @@ class TransactionServiceTest {
         AssetRepository assetRepository = Mockito.mock(AssetRepository.class);
 
         // 2. 테스트용 서비스 생성
-        TransactionService transactionService = new TransactionService(transactionRepository, assetRepository);
+        AccountRepository accountRepository = Mockito.mock(AccountRepository.class);
+        TransactionService transactionService = new TransactionService(transactionRepository, assetRepository, accountRepository);
 
         // 3. 테스트용 데이터 준비
         Asset asset = Asset.builder().build();

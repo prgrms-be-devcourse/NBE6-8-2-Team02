@@ -1,4 +1,4 @@
-package com.back.domain.transactions.Dto;
+package com.back.domain.transactions.dto;
 
 public record CreateTransactionRequestDto(
         int assetId,

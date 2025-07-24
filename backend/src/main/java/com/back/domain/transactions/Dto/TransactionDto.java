@@ -1,4 +1,4 @@
-package com.back.domain.transactions.Dto;
+package com.back.domain.transactions.dto;
 
 import com.back.domain.transactions.entity.Transaction;
 
