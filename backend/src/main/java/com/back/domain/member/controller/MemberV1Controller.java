@@ -4,13 +4,17 @@ import com.back.domain.member.dto.MemberPasswordChangeDto;
 import com.back.domain.member.dto.MemberRequestDto;
 import com.back.domain.member.dto.MemberResponseDto;
 import com.back.domain.member.dto.MemberUpdateDto;
+import com.back.domain.member.entity.Member;
 import com.back.domain.member.service.MemberService;
+import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -114,6 +118,25 @@ public class MemberV1Controller {
             @PathVariable String email,
             @PathVariable String name) {
         MemberResponseDto response = memberService.getMemberByEmailAndName(email, name);
+        return ResponseEntity.ok(response);
+    }
+
+    // 12. 현재 로그인된 사용자 정보 조회
+    @GetMapping("/me")
+    @Operation(summary = "현재 사용자 조회", description = "현재 로그인된 사용자의 정보를 조회합니다.")
+    public ResponseEntity<MemberResponseDto> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("인증되지 않은 사용자입니다.");
+        }
+
+        //CustomUserDetails에서 Member 엔티티를 가지고 옴
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Member currentMember = userDetails.getMember();
+
+        // DTO로 변환하여 반환
+        MemberResponseDto response = MemberResponseDto.from(currentMember);
         return ResponseEntity.ok(response);
     }
 

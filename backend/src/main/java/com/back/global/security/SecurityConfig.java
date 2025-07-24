@@ -1,21 +1,33 @@
 package com.back.global.security;
+
+import com.back.global.security.jwt.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
@@ -25,33 +37,38 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll() //로그인안하면 3곳만.
-                        /*
-                        아래의 설정은 이후 권한 설정에 따라 수정이 필요.
-                         */
-                        .requestMatchers(HttpMethod.POST, "/api/**").permitAll() // POST 요청 허용
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll() // GET 요청 허용
-                        .requestMatchers(HttpMethod.PUT, "/api/**").permitAll() // PUT 요청 허용
-                        .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll() // DELETE 요청 허용
-                        .requestMatchers(HttpMethod.PATCH, "/api/**").permitAll() // PATCH 요청 허용
-                        .anyRequest().permitAll()
+                                "/webjars/**",
+                                "/api/auth/login",           // 로그인 API 허용
+                                "/api/v1/members/signup",    // 회원가입 API 허용
+                                "/api/v1/members/check-email" // 이메일 중복체크 허용
+                        ).permitAll()
 
+                        // 인증이 필요한 API들
+                        .requestMatchers("/api/v1/members/me").authenticated() // 현재 사용자 조회
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/members/**").authenticated() // 회원 수정
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/members/**").authenticated() // 회원 삭제
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/members/**/password").authenticated() // 비밀번호 변경
+
+                        // 나머지 API는 임시로 허용 (개발 단계)
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .headers(headers -> headers
-                        .defaultsDisabled() // 기본 헤더 설정 비활성화
-                        .frameOptions(frame -> frame.sameOrigin()) //h2-console을 위한 iframe 설정.
-                );
+                        .defaultsDisabled()
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 전에 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
     @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() { // 3000 포트 CORS 설정.
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
-
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));
 
@@ -59,5 +76,10 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

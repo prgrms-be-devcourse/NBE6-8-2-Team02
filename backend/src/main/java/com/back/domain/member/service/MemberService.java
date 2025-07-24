@@ -5,9 +5,11 @@ import com.back.domain.member.dto.MemberResponseDto;
 import com.back.domain.member.dto.MemberUpdateDto;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -19,7 +21,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
+    // 회원 가입
     // 회원 가입
     @Transactional
     public MemberResponseDto signUp(MemberRequestDto requestDto) {
@@ -28,7 +32,11 @@ public class MemberService {
             throw new NoSuchElementException("이미 존재하는 이메일입니다.");
         }
 
-        Member member = requestDto.toEntity();
+        // 비밀번호 암호화 추가
+        String encodedPassword = passwordEncoder.encode(requestDto.password());
+
+        // 멤버 객체 생성
+        Member member = requestDto.toEntity(encodedPassword);
         Member savedMember = memberRepository.save(member);
 
         return MemberResponseDto.from(savedMember);
@@ -75,7 +83,9 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        member.changePassword(newPassword);
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        member.changePassword(encodedPassword);
 
         return MemberResponseDto.from(member);
     }
