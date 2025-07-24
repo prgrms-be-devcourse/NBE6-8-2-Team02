@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { AnimatePresence } from "framer-motion";
 import { Router, Route, useRouter } from "./components/Router";
@@ -8,15 +8,15 @@ function AppContent() {
   const { currentPath } = useRouter();
 
   // 현재 경로에 해당하는 라우트 찾기
-  const currentRoute = routes.find(route => route.path === currentPath);
-  
+  const currentRoute = routes.find((route) => route.path === currentPath);
+
   if (!currentRoute) {
     // 404 처리 (기본적으로 홈으로 리다이렉트)
     return <div>페이지를 찾을 수 없습니다.</div>;
   }
 
   const Component = currentRoute.component;
-  
+
   // 레이아웃에 따라 다른 래퍼 적용
   if (currentRoute.layout === "full") {
     return <Component />;
@@ -39,5 +39,3 @@ export default function App() {
     </Router>
   );
 }
-
-//새로운 페이지 추가할 땐 config/routes.tsx 에서 설정 해주시면 됩니다.
