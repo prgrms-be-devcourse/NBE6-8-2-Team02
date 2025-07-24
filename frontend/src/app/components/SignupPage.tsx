@@ -3,23 +3,25 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useRouter } from "./Router";
 
-interface SignupPageProps {
-  onSignup: (data: { id: string; password: string; email: string }) => void;
-  onBackToLogin: () => void;
-}
-
-export function SignupPage({ onSignup, onBackToLogin }: SignupPageProps) {
+export function SignupPage() {
   const [signupData, setSignupData] = useState({ 
     id: "", 
     password: "", 
     email: ""
   });
+  const { navigate } = useRouter();
 
   const handleSignup = () => {
     if (signupData.id && signupData.password && signupData.email) {
-      onSignup(signupData);
+      console.log("회원가입 완료:", signupData);
+      navigate("/login");
     }
+  };
+
+  const handleBackToLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -54,16 +56,15 @@ export function SignupPage({ onSignup, onBackToLogin }: SignupPageProps) {
 
       <div className="space-y-4">
         <div className="space-y-2 text-left">
-          <Label htmlFor="signup-id">아이디</Label>
+          <Label htmlFor="signup-email">이메일</Label>
           <Input
-            id="signup-id"
-            type="text"
-            placeholder="아이디를 입력하세요"
-            value={signupData.id}
-            onChange={(e) => setSignupData({ ...signupData, id: e.target.value })}
+            id="signup-email"
+            type="email"
+            placeholder="이메일을 입력하세요"
+            value={signupData.email}
+            onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
           />
         </div>
-
         <div className="space-y-2 text-left">
           <Label htmlFor="signup-password">비밀번호</Label>
           <Input
@@ -74,19 +75,7 @@ export function SignupPage({ onSignup, onBackToLogin }: SignupPageProps) {
             onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
           />
         </div>
-
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-email">이메일</Label>
-          <Input
-            id="signup-email"
-            type="email"
-            placeholder="이메일을 입력하세요"
-            value={signupData.email}
-            onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-          />
-        </div>
       </div>
-
       <Button 
         onClick={handleSignup}
         size="lg"
@@ -97,7 +86,7 @@ export function SignupPage({ onSignup, onBackToLogin }: SignupPageProps) {
 
       <div className="text-center">
         <button
-          onClick={onBackToLogin}
+          onClick={handleBackToLogin}
           className="text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           이미 계정이 있나요?
