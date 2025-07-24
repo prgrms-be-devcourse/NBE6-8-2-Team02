@@ -43,7 +43,7 @@ class ApiV1GoalControllerTest {
 
     @BeforeEach
     void setUp() {
-        testmember = memberRepository.save(new Member());
+        testmember = memberRepository.save(new Member("abc@abc.com", "Name", "pw", "01012341234", Member.MemberRole.User));
         testGoal = goalService.create(testmember, "테스트", 10, 1000, LocalDateTime.now().plusDays(1));
     }
 

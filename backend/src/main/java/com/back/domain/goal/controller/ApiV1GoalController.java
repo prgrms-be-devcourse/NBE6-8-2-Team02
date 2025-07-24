@@ -67,7 +67,7 @@ public class ApiV1GoalController {
     public RsData<GoalDto> create(
             @Valid @RequestBody GoalReqBody reqBody
     ) {
-        Member user = new Member(); //임시
+        Member user = new Member("abc@abc.com", "Name", "pw", "01012341234", Member.MemberRole.User); //임시
 
         Goal goal = goalService.create(user, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline);
 
