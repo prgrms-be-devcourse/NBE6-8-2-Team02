@@ -4,7 +4,6 @@ import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.service.GoalService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,12 +16,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,8 +43,8 @@ class ApiV1GoalControllerTest {
 
     @BeforeEach
     void setUp() {
-        testmember = memberRepository.save(new Member("abc@abc.com", "Name", "pw", "01012341234", Member.MemberRole.User));
-        testGoal = goalService.create(testmember, "테스트", 10, 1000, LocalDateTime.now().plusDays(1));
+        testmember = memberRepository.findById(1).get();
+        testGoal = goalService.findById(1).get();
     }
 
     @Test
@@ -74,6 +74,8 @@ class ApiV1GoalControllerTest {
 
         Goal goal = goalService.findById(testGoal.getId()).get();
 
+        System.out.println(" ====================== " + goal.getDeadline().toString());
+
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(goal.getId()))
@@ -81,7 +83,7 @@ class ApiV1GoalControllerTest {
                 .andExpect(jsonPath("$.description").value(goal.getDescription()))
                 .andExpect(jsonPath("$.currentAmount").value(goal.getCurrentAmount()))
                 .andExpect(jsonPath("$.targetAmount").value(goal.getTargetAmount()))
-                .andExpect(jsonPath("$.deadline").value(Matchers.startsWith(goal.getDeadline().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.deadline").value(goal.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).substring(0, 19)))
                 .andExpect(jsonPath("$.goalType").value(goal.getGoalType().name()));
     }
 

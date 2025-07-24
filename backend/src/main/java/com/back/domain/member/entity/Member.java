@@ -1,7 +1,10 @@
 package com.back.domain.member.entity;
 
 import com.back.global.jpa.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +27,7 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberRole role = MemberRole.User;
+    private MemberRole role = MemberRole.USER;
 
     @Column
     private String profileImageUrl;
@@ -38,7 +41,7 @@ public class Member extends BaseEntity {
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.role = role != null ? role : MemberRole.User; // 기본 역할은 USER
+        this.role = role != null ? role : MemberRole.USER; // 기본 역할은 USER
     }
 
     public void updateProfile(String name, String phoneNumber) {
@@ -50,10 +53,6 @@ public class Member extends BaseEntity {
         this.password = newPassword;
     }
 
-    public enum MemberRole {
-        User, Admin
-    }
-
     public void deactivate() {
         this.isActive = false;
     }
@@ -61,5 +60,4 @@ public class Member extends BaseEntity {
     public void activate() {
         this.isActive = true;
     }
-
 }

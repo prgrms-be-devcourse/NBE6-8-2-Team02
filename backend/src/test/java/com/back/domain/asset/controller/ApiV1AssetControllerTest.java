@@ -1,32 +1,25 @@
 package com.back.domain.asset.controller;
 
+import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.back.domain.member.entity.Member;
-import com.back.domain.member.service.MemberService;
-import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.*;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 
@@ -49,15 +42,7 @@ class ApiV1AssetControllerTest {
 
     @BeforeEach
     void setUp() {
-        member = memberRepository.save(
-                Member.builder()
-                        .email("test@example.com")
-                        .password("test1234")
-                        .name("테스트유저")
-                        .phoneNumber("010-1234-5678")
-                        .role(Member.MemberRole.User)
-                        .build()
-        );
+        member = memberRepository.findById(1).get();
     }
 
     @Test
