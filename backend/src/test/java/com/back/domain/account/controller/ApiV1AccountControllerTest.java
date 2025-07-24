@@ -35,11 +35,11 @@ class ApiV1AccountControllerTest {
 
     @BeforeEach
     void setUp() {
-        memberRepository.save(new Member());
+        memberRepository.save(new Member("123@123","123","123","01012345678", Member.MemberRole.User));
     }
 
     @Test
-    @DisplayName("계좌 등록 및 조회")
+    @DisplayName("계좌 등록, 조회, 삭제 테스트")
     void t1() throws Exception {
 
         String requestBody =
