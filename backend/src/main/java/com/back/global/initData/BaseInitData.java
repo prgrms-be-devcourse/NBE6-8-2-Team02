@@ -42,7 +42,6 @@ public class BaseInitData {
     private Member[] user;
 
     @Bean
-    @Profile("!test") // 테스트 환경에서는 실행하지 않음
     ApplicationRunner baseInitDataApplicationRunner() {
         return args -> {
             self.createAuthTestMembers();  // 인증용 테스트 계정들
