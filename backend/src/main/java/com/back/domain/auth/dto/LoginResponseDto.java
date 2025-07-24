@@ -9,7 +9,7 @@ public record LoginResponseDto(
     int userId,
     String email,
     String name,
-    Member.MemberRole role
+    String role
 ) {
 
     public static LoginResponseDto of(String accessToken, long expiresIn, Member member) {
@@ -20,7 +20,7 @@ public record LoginResponseDto(
                 member.getId(),
                 member.getEmail(),
                 member.getName(),
-                member.getRole()
+                member.getRole().toString()
         );
     }
 }

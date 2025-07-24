@@ -8,7 +8,6 @@ import com.back.domain.asset.repository.AssetRepository;
 import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.repository.GoalRepository;
 import com.back.domain.member.entity.Member;
-import com.back.domain.member.entity.MemberRole;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
@@ -62,7 +61,7 @@ public class BaseInitData {
                     .password(passwordEncoder.encode("admin123"))
                     .name("관리자")
                     .phoneNumber("010-0000-0000")
-                    .role(Member.MemberRole.Admin)
+                    .role(Member.MemberRole.ADMIN)
                     .build();
             memberRepository.save(admin);
             System.out.println("관리자 계정 생성: admin@test.com / admin123");
@@ -75,7 +74,7 @@ public class BaseInitData {
                     .password(passwordEncoder.encode("user123"))
                     .name("일반사용자")
                     .phoneNumber("010-1111-1111")
-                    .role(Member.MemberRole.User)
+                    .role(Member.MemberRole.USER)
                     .build();
             memberRepository.save(user);
             System.out.println("일반 사용자 계정 생성: user@test.com / user123");
@@ -88,7 +87,7 @@ public class BaseInitData {
                     .password(passwordEncoder.encode("test123"))
                     .name("테스트유저")
                     .phoneNumber("010-2222-2222")
-                    .role(Member.MemberRole.User)
+                    .role(Member.MemberRole.USER)
                     .build();
             memberRepository.save(testUser);
             System.out.println("테스트 계정 생성: test@example.com / test123");
@@ -104,15 +103,15 @@ public class BaseInitData {
         user = new Member[4];
 
         //유저
-        user[1] = new Member("user1@user.com", passwordEncoder.encode("1111"), "유저1", "01011111111", MemberRole.USER);
-        user[2] = new Member("user2@user.com", passwordEncoder.encode("2222"), "유저2", "01022222222", MemberRole.USER);
-        user[3] = new Member("user3@user.com", passwordEncoder.encode("3333"), "유저3", "01033333333", MemberRole.USER);
+        user[1] = new Member("user1@user.com", passwordEncoder.encode("1111"), "유저1", "01011111111", Member.MemberRole.USER);
+        user[2] = new Member("user2@user.com", passwordEncoder.encode("2222"), "유저2", "01022222222", Member.MemberRole.USER);
+        user[3] = new Member("user3@user.com", passwordEncoder.encode("3333"), "유저3", "01033333333", Member.MemberRole.USER);
         memberRepository.save(user[1]);
         memberRepository.save(user[2]);
         memberRepository.save(user[3]);
 
         //관리자
-        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asdf"), "관리자", "01000000000", MemberRole.ADMIN);
+        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asdf"), "관리자", "01000000000", Member.MemberRole.ADMIN);
         memberRepository.save(user[0]);
     }
 
