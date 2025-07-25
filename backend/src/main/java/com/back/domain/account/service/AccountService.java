@@ -32,7 +32,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public List<Account> getAcccounts() {
+    public List<Account> getAccounts() {
         return accountRepository.findAll();}
 
     public Account getAccount(int accountId) {
