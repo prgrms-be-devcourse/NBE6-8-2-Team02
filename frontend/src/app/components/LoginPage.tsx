@@ -4,20 +4,24 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "./Router";
+import { authAPI } from "@/lib/auth";
 
 export function LoginPage() {
-  const [loginData, setLoginData] = useState({ id: "", password: "" });
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
   const { navigate } = useRouter();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     console.log("로그인 시도:", loginData);
 
-    // 로그인 검증 (API 호출)
-    //
-    //
 
-    if (loginData.id && loginData.password) {
+    try {
+      const response = await authAPI.login(loginData);
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
       navigate("/mypage");
+    } catch (error) {
+      console.error("로그인 실패:", error);
     }
   };
 
@@ -61,8 +65,8 @@ export function LoginPage() {
             id="id"
             type="text"
             placeholder="아이디(이메일)를 입력하세요"
-            value={loginData.id}
-            onChange={(e) => setLoginData({ ...loginData, id: e.target.value })}
+            value={loginData.email}
+            onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
           />
         </div>
         <div className="space-y-2 text-left">
@@ -77,7 +81,7 @@ export function LoginPage() {
         </div>
       </div>
 
-      <Button 
+      <Button
         onClick={handleLogin}
         size="lg"
         className="w-full"
