@@ -11,19 +11,55 @@ export function SignupPage() {
     email: "",
     password: ""
   });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useRouter();
 
   const handleSignup = async () => {
-    if (signupData.email && signupData.password) {
-      console.log("회원가입 시도:", signupData);
+    // 입력값 검증
+    if (!signupData.email.trim()) {
+      setError("이메일을 입력해주세요.");
+      return;
+    }
 
-      try {
-        const response = await authAPI.signup(signupData);
+    if (!signupData.password.trim()) {
+      setError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signupData.email)) {
+      setError("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    // 비밀번호 길이 검증
+    if (signupData.password.length < 6) {
+      setError("비밀번호는 최소 6자 이상이어야 합니다.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      console.log("회원가입 시도:", signupData);
+      const response = await authAPI.signup(signupData);
+
+      // API 응답 검증
+      if (response.success || response.message) {
         console.log("회원가입 성공:", response);
         navigate("/login");
-      } catch (error) {
-        console.error("회원가입 실패:", error);
+      } else {
+        // 서버에서 에러 응답이 온 경우
+        setError(response.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
       }
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -52,7 +88,7 @@ export function SignupPage() {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
             />
           </svg>
         </div>
@@ -69,7 +105,15 @@ export function SignupPage() {
             type="email"
             placeholder="이메일을 입력하세요"
             value={signupData.email}
-            onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+            onChange={(e) => {
+              setSignupData({ ...signupData, email: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSignup();
+              }
+            }}
           />
         </div>
         <div className="space-y-2 text-left">
@@ -77,18 +121,35 @@ export function SignupPage() {
           <Input
             id="signup-password"
             type="password"
-            placeholder="비밀번호를 입력하세요"
+            placeholder="비밀번호를 입력하세요 (최소 6자)"
             value={signupData.password}
-            onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+            onChange={(e) => {
+              setSignupData({ ...signupData, password: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSignup();
+              }
+            }}
           />
         </div>
       </div>
+
+      {/* 에러 메시지 표시 */}
+      {error && (
+        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+          {error}
+        </div>
+      )}
+
       <Button
         onClick={handleSignup}
         size="lg"
         className="w-full"
+        disabled={isLoading}
       >
-        회원가입
+        {isLoading ? "회원가입 중..." : "회원가입"}
       </Button>
 
       <div className="text-center">

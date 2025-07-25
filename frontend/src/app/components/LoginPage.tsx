@@ -8,20 +8,51 @@ import { authAPI } from "@/lib/auth";
 
 export function LoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useRouter();
 
   const handleLogin = async () => {
-    console.log("로그인 시도:", loginData);
+    // 입력값 검증
+    if (!loginData.email.trim()) {
+      setError("아이디를 입력해주세요.");
+      return;
+    }
 
+    if (!loginData.password.trim()) {
+      setError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(loginData.email)) {
+      setError("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
 
     try {
+      console.log("로그인 시도:", loginData);
       const response = await authAPI.login(loginData);
-      if (response.token) {
-        localStorage.setItem('authToken', response.token);
+
+      // API 응답 검증
+      if (response.success || response.token) {
+        if (response.token) {
+          localStorage.setItem('authToken', response.token);
+        }
+        navigate("/mypage");
+      } else {
+        // 서버에서 에러 응답이 온 경우
+        setError(response.message || "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
       }
-      navigate("/mypage");
     } catch (error) {
       console.error("로그인 실패:", error);
+      setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,7 +97,15 @@ export function LoginPage() {
             type="text"
             placeholder="아이디(이메일)를 입력하세요"
             value={loginData.email}
-            onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+            onChange={(e) => {
+              setLoginData({ ...loginData, email: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleLogin();
+              }
+            }}
           />
         </div>
         <div className="space-y-2 text-left">
@@ -76,17 +115,33 @@ export function LoginPage() {
             type="password"
             placeholder="비밀번호를 입력하세요"
             value={loginData.password}
-            onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+            onChange={(e) => {
+              setLoginData({ ...loginData, password: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleLogin();
+              }
+            }}
           />
         </div>
       </div>
+
+      {/* 에러 메시지 표시 */}
+      {error && (
+        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+          {error}
+        </div>
+      )}
 
       <Button
         onClick={handleLogin}
         size="lg"
         className="w-full"
+        disabled={isLoading}
       >
-        로그인
+        {isLoading ? "로그인 중..." : "로그인"}
       </Button>
 
       <div className="text-center">
