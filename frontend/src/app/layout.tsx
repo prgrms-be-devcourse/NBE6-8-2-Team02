@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <AccountProvider>
           <Navbar />
-          <main className="p-4">{children}</main>
+          <main className="">{children}</main>
         </AccountProvider>
       </body>
     </html>
