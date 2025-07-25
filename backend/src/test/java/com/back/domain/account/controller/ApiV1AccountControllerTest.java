@@ -32,7 +32,7 @@ class ApiV1AccountControllerTest {
     ObjectMapper objectMapper=new ObjectMapper();
 
     @Test
-    @DisplayName("계좌 등록, 조회, 삭제 테스트")
+    @DisplayName("계좌 등록")
     void t1() throws Exception {
 
         String requestBody =
@@ -50,24 +50,51 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.data.name").value("농협"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1234567890"))
                 .andExpect(jsonPath("$.data.balance").value(1000));
+    }
 
-        // 다건 조회
+    @Test
+    @DisplayName("계좌 다건 조회")
+    void t2() throws Exception{
         mockMvc.perform(get("/api/v1/accounts"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(accountRepository.count()));
+    }
 
-        // 단건 조회
+    @Test
+    @DisplayName("계좌 단건 조회")
+    void t3() throws Exception{
         mockMvc.perform(get("/api/v1/accounts/1"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.memberId").value(1))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-111"))
                 .andExpect(jsonPath("$.data.balance").value(10000));
+    }
 
-        // 계좌 삭제
+    @Test
+    @DisplayName("계좌 수정")
+    void t4() throws Exception{
+        String updateBody=objectMapper.writeValueAsString(Map.of("accountNumber","1-333"));
+
+        mockMvc.perform(put("/api/v1/accounts/1").contentType(MediaType.APPLICATION_JSON).content(updateBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.memberId").value(1))
+                .andExpect(jsonPath("$.data.name").value("1-계좌1"))
+                .andExpect(jsonPath("$.data.accountNumber").value("1-333"))
+                .andExpect(jsonPath("$.data.balance").value(10000));
+
+        mockMvc.perform(get("/api/v1/accounts/1"))
+                .andExpect(jsonPath("$.data.accountNumber").value("1-333"));
+    }
+
+    @Test
+    @DisplayName("계좌 삭제")
+    void t5() throws Exception{
         mockMvc.perform(delete("/api/v1/accounts/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.msg").value("1번 계좌가 삭제되었습니다."));
+
+        mockMvc.perform(get("/api/v1/accounts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(accountRepository.count()));
     }
 
 }
