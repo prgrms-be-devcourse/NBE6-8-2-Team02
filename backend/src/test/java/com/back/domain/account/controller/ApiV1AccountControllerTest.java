@@ -1,6 +1,7 @@
 package com.back.domain.account.controller;
 
 import com.back.domain.account.repository.AccountRepository;
+import com.back.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ class ApiV1AccountControllerTest {
     MockMvc mockMvc;
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     ObjectMapper objectMapper=new ObjectMapper();
 
@@ -63,7 +67,7 @@ class ApiV1AccountControllerTest {
     @DisplayName("계좌 단건 조회")
     void t3() throws Exception{
         mockMvc.perform(get("/api/v1/accounts/1"))
-                .andExpect(jsonPath("$.data.memberId").value(1))
+                .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-111"))
                 .andExpect(jsonPath("$.data.balance").value(10000));
@@ -76,7 +80,7 @@ class ApiV1AccountControllerTest {
 
         mockMvc.perform(put("/api/v1/accounts/1").contentType(MediaType.APPLICATION_JSON).content(updateBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.memberId").value(1))
+                .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-333"))
                 .andExpect(jsonPath("$.data.balance").value(10000));
