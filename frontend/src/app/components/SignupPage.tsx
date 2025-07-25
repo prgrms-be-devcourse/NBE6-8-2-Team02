@@ -16,6 +16,7 @@ export function SignupPage() {
   const { navigate } = useRouter();
 
   const handleSignup = async () => {
+
     // 입력값 검증
     if (!signupData.email.trim()) {
       setError("이메일을 입력해주세요.");
@@ -60,6 +61,7 @@ export function SignupPage() {
       setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
+
     }
   };
 
@@ -135,7 +137,7 @@ export function SignupPage() {
           />
         </div>
       </div>
-
+      
       {/* 에러 메시지 표시 */}
       {error && (
         <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
