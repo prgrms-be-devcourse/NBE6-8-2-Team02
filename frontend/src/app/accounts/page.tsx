@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAccountContext } from "@/context/AccountContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,7 +15,25 @@ import {
 } from "@/components/ui/select";
 
 export default function AccountsPage() {
-  const { accounts, addAccount, updateAccount, deleteAccount } =
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/accounts");
+        const result = await response.json();
+
+        if (result.resultCode === "200-1") {
+          setAccounts(result.data);
+        } else {
+          console.error("계좌 조회 실패", result.msg);
+        }
+      } catch (error) {
+        console.error("계좌 데이터를 가져오는 중 오류 발생", error);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
+  const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
     useAccountContext();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
