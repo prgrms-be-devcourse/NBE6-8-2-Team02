@@ -29,6 +29,16 @@ export function SignupPage() {
       return;
     }
 
+    if (!confirmPassword.trim()) {
+      setError("비밀번호 확인을 입력해주세요.");
+      return;
+    }
+
+    if (signupData.password !== confirmPassword) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
     if (!signupData.name.trim()) {
       setError("이름을 입력해주세요.");
       return;
