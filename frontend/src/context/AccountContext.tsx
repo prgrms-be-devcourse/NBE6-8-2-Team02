@@ -115,6 +115,26 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
     setAccounts((prev) => prev.filter((acc) => acc.id !== id));
     // 관련 거래들도 삭제
     setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
+
+    const fetchDeleteAccount = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/accounts/${id}`,
+          {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const result = await response.json();
+
+        if (result.resultCode === "200-1") {
+          console.log(result.msg);
+        }
+      } catch (error) {
+        console.error("계좌 삭제 요청을 실패하였습니다.");
+      }
+    };
+    fetchDeleteAccount();
   };
 
   // 거래 추가
