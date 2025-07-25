@@ -76,7 +76,32 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 추가
   const addAccount = (account: Account) => {
-    setAccounts((prev) => [...prev, account]);
+    const fetchCreateAccount = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/accounts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            memberId: 1,
+            name: account.name,
+            accountNumber: account.accountNumber,
+            balance: account.balance,
+          }),
+        });
+        const result = await response.json();
+
+        if (result.resultCode === "200-1") {
+          console.log("계좌가 생성되었습니다.");
+          setAccounts((prev) => [...prev, account]);
+          alert("계좌가 생성되었습니다.");
+        } else {
+          console.log("계좌 생성에 실패하였습니다.");
+        }
+      } catch (error) {
+        console.error("계좌 생성 요청에 실패했습니다.");
+      }
+    };
+    fetchCreateAccount();
   };
 
   // 계좌 번호 수정
