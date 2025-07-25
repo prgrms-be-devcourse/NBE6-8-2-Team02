@@ -70,7 +70,7 @@ const initialTransactions: Transaction[] = [
 ];
 
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
-  const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] =
     useState<Transaction[]>(initialTransactions);
 
@@ -86,6 +86,28 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
         acc.id === id ? { ...acc, accountNumber: newNumber } : acc
       )
     );
+
+    const fetchUpdateAccount = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/accounts/${id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ accountNumber: newNumber }),
+          }
+        );
+        const result = await response.json();
+
+        if (result.resultCode === "200-1") {
+          alert("계좌번호가 변경되었습니다.");
+        }
+      } catch (error) {
+        console.error("계좌번호 변경 요청 실패.", error);
+      }
+    };
+
+    fetchUpdateAccount();
   };
 
   // 계좌 삭제
