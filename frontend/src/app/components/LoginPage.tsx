@@ -37,16 +37,19 @@ export function LoginPage() {
     try {
       console.log("로그인 시도:", loginData);
       const response = await authAPI.login(loginData);
+      console.log("로그인 응답:", response);
 
-      // API 응답 검증
-      if (response.success || response.token) {
-        if (response.token) {
-          localStorage.setItem('authToken', response.token);
+      // API 응답 검증 - accessToken 확인
+      if (response.accessToken || response.success || response.status === 200) {
+        if (response.accessToken) {
+          localStorage.setItem('authToken', response.accessToken);
+          localStorage.setItem('userId', response.userId);
+          localStorage.setItem('userEmail', response.email);
         }
         navigate("/mypage");
       } else {
         // 서버에서 에러 응답이 온 경우
-        setError(response.message || "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+        setError(response.message || response.error || "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
       }
     } catch (error) {
       console.error("로그인 실패:", error);
