@@ -16,12 +16,22 @@ export function SignupPage() {
   const { navigate } = useRouter();
 
   const handleSignup = async () => {
+<<<<<<< HEAD
     // 입력값 검증
     if (!signupData.email.trim()) {
       setError("이메일을 입력해주세요.");
       return;
     }
 
+=======
+
+    // 입력값 검증
+    if (!signupData.email.trim()) {
+      setError("이메일을 입력해주세요.");
+      return;
+    }
+
+>>>>>>> b22d9e2ad467c9c568c13ff4443216eb0e230b4f
     if (!signupData.password.trim()) {
       setError("비밀번호를 입력해주세요.");
       return;
@@ -60,6 +70,10 @@ export function SignupPage() {
       setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
+<<<<<<< HEAD
+=======
+
+>>>>>>> b22d9e2ad467c9c568c13ff4443216eb0e230b4f
     }
   };
 
@@ -135,7 +149,11 @@ export function SignupPage() {
           />
         </div>
       </div>
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> b22d9e2ad467c9c568c13ff4443216eb0e230b4f
       {/* 에러 메시지 표시 */}
       {error && (
         <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
