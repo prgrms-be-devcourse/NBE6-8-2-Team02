@@ -60,11 +60,14 @@ export default function AccountsPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [newAccountNumber, setNewAccountNumber] = useState("");
   const bankOptions = [
-    "국민은행",
-    "신한은행",
-    "카카오뱅크",
+    "국민",
+    "신한",
+    "우리",
     "농협",
-    "토스뱅크",
+    "기업",
+    "하나",
+    "카카오뱅크",
+    "케이뱅크",
   ];
 
   return (
