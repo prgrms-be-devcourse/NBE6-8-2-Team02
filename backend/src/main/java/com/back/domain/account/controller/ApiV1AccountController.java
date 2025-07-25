@@ -33,8 +33,8 @@ public class ApiV1AccountController {
 
     @GetMapping
     @Operation(summary = "계좌 다건 조회", description = "계좌 다건 조회")
-    public RsData<List<AccountDto>> getAccounts(){
-        List<Account> accounts=accountService.getAcccounts();
+    public RsData<List<AccountDto>> getAccunts(){
+        List<Account> accounts=accountService.getAccounts();
         List<AccountDto> accountDtos = accounts.stream().map(AccountDto::new).toList();
 
         return new
