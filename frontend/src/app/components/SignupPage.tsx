@@ -9,7 +9,8 @@ import { authAPI } from "@/lib/auth";
 export function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
-    password: ""
+    password: "",
+    name: ""
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,13 +29,8 @@ export function SignupPage() {
       return;
     }
 
-    if (!confirmPassword.trim()) {
-      setError("비밀번호 확인을 입력해주세요.");
-      return;
-    }
-
-    if (signupData.password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.");
+    if (!signupData.name.trim()) {
+      setError("이름을 입력해주세요.");
       return;
     }
 
@@ -45,9 +41,15 @@ export function SignupPage() {
       return;
     }
 
-    // 비밀번호 길이 검증
-    if (signupData.password.length < 6) {
-      setError("비밀번호는 최소 6자 이상이어야 합니다.");
+    // 비밀번호 길이 검증 (8-16자)
+    if (signupData.password.length < 8 || signupData.password.length > 16) {
+      setError("비밀번호는 8자 이상 16자 이하여야 합니다.");
+      return;
+    }
+
+    // 이름 길이 검증 (2-20자)
+    if (signupData.name.length < 2 || signupData.name.length > 20) {
+      setError("이름은 2자 이상 20자 이하여야 합니다.");
       return;
     }
 
@@ -57,14 +59,15 @@ export function SignupPage() {
     try {
       console.log("회원가입 시도:", signupData);
       const response = await authAPI.signup(signupData);
+      console.log("회원가입 응답:", response);
 
-      // API 응답 검증
-      if (response.success || response.message) {
+      // API 응답 검증 - 201 CREATED 상태 코드 확인
+      if (response && (response.id || response.email || response.userId)) {
         console.log("회원가입 성공:", response);
         navigate("/login");
       } else {
         // 서버에서 에러 응답이 온 경우
-        setError(response.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
+        setError(response.message || response.error || "회원가입에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -110,6 +113,24 @@ export function SignupPage() {
 
       <div className="space-y-4">
         <div className="space-y-2 text-left">
+          <Label htmlFor="signup-name">이름</Label>
+          <Input
+            id="signup-name"
+            type="text"
+            placeholder="이름을 입력하세요 (2-20자)"
+            value={signupData.name}
+            onChange={(e) => {
+              setSignupData({ ...signupData, name: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSignup();
+              }
+            }}
+          />
+        </div>
+        <div className="space-y-2 text-left">
           <Label htmlFor="signup-email">이메일</Label>
           <Input
             id="signup-email"
@@ -132,7 +153,7 @@ export function SignupPage() {
           <Input
             id="signup-password"
             type="password"
-            placeholder="비밀번호를 입력하세요 (최소 6자)"
+            placeholder="비밀번호를 입력하세요 (8-16자)"
             value={signupData.password}
             onChange={(e) => {
               setSignupData({ ...signupData, password: e.target.value });
@@ -164,14 +185,13 @@ export function SignupPage() {
           />
         </div>
       </div>
+      {/* 에러 메시지 표시 */}
+      {error && (
+        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+          {error}
+        </div>
+      )}
 
-      {
-        error && (
-          <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
-            {error}
-          </div>
-        )
-      }
 
       <Button
         onClick={handleSignup}
@@ -190,6 +210,6 @@ export function SignupPage() {
           이미 계정이 있나요?
         </button>
       </div>
-    </motion.div >
+    </motion.div>
   );
 }
