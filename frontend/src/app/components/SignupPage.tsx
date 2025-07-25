@@ -11,20 +11,12 @@ export function SignupPage() {
     email: "",
     password: ""
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useRouter();
 
   const handleSignup = async () => {
-
-    // 입력값 검증
-    if (!signupData.email.trim()) {
-      setError("이메일을 입력해주세요.");
-      return;
-    }
-
-
-
     // 입력값 검증
     if (!signupData.email.trim()) {
       setError("이메일을 입력해주세요.");
@@ -33,6 +25,16 @@ export function SignupPage() {
 
     if (!signupData.password.trim()) {
       setError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      setError("비밀번호 확인을 입력해주세요.");
+      return;
+    }
+
+    if (signupData.password !== confirmPassword) {
+      setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -143,9 +145,26 @@ export function SignupPage() {
             }}
           />
         </div>
+        <div className="space-y-2 text-left">
+          <Label htmlFor="signup-confirm-password">비밀번호 확인</Label>
+          <Input
+            id="signup-confirm-password"
+            type="password"
+            placeholder="비밀번호를 재입력하세요"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSignup();
+              }
+            }}
+          />
+        </div>
       </div>
 
-      {/* 에러 메시지 표시 */}
       {
         error && (
           <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
