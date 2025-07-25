@@ -40,7 +40,7 @@ export function WelcomePage() {
           효율적이고 편리하게게 자산관리를 시작해보세요
         </p>
       </div>
-      <Button 
+      <Button
         onClick={handleStart}
         size="lg"
         className="px-8 py-3"

@@ -21,11 +21,17 @@ interface RouterProps {
 }
 
 export function Router({ children, initialPath = "/" }: RouterProps) {
-  const [currentPath, setCurrentPath] = useState(initialPath);
+  const [currentPath, setCurrentPath] = useState(() => {
+    // 초기 로드 시 현재 URL을 읽어옴
+    if (typeof window !== 'undefined') {
+      return window.location.pathname;
+    }
+    return initialPath;
+  });
 
   const navigate = (path: string) => {
     setCurrentPath(path);
-    // URL 히스토리 관리 (선택사항)
+    // URL 히스토리 관리
     window.history.pushState({}, "", path);
   };
 
@@ -53,10 +59,10 @@ interface RouteProps {
 
 export function Route({ path, children }: RouteProps) {
   const { currentPath } = useRouter();
-  
+
   if (currentPath === path) {
     return <>{children}</>;
   }
-  
+
   return null;
 }

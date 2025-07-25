@@ -21,19 +21,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-@Tag(name = "Auth", description = "인증 관련 API")
-public class AuthController {
+        @Tag(name = "Auth", description = "인증 관련 API")
+        public class AuthController {
 
-    private final MemberRepository memberRepository;
-    private final JwtUtil jwtUtil;
-    private final JwtProperties jwtProperties;
-    private final PasswordEncoder passwordEncoder;
+            private final MemberRepository memberRepository;
+            private final JwtUtil jwtUtil;
+            private final JwtProperties jwtProperties;
+            private final PasswordEncoder passwordEncoder;
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+            @PostMapping("/login")
+            @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
+            public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
 
-        // 1. 이메일로 회원 조회
+                // 1. 이메일로 회원 조회
         Member member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new AuthenticationException("존재하지 않는 이메일입니다."));
         // 2. 비활성화된 계정 체크

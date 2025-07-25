@@ -4,19 +4,26 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "./Router";
+import { authAPI } from "@/lib/auth";
 
 export function SignupPage() {
-  const [signupData, setSignupData] = useState({ 
-    id: "", 
-    password: "", 
-    email: ""
+  const [signupData, setSignupData] = useState({
+    email: "",
+    password: ""
   });
   const { navigate } = useRouter();
 
-  const handleSignup = () => {
-    if (signupData.id && signupData.password && signupData.email) {
-      console.log("회원가입 완료:", signupData);
-      navigate("/login");
+  const handleSignup = async () => {
+    if (signupData.email && signupData.password) {
+      console.log("회원가입 시도:", signupData);
+
+      try {
+        const response = await authAPI.signup(signupData);
+        console.log("회원가입 성공:", response);
+        navigate("/login");
+      } catch (error) {
+        console.error("회원가입 실패:", error);
+      }
     }
   };
 
@@ -76,7 +83,7 @@ export function SignupPage() {
           />
         </div>
       </div>
-      <Button 
+      <Button
         onClick={handleSignup}
         size="lg"
         className="w-full"

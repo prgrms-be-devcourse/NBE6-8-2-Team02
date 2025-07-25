@@ -31,7 +31,6 @@ function AppContent() {
     </div>
   );
 }
-
 export default function App() {
   return (
     <Router initialPath="/">
@@ -39,3 +38,4 @@ export default function App() {
     </Router>
   );
 }
+
