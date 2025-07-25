@@ -2,6 +2,9 @@ import { WelcomePage } from "../components/WelcomePage";
 import { LoginPage } from "../components/LoginPage";
 import { SignupPage } from "../components/SignupPage";
 import { MyPage } from "../components/MyPage";
+import { AssetPage } from "../components/AssetPage";
+import AccountsPage from "../accounts/page";
+import { GoalPage } from "../components/GoalPage";
 
 export interface RouteConfig {
   path: string;
@@ -29,17 +32,20 @@ export const routes: RouteConfig[] = [
     path: "/mypage",
     component: MyPage,
     layout: "full"
-  }
+  },
+  {
+    path: "/accounts",
+    component: AccountsPage,
+    layout: "full"
+  },
+  {
+    path: "/asset",
+    component: AssetPage,
+    layout: "full"
+  },
+  {
+    path: "/goal",
+    component: GoalPage,
+    layout: "full"
+  },
 ];
-
-// 새로운 페이지를 추가하려면 여기에 추가하면 됩니다:
-// {
-//   path: "/dashboard",
-//   component: DashboardPage,
-//   layout: "full"
-// },
-// {
-//   path: "/settings",
-//   component: SettingsPage,
-//   layout: "full"
-// }
