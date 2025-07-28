@@ -40,17 +40,17 @@ export const routes: RouteConfig[] = [
     layout: "auth"
   },
   {
-    path: "/accounts",
+    path: "/mypage/accounts",
     component: AccountsPage,
     layout: "full"
   },
   {
-    path: "/asset",
+    path: "/mypage/assets",
     component: AssetPage,
     layout: "full"
   },
   {
-    path: "/goal",
+    path: "mypage/goals",
     component: GoalPage,
     layout: "full"
   },

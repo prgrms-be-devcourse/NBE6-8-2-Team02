@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "자산관리 서비스 (임시)",
-  description: "자산 관리리",
+  title: "자산관리 서비스",
+  description: "자산 관리",
 };
 
 export default function RootLayout({
