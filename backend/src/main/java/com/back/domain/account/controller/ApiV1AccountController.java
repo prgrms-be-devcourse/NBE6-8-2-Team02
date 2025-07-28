@@ -48,8 +48,9 @@ public class ApiV1AccountController {
 
     @GetMapping("/{accountId}")
     @Operation(summary = "계좌 단건 조회", description = "계좌 단건 조회")
-    public RsData<AccountDto> getAccount(@PathVariable int accountId){
-        Account account =accountService.getAccount(accountId);
+    public RsData<AccountDto> getAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){
+        int memberId = userDetails.getMember().getId();
+        Account account =accountService.getAccount(accountId, memberId);
         AccountDto accountDto = new AccountDto(account);
 
         return new RsData<>("200-1", "%d번 계좌를 조회했습니다.".formatted(accountId), accountDto);
@@ -57,8 +58,10 @@ public class ApiV1AccountController {
 
     @PutMapping("/{accountId}")
     @Operation(summary = "계좌 수정", description = "계좌 수정")
-    public RsData<AccountDto> updateAccount(@PathVariable int accountId,@RequestBody RqUpdateAccountDto rqUpdateAccountDto){
-        Account account = accountService.updateAccount(accountId, rqUpdateAccountDto);
+    public RsData<AccountDto> updateAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId,@RequestBody RqUpdateAccountDto rqUpdateAccountDto){
+        int memberId = userDetails.getMember().getId();
+        Account account = accountService.updateAccount(accountId, memberId
+                , rqUpdateAccountDto);
         AccountDto accountDto = new AccountDto(account);
 
         return new RsData<>("200-1", "%d번 계좌가 수정되었습니다.".formatted(accountId), accountDto);
@@ -66,8 +69,9 @@ public class ApiV1AccountController {
 
     @DeleteMapping("/{accountId}")
     @Operation(summary = "계좌 삭제", description = "계좌 삭제")
-    public RsData<AccountDto> deleteAccount(@PathVariable int accountId){
-        Account account = accountService.deleteAccount(accountId);
+    public RsData<AccountDto> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){
+        int memberId = userDetails.getMember().getId();
+        Account account = accountService.deleteAccount(accountId,memberId);
         AccountDto accountDto=new AccountDto(account);
 
         return new RsData<>("200-1","%d번 계좌가 삭제되었습니다.".formatted(accountId), accountDto);

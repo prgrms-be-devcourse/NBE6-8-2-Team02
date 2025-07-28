@@ -7,6 +7,7 @@ import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,21 +37,26 @@ public class AccountService {
         return accountRepository.findAllByMemberId(memberId);
     }
 
-    public Account getAccount(int accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("해당 계좌가 존재하지 않습니다. id: " + accountId));
+    public Account getAccount(int accountId,int memberId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("해당 계좌가 존재하지 않습니다."));
+
+        if (account.getMember().getId() != memberId) {
+            throw new AccessDeniedException("이 계좌에 접근할 권한이 없습니다.");
+        }
+        return account;
     }
 
     @Transactional
-    public Account updateAccount(int accountId, RqUpdateAccountDto rqUpdateAccountDto){
-        Account account=getAccount(accountId);
+    public Account updateAccount(int accountId, int memberId,RqUpdateAccountDto rqUpdateAccountDto){
+        Account account = getAccount(accountId,memberId);
 
         account.setAccountNumber(rqUpdateAccountDto.getAccountNumber());
 
         return account;
     }
 
-    public Account deleteAccount(int accountId) {
-        Account account = getAccount(accountId);
+    public Account deleteAccount(int accountId,int memberId) {
+        Account account = getAccount(accountId,memberId);
 
         accountRepository.deleteById(accountId);
 
