@@ -115,13 +115,7 @@ export function MyPage() {
     }
 
     fetchUserInfo();
-<<<<<<< Updated upstream
-  }, []);
-  
-=======
   }, [navigate]);
-
->>>>>>> Stashed changes
   const fetchUserInfo = async () => {
     try {
       const memberRes = await apiFetch('/api/v1/members/me');
@@ -203,11 +197,11 @@ export function MyPage() {
         const txYear = txDate.getFullYear();
         const txMonth = txDate.getMonth() + 1;
 
-        if(txYear === currentYear && txMonth === currentMonth) {
-          if(tx.type === "ADD"){
+        if (txYear === currentYear && txMonth === currentMonth) {
+          if (tx.type === "ADD") {
             revenueSum += tx.amount;
           }
-          else{
+          else {
             expenseSum += tx.amount;
           }
         }
@@ -219,7 +213,7 @@ export function MyPage() {
       console.log("내 계좌 정보", myAccounts);
       console.log("내 스냅샷", mySnapShot);
 
-      
+
 
       console.log("자산 거래 정보", allAssetTransactions);
       console.log("계좌 거래 정보", allAccountTransactions);
@@ -227,7 +221,7 @@ export function MyPage() {
 
       const newBarChartData = [...barChartDataRaw];
 
-      
+
       myAssets.forEach(asset => {
         const type = asset.assetType.toLowerCase(); // "DEPOSIT" -> "deposit"
         const target = newBarChartData.find(item => item.type === type);
@@ -283,20 +277,20 @@ export function MyPage() {
           <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
         </header>
 
-        <section 
-        onClick={() => navigate('/mypage')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500"/>대시 보드
+        <section
+          onClick={() => navigate('/mypage')}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <LayoutDashboard className="text-black-500" />대시 보드
         </section>
-        <section 
-        onClick={() => navigate('/accounts')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500"/>계좌 목록
+        <section
+          onClick={() => navigate('/accounts')}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <CreditCard className="text-black-500" />계좌 목록
         </section>
-        <section 
-        onClick={() => navigate('/mypage/assets')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500"/>자산 목록
+        <section
+          onClick={() => navigate('/mypage/assets')}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <HandCoins className="text-black-500" />자산 목록
         </section>
       </motion.div>
       <motion.div
