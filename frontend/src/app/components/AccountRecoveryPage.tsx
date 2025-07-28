@@ -50,9 +50,7 @@ export function AccountRecoveryPage() {
         setSuccess("");
 
         try {
-            console.log("계정 찾기 시도:", findAccountData);
             const response = await authAPI.findAccount(findAccountData);
-            console.log("계정 찾기 응답:", response);
 
             setFoundAccount({
                 email: response.email,
@@ -61,7 +59,6 @@ export function AccountRecoveryPage() {
             setSuccess("계정을 찾았습니다!");
             setIsLoading(false);
         } catch (error) {
-            console.error("계정 찾기 실패:", error);
             setError(error instanceof Error ? error.message : "계정을 찾을 수 없습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }
@@ -102,15 +99,12 @@ export function AccountRecoveryPage() {
         setSuccess("");
 
         try {
-            console.log("비밀번호 재설정 시도:", resetPasswordData);
             const response = await authAPI.resetPassword(resetPasswordData);
-            console.log("비밀번호 재설정 응답:", response);
 
             setIsPasswordResetMode(true);
             setSuccess("계정을 확인했습니다. 새 비밀번호를 입력해주세요.");
             setIsLoading(false);
         } catch (error) {
-            console.error("비밀번호 재설정 실패:", error);
             setError(error instanceof Error ? error.message : "계정 정보가 일치하지 않습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }

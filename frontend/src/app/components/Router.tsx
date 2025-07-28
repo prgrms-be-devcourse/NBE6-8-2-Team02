@@ -25,8 +25,11 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
   const [currentPath, setCurrentPath] = useState(() => {
     // 초기 로드 시 현재 URL을 읽어옴
     if (typeof window !== 'undefined') {
-      return window.location.pathname;
+      const path = window.location.pathname;
+      console.log("Router 초기화 - 현재 경로:", path);
+      return path;
     }
+    console.log("Router 초기화 - 서버사이드, 기본값:", initialPath);
     return initialPath;
   });
 
@@ -46,47 +49,47 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
         return;
       }
 
-      // 1. 페이지 로드 시 쿠키에서 JWT 토큰 확인 및 자동 로그인
-      console.log("페이지 로드 - 쿠키에서 자동 로그인 시도");
-      // @ts-ignore - authAPI에 추가된 메서드들
-      const autoLoginSuccess = await authAPI.checkCookieAndAutoLogin();
+      const actualPath = window.location.pathname;
 
-      if (autoLoginSuccess) {
-        console.log("쿠키에서 자동 로그인 성공");
+      if (actualPath !== currentPath) {
+        setCurrentPath(actualPath);
+        return;
       }
 
-      // 보호된 경로 목록
       const protectedPaths = ['/mypage', '/accounts', '/asset', '/goal'];
-      const isProtectedPath = protectedPaths.some(path => currentPath.startsWith(path));
+      const isProtectedPath = protectedPaths.some(path => actualPath.startsWith(path));
+
+      // 쿠키에서 자동 로그인 시도
+      // @ts-ignore
+      await authAPI.checkCookieAndAutoLogin();
+
+      // 인증 상태 확인
+      // @ts-ignore
+      const isAuth = authAPI.isAuthenticated();
 
       if (isProtectedPath) {
-        // 2. 인증 상태 확인
-        // @ts-ignore - authAPI에 추가된 메서드들
-        const isAuth = authAPI.isAuthenticated();
-
         if (!isAuth) {
-          // 로그인되지 않은 경우 홈으로 리다이렉트
-          console.log("인증되지 않은 사용자, 홈으로 리다이렉트");
           navigate("/");
           setIsLoading(false);
           return;
         }
 
-        // 3. 토큰 유효성 검증
+        // 토큰 유효성 검증
         try {
-          // @ts-ignore - authAPI에 추가된 메서드들
+          // @ts-ignore
           const isValid = await authAPI.validateToken();
           if (!isValid) {
-            console.log("토큰이 유효하지 않음, 로그아웃 처리");
-            // @ts-ignore - authAPI에 추가된 메서드들
+            // @ts-ignore
             authAPI.logout();
             navigate("/");
           }
         } catch (error) {
-          console.log("토큰 검증 실패, 로그아웃 처리");
-          // @ts-ignore - authAPI에 추가된 메서드들
-          authAPI.logout();
-          navigate("/");
+          // 백엔드 API 미준비 시 무시
+        }
+      } else {
+        if (isAuth && actualPath === "/") {
+          navigate("/mypage");
+          return;
         }
       }
 

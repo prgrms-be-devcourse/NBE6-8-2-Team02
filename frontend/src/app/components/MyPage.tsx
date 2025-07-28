@@ -96,17 +96,32 @@ export function MyPage() {
 
   const { navigate } = useRouter();
 
-  const onLogout = () => {
-    // @ts-ignore - authAPI.logout이 async 함수로 변경됨
-    authAPI.logout();
-    navigate("/");
+  const onLogout = async () => {
+    try {
+      // @ts-ignore
+      await authAPI.logout();
+      navigate("/");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      navigate("/");
+    }
   };
 
   useEffect(() => {
-    console.log("MyPage useEffect 실행");
+    const isAuth = authAPI.isAuthenticated();
+    if (!isAuth) {
+      navigate("/");
+      return;
+    }
+
     fetchUserInfo();
+<<<<<<< Updated upstream
   }, []);
   
+=======
+  }, [navigate]);
+
+>>>>>>> Stashed changes
   const fetchUserInfo = async () => {
     try {
       const memberRes = await apiFetch('/api/v1/members/me');
