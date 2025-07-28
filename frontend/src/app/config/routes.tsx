@@ -31,7 +31,7 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage",
     component: MyPage,
-    layout: "full"
+    layout: "auth"
   },
   {
     path: "/accounts",
