@@ -37,7 +37,7 @@ class AuthControllerTest {
     void loginSuccess() throws Exception {
         ResultActions resultActions = mockMvc
                 .perform(
-                        post("/api/auth/login")
+                        post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -63,7 +63,7 @@ class AuthControllerTest {
     void loginFailureWrongPassword() throws Exception {
         ResultActions resultActions = mockMvc
                 .perform(
-                        post("/api/auth/login")
+                        post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -85,7 +85,7 @@ class AuthControllerTest {
     void loginFailure_EmailNotFound() throws Exception {
         ResultActions resultActions = mockMvc
                 .perform(
-                        post("/api/auth/login")
+                        post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
