@@ -29,7 +29,7 @@ public class MemberService {
         return memberRepository.findById(id);
     }
 
-    // 회원 가입
+
     // 회원 가입
     @Transactional
     public MemberResponseDto signUp(MemberRequestDto requestDto) {

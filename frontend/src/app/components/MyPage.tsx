@@ -3,13 +3,14 @@
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins} from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins } from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
 import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
 import { apiFetch } from '../lib/backend/client';
+import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
 import { error } from 'console';
 import { totalmem } from 'os';
@@ -86,9 +87,8 @@ export function MyPage() {
     { type: "stock", count: 0, value: 0 },
   ]);
 
-
   const total = barChartDataRaw.reduce((sum, item) => sum + item.value, 0);
-  
+
   const barChartData = barChartDataRaw.map((item) => ({
     ...item,
     value: parseFloat(((item.value / total) * 100).toFixed(2)), // 비율 값
@@ -97,6 +97,8 @@ export function MyPage() {
   const { navigate } = useRouter();
 
   const onLogout = () => {
+    // @ts-ignore - authAPI.logout이 async 함수로 변경됨
+    authAPI.logout();
     navigate("/");
   };
 
@@ -110,13 +112,13 @@ export function MyPage() {
       const memberRes = await apiFetch('/api/v1/members/me');
       const memberId = memberRes.id;
 
-      if(!memberId) throw new Error("잘못된 사용자 정보입니다.");
+      if (!memberId) throw new Error("잘못된 사용자 정보입니다.");
 
       // 계좌, 자산 처리.
 
       const allAccountRes = await apiFetch('/api/v1/accounts');
       const allAssetRes = await apiFetch('/api/v1/assets');
-      
+
       const myAssets: Asset[] = allAssetRes.data?.filter(
         (asset: Asset) => asset.memberId === memberId
       );
@@ -143,7 +145,7 @@ export function MyPage() {
       const allAssetTransactions = allAssetTransactionResList.flatMap((res, index) => {
         const assetId = myAssetIds[index];
         const asset = myAssets.find((a) => a.id === assetId);
-      
+
         return (res.data ?? []).map((tx: any) => ({
           amount: tx.amount,
           type: tx.type,
@@ -197,7 +199,7 @@ export function MyPage() {
       })
 
       console.log("자산 추이 데이터", linearChartData);
-      
+
       console.log("내 자산 정보", myAssets);
       console.log("내 계좌 정보", myAccounts);
       console.log("내 스냅샷", mySnapShot);
@@ -294,14 +296,14 @@ export function MyPage() {
 
         <section>
           <CardMain
-            value ={totalAsset}
-            revenue ={currentRevenue}
-            expense ={currentExpense}
+            value={totalAsset}
+            revenue={currentRevenue}
+            expense={currentExpense}
           />
         </section>
 
         <section>
-          <ChartLineInteractive data={linearChartData}/>
+          <ChartLineInteractive data={linearChartData} />
         </section>
 
         <header className="flex items-center justify-between">
@@ -310,10 +312,10 @@ export function MyPage() {
 
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card 
-            icon={<Coins className="w-6 h-6 text-green-500" />} 
-            title="입출금 계좌" 
-            value={formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}  
+          <Card
+            icon={<Coins className="w-6 h-6 text-green-500" />}
+            title="입출금 계좌"
+            value={formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}
             description={formatCount(barChartDataRaw.find((d) => d.type === "account")?.count ?? 0)}
           />
           <Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
@@ -322,7 +324,7 @@ export function MyPage() {
         </section>
 
         <section>
-          <ChartBarHorizontal barChartData={barChartData}/>
+          <ChartBarHorizontal barChartData={barChartData} />
         </section>
       </motion.div>
       <motion.div
@@ -336,7 +338,7 @@ export function MyPage() {
         </header>
 
         <section>
-          <ActivityList activities={activities}/>
+          <ActivityList activities={activities} />
         </section>
 
       </motion.div>
@@ -379,7 +381,7 @@ interface CardMainProps {
   expense: number;
 }
 
-export function CardMain({ value, revenue, expense}: CardMainProps) {
+export function CardMain({ value, revenue, expense }: CardMainProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.015 }}
@@ -387,7 +389,7 @@ export function CardMain({ value, revenue, expense}: CardMainProps) {
       className="rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
     >
       <section className="flex items-start gap-4">
-        <div className="p-2 bg-gray-100 rounded-full"><Coins className="w-6 h-6 text-blue-500"/></div>
+        <div className="p-2 bg-gray-100 rounded-full"><Coins className="w-6 h-6 text-blue-500" /></div>
         <div>
           <h3 className="text-sm text-gray-500 font-medium">자산 가치</h3>
           <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
@@ -395,7 +397,7 @@ export function CardMain({ value, revenue, expense}: CardMainProps) {
       </section>
 
       <section className="flex items-start gap-4 ml-auto">
-      <div className="p-2 bg-gray-100 rounded-full"><ArrowUpRight className="w-6 h-6 text-green-500"/></div>
+        <div className="p-2 bg-gray-100 rounded-full"><ArrowUpRight className="w-6 h-6 text-green-500" /></div>
         <div>
           <h3 className="text-sm text-gray-500 font-medium">이번 달 수익</h3>
           <p className="text-xl font-semibold text-gray-800 mt-1">₩{revenue.toLocaleString()}</p>
@@ -403,7 +405,7 @@ export function CardMain({ value, revenue, expense}: CardMainProps) {
       </section>
 
       <section className="flex items-start gap-4 ml-auto">
-      <div className="p-2 bg-gray-100 rounded-full"><ArrowDownLeft className="w-6 h-6 text-red-500"/></div>
+        <div className="p-2 bg-gray-100 rounded-full"><ArrowDownLeft className="w-6 h-6 text-red-500" /></div>
         <div>
           <h3 className="text-sm text-gray-500 font-medium">이번 달 지출</h3>
           <p className="text-xl font-semibold text-gray-800 mt-1">₩{expense.toLocaleString()}</p>
@@ -455,15 +457,18 @@ export const monthMap: Record<string, string> = {
 export function ChartLineInteractive({ data }: CardChartProps) {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("total")
-    const total = React.useMemo(
-      () => {
-        const last = data[data.length - 1];  // 마지막 항목
-        return {
-          total: last.total
-        };
-      },
-      [data]
-    )
+  const total = React.useMemo(
+    () => {
+      if (!data || data.length === 0) {
+        return { total: 0 };
+      }
+      const last = data[data.length - 1];  // 마지막 항목
+      return {
+        total: last?.total || 0  // last가 undefined이면 0 반환
+      };
+    },
+    [data]
+  )
   return (
     <UICard className="py-4 sm:py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
@@ -484,7 +489,7 @@ export function ChartLineInteractive({ data }: CardChartProps) {
                 onClick={() => setActiveChart(chart)}
               >
                 <span className="text-muted-foreground text-xs">
-                <CardTitle>{chartConfig[chart].label}</CardTitle>
+                  <CardTitle>{chartConfig[chart].label}</CardTitle>
                 </span>
                 <span className="text-lg leading-none font-bold sm:text-3xl">
                   ₩{total[key as keyof typeof total].toLocaleString()}
@@ -553,14 +558,14 @@ export function ChartBarHorizontal({ barChartData }: ChartBarHorizontalProps) {
               left: -10,
             }}
           >
-            <XAxis type="number" dataKey="value" hide/>
+            <XAxis type="number" dataKey="value" hide />
             <YAxis
               dataKey="type"
               type="category"
               tickLine={false}
               tickMargin={25}
               axisLine={false}
-              tick={<TypeIconTick/>}
+              tick={<TypeIconTick />}
             />
             <ChartTooltip
               content={
@@ -570,10 +575,10 @@ export function ChartBarHorizontal({ barChartData }: ChartBarHorizontalProps) {
               }
             />
             <Bar dataKey="value" radius={5} barSize={10}>
-            {barChartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={getBarColor(entry.type)} />
-            ))}
-          </Bar>
+              {barChartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={getBarColor(entry.type)} />
+              ))}
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>
@@ -642,8 +647,8 @@ function ActivityItem({ content, date, amount, type, assetType }: ActivityItemPr
   // type에 따른 색상 설정
   const amountColor =
     type === 'ADD' ? 'text-green-600' :
-    type === 'REMOVE' ? 'text-red-600' :
-    'text-gray-600';
+      type === 'REMOVE' ? 'text-red-600' :
+        'text-gray-600';
 
   // 금액 표시 형식, 예: +50,000 or -30,000
   const formattedAmount =
@@ -651,11 +656,11 @@ function ActivityItem({ content, date, amount, type, assetType }: ActivityItemPr
     amount.toLocaleString();
 
   const assetIcon =
-    assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500"/> :
-    assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500"/> :
-    assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
-    assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
-    <Coins className="w-6 h-6 text-green-500" />;
+    assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500" /> :
+      assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500" /> :
+        assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
+          assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
+            <Coins className="w-6 h-6 text-green-500" />;
 
   return (
     <div className="flex flex-row gap-4 py-1 border-b border-gray-200">

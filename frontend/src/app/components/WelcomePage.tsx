@@ -37,7 +37,7 @@ export function WelcomePage() {
           자산관리 서비스
         </h1>
         <p className="text-gray-600 leading-relaxed">
-          효율적이고 편리하게게 자산관리를 시작해보세요
+          효율적이고 편리하게 자산관리를 시작해보세요
         </p>
       </div>
       <Button

@@ -1,6 +1,7 @@
 import { WelcomePage } from "../components/WelcomePage";
 import { LoginPage } from "../components/LoginPage";
 import { SignupPage } from "../components/SignupPage";
+import { AccountRecoveryPage } from "../components/AccountRecoveryPage";
 import { MyPage } from "../components/MyPage";
 import { AssetPage } from "../components/AssetPage";
 import AccountsPage from "../accounts/page";
@@ -29,6 +30,11 @@ export const routes: RouteConfig[] = [
     layout: "auth"
   },
   {
+    path: "/forgot-password",
+    component: AccountRecoveryPage,
+    layout: "auth"
+  },
+  {
     path: "/mypage",
     component: MyPage,
     layout: "auth"
@@ -44,12 +50,12 @@ export const routes: RouteConfig[] = [
     layout: "full"
   },
   {
-    path: "/asset",
+    path: "/mypage/assets",
     component: AssetPage,
     layout: "full"
   },
   {
-    path: "/goal",
+    path: "mypage/goals",
     component: GoalPage,
     layout: "full"
   },
