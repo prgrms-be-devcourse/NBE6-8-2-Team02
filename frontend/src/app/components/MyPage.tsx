@@ -4,43 +4,242 @@ import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { useRouter } from "./Router";
 import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins} from 'lucide-react';
-import { useEffect, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
 import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
+import { apiFetch } from '../lib/backend/client';
+import { Asset } from 'next/font/google';
+import { error } from 'console';
+import { totalmem } from 'os';
 
 export const description = "A line chart with a label"
 
-const linearChartData = [
-  { month: "January", total: 800000, revenue: 80000, expense: 300000 },
-  { month: "February", total: 900000, revenue: 160000, expense: 400000 },
-  { month: "March", total: 760000, revenue: 300000, expense: 440000 },
-  { month: "April", total: 1100000, revenue: 1100000, expense: 900000 },
-  { month: "May", total: 880000, revenue: 200000, expense: 300000 },
-  { month: "June", total: 1248000, revenue: 300000, expense: 100000 },
-]
+function formatValue(value: number) {
+  return `₩${value.toLocaleString()}`;
+}
 
-const barChartDataRaw = [
-  { type: "account", value: 1300000 },
-  { type: "deposit", value: 4180000 },
-  { type: "real_estate", value: 2000000 },
-  { type: "stock", value: 5000000 },
-]
+function formatCount(count: number) {
+  return `${count}개 자산 연결됨`;
+}
 
-const total = barChartDataRaw.reduce((sum, item) => sum + item.value, 0);
+type Asset = {
+  id: number;
+  memberId: number;
+  name: string;
+  assetType: string;
+  assetValue: number;
+  createDate: string;
+  modifyDate: string;
+};
 
-const barChartData = barChartDataRaw.map((item) => ({
-  ...item,
-  value: parseFloat(((item.value / total) * 100).toFixed(2)), // 비율 값
-}));
+type Transaction = {
+  id: number;
+  assetId: number;
+  type: string;
+  amount: number;
+  content: string;
+  date: string;
+  createDate: string;
+  modifyDate: string;
+};
+
+type Account = {
+  id: number;
+  memberId: number;
+  name: string;
+  accountNumber: string;
+  balance: number;
+  createDate: string;
+  modifyDate: string;
+};
+
+interface CardChartProps {
+  data: { month: number, total: number }[];
+}
+
+interface ChartBarHorizontalProps {
+  barChartData: { type: string; value: number }[];
+}
 
 export function MyPage() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const [currentRevenue, setCurrentRevenue] = useState(0);
+  const [currentExpense, setCurrentExpense] = useState(0);
+  const [linearChartData, setLinearChartData] = useState([
+    { month: 1, total: 100000 }
+  ]);
+
+  const [activities, setActivities] = useState([
+    { amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK" },
+  ]);
+
+  const [barChartDataRaw, setBarChartData] = useState([
+    { type: "account", count: 0, value: 0 },
+    { type: "deposit", count: 0, value: 0 },
+    { type: "real_estate", count: 0, value: 0 },
+    { type: "stock", count: 0, value: 0 },
+  ]);
+
+  const [totalAsset, setTotalAsset] = useState(0);
+  
+  const total = barChartDataRaw.reduce((sum, item) => sum + item.value, 0);
+  
+  const barChartData = barChartDataRaw.map((item) => ({
+    ...item,
+    value: parseFloat(((item.value / total) * 100).toFixed(2)), // 비율 값
+  }));
+
   const { navigate } = useRouter();
 
   const onLogout = () => {
     navigate("/");
   };
+
+  useEffect(() => {
+    console.log("MyPage useEffect 실행");
+    fetchUserInfo();
+  }, []);
+
+  const fetchUserInfo = async () => {
+    try {
+      const memberRes = await apiFetch('/api/v1/members/me');
+      const memberId = memberRes.id;
+
+      if(!memberId) throw new Error("잘못된 사용자 정보입니다.");
+
+      // 계좌, 자산 처리.
+
+      const allAccountRes = await apiFetch('/api/v1/accounts');
+      const allAssetRes = await apiFetch('/api/v1/assets');
+      
+      const myAssets: Asset[] = allAssetRes.data?.filter(
+        (asset: Asset) => asset.memberId === memberId
+      );
+
+      const myAccounts: Account[] = allAccountRes.data?.filter(
+        (account: Account) => account.memberId === memberId
+      );
+
+      // 계좌, 자산의 id 추출 후 거래 내역 처리.
+
+      const myAssetIds = myAssets.map((asset) => asset.id);
+      const myAccountIds = myAccounts.map((account) => account.id);
+
+      console.log("내 자산 id 정보", myAssetIds);
+      console.log("내 거래 id 정보", myAccountIds);
+
+      const allAssetTransactionResList = await Promise.all(
+        myAssetIds.map((id) => apiFetch(`/api/v1/transactions/asset/search/${id}`))
+      );
+      const allAccountTransactionResList = await Promise.all(
+        myAccountIds.map((id) => apiFetch(`/api/v1/transactions/account/search/${id}`))
+      );
+
+      const allAssetTransactions = allAssetTransactionResList.flatMap((res, index) => {
+        const assetId = myAssetIds[index];
+        const asset = myAssets.find((a) => a.id === assetId);
+      
+        return (res.data ?? []).map((tx: any) => ({
+          amount: tx.amount,
+          type: tx.type,
+          date: tx.date,
+          content: tx.content,
+          assetType: asset?.assetType ?? "unknown",
+        }));
+      });
+
+      const allAccountTransactions = allAccountTransactionResList.flatMap((res) => {
+        return (res.data ?? []).map((tx: any) => ({
+          amount: tx.amount,
+          type: tx.type,
+          date: tx.date,
+          content: tx.content,
+          assetType: "ACCOUNT",
+
+        }));
+      });
+
+      const mergedTransactions = [...allAssetTransactions, ...allAccountTransactions].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      const mySnapShotRes = await apiFetch(`/api/v1/snapshot/${memberId}`);
+      const mySnapShot = mySnapShotRes.data;
+      setLinearChartData(
+        mySnapShot.map((item: { month: number; totalAsset: number }) => ({
+          month: item.month,
+          total: item.totalAsset,
+        }))
+      );
+
+      mergedTransactions.forEach((tx) => {
+        const txDate = new Date(tx.date);
+        const txYear = txDate.getFullYear();
+        const txMonth = txDate.getMonth() + 1;
+
+        console.log(txYear);
+        console.log(txMonth);
+
+        console.log(currentYear);
+        console.log(currentMonth);
+
+        if(txYear === currentYear && txMonth === currentMonth) {
+          if(tx.type === "ADD"){
+            setCurrentRevenue(prev => prev + tx.amount);
+          }
+          else{
+            setCurrentExpense(prev => prev + tx.amount);
+          }
+        }
+      })
+
+      console.log("자산 추이 데이터", linearChartData);
+      
+      console.log("내 자산 정보", myAssets);
+      console.log("내 계좌 정보", myAccounts);
+      console.log("내 스냅샷", mySnapShot);
+
+      console.log("이번달 수익", currentRevenue);
+      console.log("이번달 손해", currentExpense);
+
+      console.log("자산 거래 정보", allAssetTransactions);
+      console.log("계좌 거래 정보", allAccountTransactions);
+      console.log("통합 거래 내역", mergedTransactions);
+
+      const newBarChartData = [...barChartDataRaw];
+
+      myAssets.forEach(asset => {
+        const type = asset.assetType.toLowerCase(); // "DEPOSIT" -> "deposit"
+        const target = newBarChartData.find(item => item.type === type);
+        if (target) {
+          target.value += asset.assetValue;
+          setTotalAsset(prev => prev + asset.assetValue);
+          target.count++;
+        }
+      });
+
+      myAccounts.forEach(account => {
+        const type = "account" // "DEPOSIT" -> "deposit"
+        const target = newBarChartData.find(item => item.type === type);
+        if (target) {
+          target.value += account.balance;
+          setTotalAsset(prev => prev + account.balance);
+          target.count++;
+        }
+      });
+
+      setBarChartData(newBarChartData);
+      setActivities(mergedTransactions);
+
+    } catch (error) {
+      console.log("유저 정보 조회 실패", error);
+    }
+  }
 
   return (
     <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
@@ -95,14 +294,14 @@ export function MyPage() {
 
         <section>
           <CardMain
-            value ={1248000}
-            revenue ={300000}
-            expense ={100000}
+            value ={totalAsset}
+            revenue ={currentRevenue}
+            expense ={currentExpense}
           />
         </section>
 
         <section>
-          <ChartLineInteractive/>
+          <ChartLineInteractive data={linearChartData}/>
         </section>
 
         <header className="flex items-center justify-between">
@@ -114,16 +313,16 @@ export function MyPage() {
           <Card 
             icon={<Coins className="w-6 h-6 text-green-500" />} 
             title="입출금 계좌" 
-            value="₩1,300,000" 
-            description="2개 계좌 연결됨" 
+            value={formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}  
+            description={formatCount(barChartDataRaw.find((d) => d.type === "account")?.count ?? 0)}
           />
-          <Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value="₩4,180,000" description="2개 자산 연결됨" onClick={() => navigate('/mypage/assets')} />
-          <Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value="₩2,000,000" description="1개 자산 연결됨" onClick={() => navigate('/mypage/assets')} />
-          <Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value="₩5,000,000" description="3개 자산 연결됨" onClick={() => navigate('/mypage/assets')} />
+          <Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value={formatValue(barChartDataRaw.find((d) => d.type === "real_estate")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value={formatValue(barChartDataRaw.find((d) => d.type === "stock")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
         </section>
 
         <section>
-          <ChartBarHorizontal/>
+          <ChartBarHorizontal barChartData={barChartData}/>
         </section>
       </motion.div>
       <motion.div
@@ -137,66 +336,7 @@ export function MyPage() {
         </header>
 
         <section>
-          <ActivityList
-            activities={[
-              {
-                icon: <BarChart2 className="text-purple-500 w-6 h-6" />,
-                title: "삼성전자 주식 매수",
-                date: "2025-07-21",
-                amount: 500000,
-                type: "income"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "삼성전자 주식 매수",
-                date: "2025-07-21",
-                amount: 500000,
-                type: "expense"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "토스뱅크 계좌 연결",
-                date: "2025-07-19",
-                amount: 0,
-                type: "transfer"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "월급 입금",
-                date: "2025-07-15",
-                amount: 3000000,
-                type: "income"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "카드 사용",
-                date: "2025-07-14",
-                amount: 12000,
-                type: "expense"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "카드 사용",
-                date: "2025-07-13",
-                amount: 30000,
-                type: "expense"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "카드 사용",
-                date: "2025-07-12",
-                amount: 100000,
-                type: "expense"
-              },
-              {
-                icon: <Coins className="text-green-500 w-6 h-6" />,
-                title: "카드 사용",
-                date: "2025-07-11",
-                amount: 80000,
-                type: "expense"
-              }
-            ]}
-          />
+          <ActivityList activities={activities}/>
         </section>
 
       </motion.div>
@@ -273,15 +413,6 @@ export function CardMain({ value, revenue, expense}: CardMainProps) {
   );
 }
 
-interface MonthlyAssetData {
-  month: string;     // 예: "2025-01"
-  total: number;     // 총 자산 (예: 1200000)
-}
-
-interface CardChartProps {
-  data: MonthlyAssetData[];
-}
-
 const chartConfig = {
   total: {
     label: "자산 가치",
@@ -306,19 +437,32 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartLineInteractive() {
+export const monthMap: Record<string, string> = {
+  "1": "Jan",
+  "2": "Feb",
+  "3": "Mar",
+  "4": "Apr",
+  "5": "May",
+  "6": "Jun",
+  "7": "Jul",
+  "8": "Aug",
+  "9": "Sep",
+  "10": "Oct",
+  "11": "Nov",
+  "12": "Dec",
+};
+
+export function ChartLineInteractive({ data }: CardChartProps) {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("total")
     const total = React.useMemo(
       () => {
-        const last = linearChartData[linearChartData.length - 1];  // 마지막 항목
+        const last = data[data.length - 1];  // 마지막 항목
         return {
-          total: last.total,
-          revenue: last.revenue,
-          expense: last.expense,
+          total: last.total
         };
       },
-      []
+      [data]
     )
   return (
     <UICard className="py-4 sm:py-0">
@@ -330,7 +474,7 @@ export function ChartLineInteractive() {
           </CardDescription>
         </div>
         <div className="flex">
-          {["total", "revenue", "expense"].map((key) => {
+          {["total"].map((key) => {
             const chart = key as keyof typeof chartConfig
             return (
               <button
@@ -357,7 +501,7 @@ export function ChartLineInteractive() {
         >
           <LineChart
             accessibilityLayer
-            data={linearChartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -369,7 +513,8 @@ export function ChartLineInteractive() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => monthMap[String(value)]?.slice(0, 3) ?? ""}
+
             />
             <ChartTooltip
               content={
@@ -392,7 +537,7 @@ export function ChartLineInteractive() {
   )
 }
 
-export function ChartBarHorizontal() {
+export function ChartBarHorizontal({ barChartData }: ChartBarHorizontalProps) {
   return (
     <UICard>
       <CardHeader className='border-b'>
@@ -481,32 +626,44 @@ function TypeIconTick({ x, y, payload }: any) {
 }
 
 interface ActivityItemProps {
-  icon: React.ReactNode;
-  title: string;
+  amount: number;
+  type: string;
   date: string;
-  amount: number;           // 금액 (예: 50000)
-  type: 'income' | 'expense' | 'transfer';  // 거래 유형 예시
+  content: string;
+  assetType: string;
 }
 
-function ActivityItem({ icon, title, date, amount, type }: ActivityItemProps) {
+function formatDateString(dateStr: string): string {
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return `${year}년 ${month}월 ${day}일`;
+}
+
+function ActivityItem({ content, date, amount, type, assetType }: ActivityItemProps) {
   // type에 따른 색상 설정
   const amountColor =
-    type === 'income' ? 'text-green-600' :
-    type === 'expense' ? 'text-red-600' :
+    type === 'ADD' ? 'text-green-600' :
+    type === 'REMOVE' ? 'text-red-600' :
     'text-gray-600';
 
   // 금액 표시 형식, 예: +50,000 or -30,000
   const formattedAmount =
-    (type === 'expense' ? '' : '') +
+    (type === 'REMOVE' ? '' : '') +
     amount.toLocaleString();
+
+  const assetIcon =
+    assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500"/> :
+    assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500"/> :
+    assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
+    assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
+    <Coins className="w-6 h-6 text-green-500" />;
 
   return (
     <div className="flex flex-row gap-4 py-1 border-b border-gray-200">
       <section className="flex items-start gap-4">
-        <div className="p-2 bg-gray-100 rounded-full">{icon}</div> {/* 아이콘 */}
+        <div className="p-2 bg-gray-100 rounded-full">{assetIcon}</div> {/* 아이콘 */}
         <div className="flex flex-col">
-          <span className="font-medium">{title}</span>
-          <span className="text-sm text-gray-400 mt-1">{date}</span>
+          <span className="font-medium">{content}</span>
+          <span className="text-sm text-gray-400 mt-1">{formatDateString(date)}</span>
         </div>
       </section>
       <section className="flex items-start gap-4 ml-auto">
@@ -519,6 +676,7 @@ function ActivityItem({ icon, title, date, amount, type }: ActivityItemProps) {
     </div>
   );
 }
+
 
 interface ActivityListProps {
   activities: ActivityItemProps[];
