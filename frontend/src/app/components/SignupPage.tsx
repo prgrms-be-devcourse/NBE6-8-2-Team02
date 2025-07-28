@@ -10,8 +10,11 @@ export function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
-    name: ""
+    name: "",
+    phoneNumber: ""
   });
+
+  
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
