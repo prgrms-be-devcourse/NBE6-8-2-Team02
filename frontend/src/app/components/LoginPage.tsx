@@ -13,7 +13,6 @@ export function LoginPage() {
   const { navigate } = useRouter();
 
   const handleLogin = async () => {
-    // 입력값 검증
     if (!loginData.email.trim()) {
       setError("아이디를 입력해주세요.");
       return;
@@ -24,7 +23,6 @@ export function LoginPage() {
       return;
     }
 
-    // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(loginData.email)) {
       setError("올바른 이메일 형식을 입력해주세요.");
@@ -35,32 +33,14 @@ export function LoginPage() {
     setError("");
 
     try {
-      console.log("로그인 시도:", loginData);
       const response = await authAPI.login(loginData);
-      console.log("로그인 응답:", response);
-
-      // API 응답 검증 - 백엔드 LoginResponseDto 구조에 맞춤
-      console.log("로그인 응답 상세:", {
-        accessToken: response.accessToken,
-        userId: response.userId,
-        email: response.email,
-        name: response.name,
-        tokenType: response.tokenType,
-        expiresIn: response.expiresIn
-      });
 
       if (response.accessToken) {
         localStorage.setItem('authToken', response.accessToken);
         localStorage.setItem('userId', response.userId || response.memberId || response.id);
         localStorage.setItem('userEmail', response.email);
-        console.log("로그인 성공 - localStorage 저장됨:", {
-          authToken: response.accessToken,
-          userId: response.userId || response.memberId || response.id,
-          userEmail: response.email
-        });
         navigate("/mypage");
       } else {
-        // accessToken이 없지만 쿠키에 토큰이 있을 수 있음
         const cookies = document.cookie.split(';');
         const accessTokenCookie = cookies.find(cookie =>
           cookie.trim().startsWith('accessToken=')
@@ -71,10 +51,8 @@ export function LoginPage() {
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', response.userId || response.memberId || response.id);
           localStorage.setItem('userEmail', response.email);
-          console.log("로그인 성공 - 쿠키에서 토큰 저장됨");
           navigate("/mypage");
         } else {
-          // 서버에서 에러 응답이 온 경우
           setError(response.message || response.error || "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
         }
       }

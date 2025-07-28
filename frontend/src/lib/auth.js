@@ -77,9 +77,12 @@ export const authAPI = {
     );
 
     if (accessTokenCookie) {
-      return accessTokenCookie.split("=")[1];
+      const token = accessTokenCookie.split("=")[1];
+      console.log("쿠키에서 토큰 추출:", token ? "성공" : "실패");
+      return token;
     }
 
+    console.log("쿠키에서 accessToken을 찾을 수 없음");
     return null;
   },
 
@@ -87,20 +90,17 @@ export const authAPI = {
   async checkCookieAndAutoLogin() {
     if (typeof window === "undefined") return false;
 
-    // 이미 localStorage에 토큰이 있으면 true 반환
     const localStorageToken = localStorage.getItem("authToken");
     if (localStorageToken) {
       return true;
     }
 
-    // 쿠키에서 토큰 확인
     const cookieToken = this.getTokenFromCookie();
     if (!cookieToken) {
       return false;
     }
 
     try {
-      // 토큰 유효성 검증
       const response = await fetch("http://localhost:8080/api/v1/members/me", {
         method: "GET",
         headers: {
@@ -112,22 +112,16 @@ export const authAPI = {
 
       if (response.ok) {
         const userData = await response.json();
-
-        // localStorage에 토큰과 사용자 정보 저장
         localStorage.setItem("authToken", cookieToken);
         localStorage.setItem("userId", userData.id || userData.userId);
         localStorage.setItem("userEmail", userData.email);
-
-        console.log("쿠키에서 자동 로그인 성공:", userData);
         return true;
       } else {
-        // 토큰이 유효하지 않으면 쿠키 삭제
         document.cookie =
           "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         return false;
       }
     } catch (error) {
-      console.error("쿠키 자동 로그인 실패:", error);
       return false;
     }
   },
@@ -136,15 +130,17 @@ export const authAPI = {
   isAuthenticated() {
     if (typeof window === "undefined") return false;
 
-    // localStorage에서 토큰 확인
     const localStorageToken = localStorage.getItem("authToken");
     if (localStorageToken) {
       return true;
     }
 
-    // 쿠키에서 토큰 확인
     const cookieToken = this.getTokenFromCookie();
-    return !!cookieToken;
+    if (cookieToken) {
+      return true;
+    }
+
+    return false;
   },
 
   // 토큰 검증 (서버에 요청하여 유효성 확인)
@@ -276,10 +272,8 @@ export const authAPI = {
   // 로그아웃
   async logout() {
     try {
-      // localStorage에서 토큰 확인
       let token = localStorage.getItem("authToken");
 
-      // localStorage에 없으면 쿠키에서 확인
       if (!token) {
         const cookies = document.cookie.split(";");
         const accessTokenCookie = cookies.find((cookie) =>
@@ -303,21 +297,14 @@ export const authAPI = {
             credentials: "include",
           }
         );
-
-        if (response.ok) {
-          console.log("서버 로그아웃 성공");
-        }
       }
     } catch (error) {
       console.error("로그아웃 API 에러:", error);
     } finally {
-      // 클라이언트 측 정리 (항상 실행)
       if (typeof window !== "undefined") {
         localStorage.removeItem("authToken");
         localStorage.removeItem("userId");
         localStorage.removeItem("userEmail");
-
-        // 쿠키도 삭제
         document.cookie =
           "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       }
