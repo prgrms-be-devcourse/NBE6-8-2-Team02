@@ -10,6 +10,7 @@ import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, C
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
 import { apiFetch } from '../lib/backend/client';
+import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
 import { error } from 'console';
 import { totalmem } from 'os';
@@ -97,6 +98,8 @@ export function MyPage() {
   const { navigate } = useRouter();
 
   const onLogout = () => {
+    // @ts-ignore - authAPI.logout이 async 함수로 변경됨
+    authAPI.logout();
     navigate("/");
   };
 
