@@ -18,7 +18,10 @@ export default function AccountsPage() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/v1/accounts");
+        const response = await fetch("http://localhost:8080/api/v1/accounts", {
+          method: "GET",
+          credentials: "include",
+        });
         const result = await response.json();
 
         if (result.resultCode === "200-1") {
