@@ -34,7 +34,7 @@ public class AuthController {
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
 
-                // 1. 이메일로 회원 조회
+        // 1. 이메일로 회원 조회
         Member member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new AuthenticationException("존재하지 않는 이메일입니다."));
         // 2. 비활성화된 계정 체크
