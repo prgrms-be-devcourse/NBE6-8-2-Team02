@@ -39,7 +39,7 @@ class TransactionServiceTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        CreateTransactionRequestDto dto = new CreateTransactionRequestDto(1, "DEPOSIT", 1000, "테스트", "2024-07-23T15:00:00");
+        CreateTransactionRequestDto dto = new CreateTransactionRequestDto(1, "ADD", 1000, "테스트", "2024-07-23T15:00:00");
 
         // 4. 가짜 동작 정의
         when(assetRepository.findById(1)).thenReturn(Optional.of(asset));
@@ -50,7 +50,7 @@ class TransactionServiceTest {
 
         // 6. 결과 검증
         assertThat(result.getAsset().getId()).isEqualTo(1);
-        assertThat(result.getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(result.getType()).isEqualTo(TransactionType.ADD);
         assertThat(result.getAmount()).isEqualTo(1000);
         assertThat(result.getContent()).isEqualTo("테스트");
         assertThat(result.getDate()).isEqualTo(LocalDateTime.parse("2024-07-23T15:00:00"));

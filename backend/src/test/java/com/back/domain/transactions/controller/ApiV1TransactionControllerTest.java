@@ -54,10 +54,10 @@ class ApiV1TransactionControllerTest {
         Asset asset = assetRepository.findById(1).get();
 
         CreateTransactionRequestDto dto = new CreateTransactionRequestDto(
-                asset.getId(), "DEPOSIT", 1000, "테스트", "2024-07-23T15:00:00");
+                asset.getId(), "ADD", 1000, "테스트", "2024-07-23T15:00:00");
 
         // when & then
-        mockMvc.perform(post("/api/v1/transactions")
+        mockMvc.perform(post("/api/v1/transactions/asset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())

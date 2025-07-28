@@ -100,5 +100,4 @@ class ApiV1AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(accountRepository.count()));
     }
-
 }
