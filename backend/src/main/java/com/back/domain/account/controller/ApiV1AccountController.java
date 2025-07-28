@@ -25,9 +25,10 @@ public class ApiV1AccountController {
 
     @PostMapping
     @Operation(summary = "계좌 등록" , description = "새로운 계좌 등록")
-    public RsData<AccountDto> createAccount(@RequestBody RqCreateAccountDto rqCreateAccountDto) {
+    public RsData<AccountDto> createAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@RequestBody RqCreateAccountDto rqCreateAccountDto) {
+        int memberId = userDetails.getMember().getId();
 
-        Account account = accountService.createAccount(rqCreateAccountDto);
+        Account account = accountService.createAccount(rqCreateAccountDto,memberId);
         AccountDto accountDto= new AccountDto(account);
 
         return new RsData("200-1", "계좌가 등록되었습니다.",accountDto);

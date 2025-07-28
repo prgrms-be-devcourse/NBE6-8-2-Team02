@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class RqCreateAccountDto {
-    private int memberId;
     private String name;
     private String accountNumber;
     private Long balance;

@@ -1,8 +1,13 @@
 package com.back.domain.account.controller;
 
 import com.back.domain.account.repository.AccountRepository;
+import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.global.config.JwtProperties;
+import com.back.global.security.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +33,17 @@ class ApiV1AccountControllerTest {
     @Autowired
     MockMvc mockMvc;
     @Autowired
-    private AccountRepository accountRepository;
-
+    AccountRepository accountRepository;
     @Autowired
-    private MemberRepository memberRepository;
+    JwtUtil jwtutil;
 
     ObjectMapper objectMapper=new ObjectMapper();
+    String token;
+
+    @BeforeEach
+    void setUp() {
+        token = jwtutil.generateToken("user1@user.com", 4);
+    }
 
     @Test
     @DisplayName("계좌 등록")
@@ -48,9 +58,10 @@ class ApiV1AccountControllerTest {
         // 계좌 등록
         mockMvc.perform(post("/api/v1/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
                 .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.memberId").value(1))
+                .andExpect(jsonPath("$.data.memberId").value(4))
                 .andExpect(jsonPath("$.data.name").value("농협"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1234567890"))
                 .andExpect(jsonPath("$.data.balance").value(1000));
@@ -59,14 +70,15 @@ class ApiV1AccountControllerTest {
     @Test
     @DisplayName("계좌 다건 조회")
     void t2() throws Exception{
-        mockMvc.perform(get("/api/v1/accounts"))
-                .andExpect(jsonPath("$.data.length()").value(accountRepository.count()));
+        mockMvc.perform(get("/api/v1/accounts").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.data.length()").value(accountRepository.findAllByMemberId(4).size()));
     }
 
     @Test
     @DisplayName("계좌 단건 조회")
     void t3() throws Exception{
-        mockMvc.perform(get("/api/v1/accounts/1"))
+        mockMvc.perform(get("/api/v1/accounts/1")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-111"))
@@ -78,26 +90,28 @@ class ApiV1AccountControllerTest {
     void t4() throws Exception{
         String updateBody=objectMapper.writeValueAsString(Map.of("accountNumber","1-333"));
 
-        mockMvc.perform(put("/api/v1/accounts/1").contentType(MediaType.APPLICATION_JSON).content(updateBody))
+        mockMvc.perform(put("/api/v1/accounts/1").contentType(MediaType.APPLICATION_JSON).content(updateBody).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-333"))
                 .andExpect(jsonPath("$.data.balance").value(10000));
 
-        mockMvc.perform(get("/api/v1/accounts/1"))
+        mockMvc.perform(get("/api/v1/accounts/1")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-333"));
     }
 
     @Test
     @DisplayName("계좌 삭제")
     void t5() throws Exception{
-        mockMvc.perform(delete("/api/v1/accounts/1"))
+        mockMvc.perform(delete("/api/v1/accounts/1").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.msg").value("1번 계좌가 삭제되었습니다."));
 
-        mockMvc.perform(get("/api/v1/accounts"))
+        mockMvc.perform(get("/api/v1/accounts")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(accountRepository.count()));
+                .andExpect(jsonPath("$.data.length()").value(accountRepository.findAllByMemberId(4).size()));
     }
 }

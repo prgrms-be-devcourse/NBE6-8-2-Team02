@@ -20,8 +20,10 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final MemberRepository memberRepository;
 
-    public Account createAccount(RqCreateAccountDto rqCreateAccountDto) {
-        Member member = memberRepository.findById(rqCreateAccountDto.getMemberId()).orElseThrow(()->new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,int memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         Account account= Account.builder()
                 .member(member)
