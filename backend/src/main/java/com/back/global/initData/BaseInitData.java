@@ -9,8 +9,10 @@ import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.repository.GoalRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
+import com.back.domain.transactions.repository.AccountTransactionRepository;
 import com.back.domain.transactions.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class BaseInitData {
     private final AssetRepository assetRepository;
     private final TransactionRepository transactionRepository;
     private final GoalRepository goalRepository;
+    private final AccountTransactionRepository accountTransactionRepository;
 
     @Autowired
     @Lazy
@@ -49,6 +52,7 @@ public class BaseInitData {
             self.accountInit();
             self.assetInit();
             self.transactionInit();
+            self.accountTransactionInit();
             self.goalInit();
         };
     }
@@ -167,15 +171,34 @@ public class BaseInitData {
 
         //유저1
         Asset asset1 = assetRepository.findById(1).get();
-        transactionRepository.save(new Transaction(asset1, TransactionType.DEPOSIT, 1000, "1입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 1000, "1입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
 
         //유저1
         Asset asset2 = assetRepository.findById(4).get();
-        transactionRepository.save(new Transaction(asset2, TransactionType.DEPOSIT, 1000, "2입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset2, TransactionType.ADD, 1000, "2입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
 
         //유저1
         Asset asset3 = assetRepository.findById(7).get();
-        transactionRepository.save(new Transaction(asset3, TransactionType.DEPOSIT, 1000, "3입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 1000, "3입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+    }
+
+    @Transactional
+    @Profile("!test")
+    public void accountTransactionInit() {
+        if(accountTransactionRepository.count() > 0)
+            return;
+
+        //유저1
+        Account account1 = accountRepository.findById(1).get();
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 1000, "1입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+
+        //유저1
+        Account account2 = accountRepository.findById(3).get();
+        accountTransactionRepository.save(new AccountTransaction(account2, TransactionType.ADD, 1000, "2입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+
+        //유저1
+        Account account3 = accountRepository.findById(5).get();
+        accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.ADD, 1000, "3입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
     }
 
     @Transactional

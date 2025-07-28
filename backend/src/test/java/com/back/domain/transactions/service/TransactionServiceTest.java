@@ -50,7 +50,7 @@ class TransactionServiceTest {
 
         // 6. 결과 검증
         assertThat(result.getAsset().getId()).isEqualTo(1);
-        assertThat(result.getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(result.getType()).isEqualTo(TransactionType.ADD);
         assertThat(result.getAmount()).isEqualTo(1000);
         assertThat(result.getContent()).isEqualTo("테스트");
         assertThat(result.getDate()).isEqualTo(LocalDateTime.parse("2024-07-23T15:00:00"));

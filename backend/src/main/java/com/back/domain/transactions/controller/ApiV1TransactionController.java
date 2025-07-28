@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/transactions")
+@RequestMapping("/api/v1/transactions/asset")
 @Tag(name = "Transactions", description = "거래 컨트롤러")
 public class ApiV1TransactionController {
     private final TransactionService transactionService;
@@ -76,7 +76,7 @@ public class ApiV1TransactionController {
     }
 
     // 특정 자산의 거래 목록 조회
-    @GetMapping("/assets/{assetId}")
+    @GetMapping("/search/{assetId}")
     @Transactional(readOnly = true)
     @Operation(summary = "특정 자산의 거래 목록 조회")
     public RsData<List<TransactionDto>> getTransactionsByAsset(@PathVariable int assetId) {
@@ -84,16 +84,4 @@ public class ApiV1TransactionController {
         List<TransactionDto> transactionDtos = transactions.stream().map(TransactionDto::new).toList();
         return new RsData<>("200-1", assetId + "번 자산의 거래 목록을 조회했습니다.", transactionDtos);
     }
-
-    // 특정 계좌의 거래 목록 조회
-    @GetMapping("/accounts/{accountId}")
-    @Transactional(readOnly = true)
-    @Operation(summary = "특정 계좌의 거래 목록 조회")
-    public RsData<List<TransactionDto>> getTransactionsByAccount(@PathVariable int accountId) {
-        List<Transaction> transactions = transactionService.findByAccountId(accountId);
-        List<TransactionDto> transactionDtos = transactions.stream().map(TransactionDto::new).toList();
-        return new RsData<>("200-1", accountId + "번 계좌의 거래 목록을 조회했습니다.", transactionDtos);
-    }
-
-
 } 

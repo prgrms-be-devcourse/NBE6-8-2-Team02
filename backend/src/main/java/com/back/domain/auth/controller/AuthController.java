@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +22,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-        @Tag(name = "Auth", description = "인증 관련 API")
-        public class AuthController {
+@Tag(name = "Auth", description = "인증 관련 API")
+public class AuthController {
 
-            private final MemberRepository memberRepository;
-            private final JwtUtil jwtUtil;
-            private final JwtProperties jwtProperties;
-            private final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepository;
+    private final JwtUtil jwtUtil;
+    private final JwtProperties jwtProperties;
+    private final PasswordEncoder passwordEncoder;
 
-            @PostMapping("/login")
-            @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
-            public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+    @PostMapping("/login")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
 
                 // 1. 이메일로 회원 조회
         Member member = memberRepository.findByEmail(loginRequest.email())
@@ -56,7 +57,17 @@ import org.springframework.web.bind.annotation.*;
                 member
         );
 
-        return ResponseEntity.ok(response);
+        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
+                .path("/")
+                .maxAge(jwtProperties.getAccessTokenValidity() / 1000)
+                .sameSite("Lax") // "None"은 cross-origin 쿠키가 필요한 경우
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", cookie.toString())
+                .body(response);
     }
 
     @ExceptionHandler(AuthenticationException.class)
