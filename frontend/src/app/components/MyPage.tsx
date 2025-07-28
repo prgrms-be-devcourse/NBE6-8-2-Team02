@@ -281,6 +281,7 @@ export function MyPage() {
           onClick={() => navigate('/mypage')}
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500" />대시 보드
+
         </section>
         <section
           onClick={() => navigate('/accounts')}
@@ -296,6 +297,7 @@ export function MyPage() {
           onClick={onLogout}
           className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
           <ArrowRight className="text-red-500" />로그아웃
+
         </section>
       </motion.div>
       <motion.div
