@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins } from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut } from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
 import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
@@ -281,6 +281,7 @@ export function MyPage() {
           onClick={() => navigate('/mypage')}
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500" />대시 보드
+
         </section>
         <section
           onClick={() => navigate('/accounts')}
@@ -291,6 +292,12 @@ export function MyPage() {
           onClick={() => navigate('/mypage/assets')}
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <HandCoins className="text-black-500" />자산 목록
+        </section>
+        <section
+          onClick={onLogout}
+          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
+          <ArrowRight className="text-red-500" />로그아웃
+
         </section>
       </motion.div>
       <motion.div
