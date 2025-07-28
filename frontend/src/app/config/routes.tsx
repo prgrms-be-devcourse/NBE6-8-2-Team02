@@ -34,6 +34,11 @@ export const routes: RouteConfig[] = [
     layout: "auth"
   },
   {
+    path: "/mypage/assets",
+    component: AssetPage,
+    layout: "auth"
+  },
+  {
     path: "/accounts",
     component: AccountsPage,
     layout: "full"

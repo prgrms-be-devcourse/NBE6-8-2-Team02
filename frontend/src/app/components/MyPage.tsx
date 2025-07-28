@@ -70,6 +70,7 @@ export function MyPage() {
 
   const [currentRevenue, setCurrentRevenue] = useState(0);
   const [currentExpense, setCurrentExpense] = useState(0);
+  const [totalAsset, setTotalAsset] = useState(0);
   const [linearChartData, setLinearChartData] = useState([
     { month: 1, total: 100000 }
   ]);
@@ -85,8 +86,7 @@ export function MyPage() {
     { type: "stock", count: 0, value: 0 },
   ]);
 
-  const [totalAsset, setTotalAsset] = useState(0);
-  
+
   const total = barChartDataRaw.reduce((sum, item) => sum + item.value, 0);
   
   const barChartData = barChartDataRaw.map((item) => ({
@@ -104,7 +104,7 @@ export function MyPage() {
     console.log("MyPage useEffect 실행");
     fetchUserInfo();
   }, []);
-
+  
   const fetchUserInfo = async () => {
     try {
       const memberRes = await apiFetch('/api/v1/members/me');
@@ -177,23 +177,21 @@ export function MyPage() {
         }))
       );
 
+      let revenueSum = 0;
+      let expenseSum = 0;
+      let totalAssetSum = 0;
+
       mergedTransactions.forEach((tx) => {
         const txDate = new Date(tx.date);
         const txYear = txDate.getFullYear();
         const txMonth = txDate.getMonth() + 1;
 
-        console.log(txYear);
-        console.log(txMonth);
-
-        console.log(currentYear);
-        console.log(currentMonth);
-
         if(txYear === currentYear && txMonth === currentMonth) {
           if(tx.type === "ADD"){
-            setCurrentRevenue(prev => prev + tx.amount);
+            revenueSum += tx.amount;
           }
           else{
-            setCurrentExpense(prev => prev + tx.amount);
+            expenseSum += tx.amount;
           }
         }
       })
@@ -204,8 +202,7 @@ export function MyPage() {
       console.log("내 계좌 정보", myAccounts);
       console.log("내 스냅샷", mySnapShot);
 
-      console.log("이번달 수익", currentRevenue);
-      console.log("이번달 손해", currentExpense);
+      
 
       console.log("자산 거래 정보", allAssetTransactions);
       console.log("계좌 거래 정보", allAccountTransactions);
@@ -213,13 +210,14 @@ export function MyPage() {
 
       const newBarChartData = [...barChartDataRaw];
 
+      
       myAssets.forEach(asset => {
         const type = asset.assetType.toLowerCase(); // "DEPOSIT" -> "deposit"
         const target = newBarChartData.find(item => item.type === type);
         if (target) {
           target.value += asset.assetValue;
-          setTotalAsset(prev => prev + asset.assetValue);
           target.count++;
+          totalAssetSum += asset.assetValue;
         }
       });
 
@@ -228,13 +226,26 @@ export function MyPage() {
         const target = newBarChartData.find(item => item.type === type);
         if (target) {
           target.value += account.balance;
-          setTotalAsset(prev => prev + account.balance);
+          totalAssetSum += account.balance;
           target.count++;
         }
       });
 
       setBarChartData(newBarChartData);
       setActivities(mergedTransactions);
+      setCurrentRevenue(revenueSum);
+      setCurrentExpense(expenseSum);
+      setTotalAsset(totalAssetSum);
+
+      const saveSnapShot = await apiFetch(`/api/v1/snapshot/save/${memberId}?totalAsset=${totalAssetSum}`,
+        {
+          method: "POST",
+        }
+      );
+
+      console.log("스냅샷 저장 성공", saveSnapShot);
+      console.log("이번달 수익", revenueSum);
+      console.log("이번달 손해", expenseSum);
 
     } catch (error) {
       console.log("유저 정보 조회 실패", error);
@@ -251,13 +262,17 @@ export function MyPage() {
         transition={{ duration: 0.5 }}
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
       >
+        <header className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
+        </header>
+
         <section 
         onClick={() => navigate('/mypage')}
         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500"/>대시 보드
         </section>
         <section 
-        onClick={() => navigate('/mypage/accounts')}
+        onClick={() => navigate('/accounts')}
         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <CreditCard className="text-black-500"/>계좌 목록
         </section>
@@ -265,21 +280,6 @@ export function MyPage() {
         onClick={() => navigate('/mypage/assets')}
         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <HandCoins className="text-black-500"/>자산 목록
-        </section>
-        <section 
-        onClick={() => navigate('/mypage/assets/deposit')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <Coins className="text-black-500"/>예금/적금
-        </section>
-        <section 
-        onClick={() => navigate('/mypage/assets/real_estate')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <House className="text-black-500"/>부동산
-        </section>
-        <section 
-        onClick={() => navigate('/mypage/assets/stock')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <BarChart2 className="text-black-500"/>주식
         </section>
       </motion.div>
       <motion.div

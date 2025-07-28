@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: false,
       },
+      {
+        source: "/mypage/assets",
+        destination: "/",
+        permanent: false,
+      },
     ];
   },
 };
