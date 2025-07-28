@@ -3,22 +3,286 @@
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House } from 'lucide-react';
-import { ReactNode } from "react";
-import { Card as UICard, CardContent } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section} from 'lucide-react';
+import { useEffect, useState, ReactNode } from "react";
+import * as React from "react"
+import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
+import { apiFetch } from '../lib/backend/client';
+import { Asset } from 'next/font/google';
+import { assert, error, time } from 'console';
+import { totalmem } from 'os';
+import { title } from 'process';
+import { Value } from '@radix-ui/react-select';
 
-const assetChartData = [
-  { name: "1월", total: 5500000},
-  { name: "2월", total: 7500000},
-  { name: "3월", total: 11200000},
-  { name: "4월", total: 10000000},
-  { name: "5월", total: 8700000},
-  { name: "6월", total: 12480000},
-];
+interface CardProps {
+  icon: ReactNode;
+  title: string;
+  value: number;
+  onClick?: () => void;
+}
 
+function Card({ icon, title, value, onClick }: CardProps) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.015 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+      className="w-[300px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
+      onClick={onClick} // 🔹 클릭 이벤트 추가
+    >
+      <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
+      <div>
+        <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
+        <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function TypeIconTick({ x, y, payload }: any) {
+  const month = payload.value;
+
+  const getIcon = () => {
+    switch (month) {
+      case "account":
+        return <Coins className="w-6 h-6 text-green-500" />;
+      case "deposit":
+        return <Coins className="w-6 h-6 text-blue-500" />;
+      case "real_estate":
+        return <House className="w-6 h-6 text-orange-500" />;
+      case "stock":
+        return <BarChart2 className="w-6 h-6 text-purple-500" />;
+      default:
+        return <Coins className="w-6 h-6 text-green-500" />;
+    }
+  };
+
+  return (
+    <foreignObject x={x - 16} y={y - 16} width={32} height={32}>
+      <div
+        className="p-1 bg-gray-100 rounded-full flex items-center justify-center w-8 h-8"
+      >
+        {getIcon()}
+      </div>
+    </foreignObject>
+  );
+}
+
+interface ActivityItemProps {
+  amount: number;
+  type: string;
+  date: string;
+  content: string;
+  assetType: string;
+}
+
+function formatDateString(dateStr: string): string {
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return `${year}년 ${month}월 ${day}일`;
+}
+
+function ActivityItem({ content, date, amount, type, assetType }: ActivityItemProps) {
+  // type에 따른 색상 설정
+  const amountColor =
+    type === 'ADD' ? 'text-green-600' :
+    type === 'REMOVE' ? 'text-red-600' :
+    'text-gray-600';
+
+  // 금액 표시 형식, 예: +50,000 or -30,000
+  const formattedAmount =
+    (type === 'REMOVE' ? '' : '') +
+    amount.toLocaleString();
+
+  const assetIcon =
+    assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500"/> :
+    assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500"/> :
+    assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
+    assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
+    <Coins className="w-6 h-6 text-green-500" />;
+
+  return (
+    <div className="flex flex-row gap-4 py-1 border-b border-gray-200">
+      <section className="flex items-start gap-4">
+        <div className="p-2 bg-gray-100 rounded-full">{assetIcon}</div> {/* 아이콘 */}
+        <div className="flex flex-col">
+          <span className="font-medium">{content}</span>
+          <span className="text-sm text-gray-400 mt-1">{formatDateString(date)}</span>
+        </div>
+      </section>
+      <section className="flex items-start gap-4 ml-auto">
+      </section>
+      <section className="flex items-start gap-4 ml-auto">
+        <div className="flex justify-end flex-grow">
+          <span className={`${amountColor} font-semibold`}>₩{formattedAmount}</span>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+interface ActivityListProps {
+  activities: ActivityItemProps[];
+}
+
+export function ActivityList({ activities }: ActivityListProps) {
+  return (
+    <div className="bg-white rounded-2xl shadow-md border p-4 space-y-2 w-full">
+      {activities.map((activity, index) => (
+        <ActivityItem key={index} {...activity} />
+      ))}
+    </div>
+  );
+}
+
+interface CardMainProps {
+  value: number;
+  revenue: number;
+  expense: number;
+}
+
+export function CardMain({ value, revenue, expense}: CardMainProps) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.015 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+      className="rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
+    >
+      <section className="flex items-start gap-4">
+        <div className="p-2 bg-gray-100 rounded-full"><Coins className="w-6 h-6 text-blue-500"/></div>
+        <div>
+          <h3 className="text-sm text-gray-500 font-medium">자산 가치</h3>
+          <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
+        </div>
+      </section>
+
+      <section className="flex items-start gap-4 ml-auto">
+      <div className="p-2 bg-gray-100 rounded-full"><ArrowUpRight className="w-6 h-6 text-green-500"/></div>
+        <div>
+          <h3 className="text-sm text-gray-500 font-medium">이번 달 수익</h3>
+          <p className="text-xl font-semibold text-gray-800 mt-1">₩{revenue.toLocaleString()}</p>
+        </div>
+      </section>
+
+      <section className="flex items-start gap-4 ml-auto">
+      <div className="p-2 bg-gray-100 rounded-full"><ArrowDownLeft className="w-6 h-6 text-red-500"/></div>
+        <div>
+          <h3 className="text-sm text-gray-500 font-medium">이번 달 지출</h3>
+          <p className="text-xl font-semibold text-gray-800 mt-1">₩{expense.toLocaleString()}</p>
+        </div>
+      </section>
+    </motion.div>
+  );
+}
+
+type Asset = {
+  id: number;
+  memberId: number;
+  name: string;
+  assetType: string;
+  assetValue: number;
+  createDate: string;
+  modifyDate: string;
+};
 
 export function AssetPage() {
+  const [activities, setActivities] = useState([
+    { amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK" },
+  ]);
+
+  const [depositAssets, setDepositAssets] = useState([
+    { title: "KB 적금", value: 10000 },
+    { title: "KB 예금", value: 30000 },
+    { title: "신한 적금", value: 170000 },
+    { title: "신한 예예금", value: 300000 },
+  ]);
+  const [estateAssets, setEstateAssets] = useState([
+    { title: "압구정 현대", value: 11500000000 },
+    { title: "한남더힐", value: 10000000000 },
+    { title: "롯데 시그니엘", value: 7000000000 },
+  ]);
+  const [stockAssets, setStockAssets] = useState([
+    { title: "삼성전자", value: 704000 },
+    { title: "SK하이닉스", value: 2620000 },
+    { title: "S-OIL", value: 622000 },
+  ]);
+
+  const [sumAll, setSumAll] = useState([
+    { deposit: 0, estate: 0, stock: 0}
+  ])
+
+  useEffect(() => {
+    const fetchAssetInfo = async () => {
+      try {
+        const memberRes = await apiFetch('/api/v1/members/me');
+        const memberId = memberRes.id;
+
+        if(!memberId) throw new Error("잘못된 사용자 정보입니다.");
+
+        const allAssetRes = await apiFetch('/api/v1/assets');
+        const myAssets: Asset[] = allAssetRes.data?.filter(
+          (asset: Asset) => asset.memberId === memberId
+        );
+
+        console.log(myAssets);
+
+        const deposits = myAssets
+          .filter((asset) => asset.assetType === "DEPOSIT")
+          .map((asset) => ({
+            title: asset.name,
+            value: asset.assetValue,
+          }))
+          .sort((a, b) => b.value - a.value); // 내림차순 정렬
+
+        const estates = myAssets
+          .filter((asset) => asset.assetType === "REAL_ESTATE")
+          .map((asset) => ({
+            title: asset.name,
+            value: asset.assetValue,
+          }))
+          .sort((a, b) => b.value - a.value);
+
+        const stocks = myAssets
+          .filter((asset) => asset.assetType === "STOCK")
+          .map((asset) => ({
+            title: asset.name,
+            value: asset.assetValue,
+          }))
+          .sort((a, b) => b.value - a.value);
+
+        const depositSum = deposits.reduce((acc, asset) => acc + asset.value, 0);
+        const estateSum = estates.reduce((acc, asset) => acc + asset.value, 0);
+        const stockSum = stocks.reduce((acc, asset) => acc + asset.value, 0);
+
+        setSumAll(
+          [
+            {
+              deposit: depositSum,
+              estate: estateSum,
+              stock: stockSum
+            }
+          ]
+        );
+
+        setDepositAssets(deposits);
+        setEstateAssets(estates);
+        setStockAssets(stocks);
+      
+        console.log("예금/적금 자산 정보", depositAssets);
+        console.log("부동산 자산 정보", estateAssets);
+        console.log("주식 자산 정보", stockAssets);
+
+        console.log(sumAll);
+
+
+      } catch (error) {
+        console.log("유저 정보 조회 실패", error);
+      }
+    };
+    fetchAssetInfo();
+  }, []);
+
   const { navigate } = useRouter();
 
   const onLogout = () => {
@@ -26,213 +290,119 @@ export function AssetPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="p-6 max-w-6xl mx-auto space-y-6"
-    >
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">마이페이지</h1>
-        <Button onClick={onLogout}>로그아웃</Button>
-      </header>
+    <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col min-h-screen p-6 max-w-6xl ml-auto text-right space-y-6 border-r"
+      >
+        <header className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
+        </header>
 
-      <section className="mt-8">
-        {/* 총 자산산 예제 데이터 */}
-      <CardWithChart
-          icon={<Wallet className="w-6 h-6 text-blue-500" />}
-          title="총 자산"
-          value="₩12,480,000"
-          description="전월 대비 +5.4%"
-          chartData={assetChartData}
-        />
-      </section>
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* 자산 목록 예제 데이터 */}
-        <Card
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="입출금 계좌"
-          value="₩1,300,000"
-          description="2개 계좌 연결됨"
-        />
-        <Card
-          icon={<Coins className="w-6 h-6 text-blue-500" />}
-          title="예금/적금"
-          value="₩4,180,000"
-          description="2개 자산 연결됨"
-          onClick={() => navigate("/mypage/assets")}
-        />
-        <Card
-          icon={<House className="w-6 h-6 text-orange-500" />}
-          title="부동산"
-          value="₩2,000,000"
-          description="1개 자산 연결됨"
-          onClick={() => navigate("/mypage/assets")}
-        />
-        <Card
-          icon={<BarChart2 className="w-6 h-6 text-purple-500" />}
-          title="주식"
-          value="₩5,000,000"
-          description="3개 자산 연결됨"
-          onClick={() => navigate("/mypage/assets")}
-        />
-      </section>
-
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold mb-4">최근 활동</h2>
-        <div className="bg-white rounded-2xl shadow-md border p-4 space-y-2">
-          {/* 거래 기록 예제 데이터 */}
-        <ActivityItem
-          icon={<BarChart2 className="w-6 h-6 text-purple-500" />}
-          title="삼성전자 주식 매수"
-          date="2025-07-21"
-          amount={500000}
-          type="income"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="삼성전자 주식 매수"
-          date="2025-07-21"
-          amount={500000}
-          type="expense"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="토스뱅크 계좌 연결"
-          date="2025-07-19"
-          amount={0}
-          type="transfer"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="월급 입금"
-          date="2025-07-15"
-          amount={3000000}
-          type="income"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="카드 사용"
-          date="2025-07-14"
-          amount={12000}
-          type="expense"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="카드 사용"
-          date="2025-07-13"
-          amount={30000}
-          type="expense"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="카드 사용"
-          date="2025-07-12"
-          amount={100000}
-          type="expense"
-        />
-        <ActivityItem
-          icon={<Coins className="w-6 h-6 text-green-500" />}
-          title="카드 사용"
-          date="2025-07-11"
-          amount={80000}
-          type="expense"
-        />
+        <section 
+        onClick={() => navigate('/mypage')}
+        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <LayoutDashboard className="text-black-500"/>대시 보드
+        </section>
+        <section 
+        onClick={() => navigate('/accounts')}
+        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <CreditCard className="text-black-500"/>계좌 목록
+        </section>
+        <section 
+        onClick={() => navigate('/mypage/assets')}
+        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <HandCoins className="text-black-500"/>자산 목록
+        </section>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
+      >
+        <header className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">자산 목록</h1>
+        </header>
+        <div className="min-h-screen grid grid-cols-[auto_auto_auto]">
+          <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
+          >
+          <section className='border-b p-2'>
+            <Card 
+                icon={<Coins className="w-6 h-6 text-blue-500" />} 
+                title="예금/적금" 
+                value={sumAll[0].deposit}
+              />
+          </section>
+          <section className='p-2 space-y-6'>
+            {depositAssets.map(asset => (
+              <Card
+              key={asset.title}
+                icon={<Coins className="w-6 h-6 text-blue-500"/>} 
+                title={asset.title} 
+                value={asset.value}
+              />
+            ))}
+          </section>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+          >
+            <section className='border-b p-2'>
+              <Card 
+                  icon={<House className="w-6 h-6 text-orange-500" />} 
+                  title="부동산" 
+                  value={sumAll[0].estate}
+                />
+            </section>
+            <section className='p-2 space-y-6'>
+              {estateAssets.map(asset => (
+                <Card
+                  key={asset.title}
+                  icon={<House className="w-6 h-6 text-orange-500"/>} 
+                  title={asset.title} 
+                  value={asset.value}
+                />
+              ))}
+            </section>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l"
+          >
+            <section className='border-b p-2'>
+              <Card
+                  icon={<BarChart2 className="w-6 h-6 text-purple-500" />} 
+                  title="주식" 
+                  value={sumAll[0].stock}
+                />
+            </section>
+    
+            <section className='p-2 space-y-6'>
+              {stockAssets.map(asset => (
+                <Card
+                  key={asset.title}
+                  icon={<BarChart2 className="w-6 h-6 text-purple-500"/>} 
+                  title={asset.title} 
+                  value={asset.value}
+                />
+              ))}
+            </section>
+          </motion.div>
         </div>
-      </section>
-    </motion.div>
-  );
-}
-
-interface CardProps {
-  icon: ReactNode;
-  title: string;
-  value: string;
-  description: string;
-  chartData?: any[]; // optional
-  onClick?: () => void;
-}
-
-function Card({ icon, title, value, description, onClick }: CardProps) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.015 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-      className="rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={onClick} // 🔹 클릭 이벤트 추가
-    >
-      <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
+      </motion.div>
       <div>
-        <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
-        <p className="text-xl font-semibold text-gray-800 mt-1">{value}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
-      </div>
-    </motion.div>
-  );
-}
-
-export function CardWithChart({ icon, title, value, description, chartData }: CardProps) {
-  return (
-    <UICard className="p-1">
-      <CardContent className="flex flex-row justify-between items-center gap-4">
-        {/* 텍스트 영역 */}
-        <div className="flex items-start gap-4 space-y-2 w-1/5">
-          <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
-          <div>
-            <div className="text-sm font-medium text-gray-500">{title}</div>
-            <div className="text-2xl font-bold">{value}</div>
-            <div className="text-sm text-muted-foreground">{description}</div>
-          </div>
-        </div>
-
-        {/* 차트 영역 */}
-        {chartData && (
-          <div className="w-4/5 h-32">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <XAxis hide dataKey="name" />
-                <YAxis hide domain={['auto', 'auto']} />
-                <Tooltip />
-                <Line type="monotone" name="총 자산" dataKey="total" stroke="#3b82f6" strokeWidth={1} dot={true} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </CardContent>
-    </UICard>
-  );
-}
-
-interface ActivityItemProps {
-  icon: React.ReactNode;
-  title: string;
-  date: string;
-  amount: number;           // 금액 (예: 50000)
-  type: 'income' | 'expense' | 'transfer';  // 거래 유형 예시
-}
-
-function ActivityItem({ icon, title, date, amount, type }: ActivityItemProps) {
-  // type에 따른 색상 설정
-  const amountColor =
-    type === 'income' ? 'text-green-600' :
-    type === 'expense' ? 'text-red-600' :
-    'text-gray-600';
-
-  // 금액 표시 형식, 예: +50,000 or -30,000
-  const formattedAmount =
-    (type === 'expense' ? '' : '') +
-    amount.toLocaleString();
-
-  return (
-    <div className="flex items-center gap-2 text-sm py-1 border-b border-gray-200">
-      <div className="p-2 bg-gray-100 rounded-full">{icon}</div> {/* 아이콘 */}
-      <div className="flex flex-col">
-        <span className="font-medium">{title}</span>
-        <span className="text-gray-400">{date}</span>
-      </div>
-      <div className="flex justify-end flex-grow">
-        <span className={`${amountColor} font-semibold`}>₩{formattedAmount}</span>
       </div>
     </div>
   );
