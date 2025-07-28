@@ -254,36 +254,53 @@ export function MyPage() {
         transition={{ duration: 0.5 }}
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
       >
-        <section
-          onClick={() => navigate('/mypage')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500" />대시 보드
-        </section>
-        <section
-          onClick={() => navigate('/mypage/accounts')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500" />계좌 목록
-        </section>
-        <section
-          onClick={() => navigate('/mypage/assets')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500" />자산 목록
-        </section>
-        <section
-          onClick={() => navigate('/mypage/assets/deposit')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <Coins className="text-black-500" />예금/적금
-        </section>
-        <section
-          onClick={() => navigate('/mypage/assets/real_estate')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <House className="text-black-500" />부동산
-        </section>
-        <section
-          onClick={() => navigate('/mypage/assets/stock')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <BarChart2 className="text-black-500" />주식
-        </section>
+        <div className="flex flex-col h-full">
+          <div className="flex-1 space-y-2">
+            <section
+              onClick={() => navigate('/mypage')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <LayoutDashboard className="text-black-500" />대시 보드
+            </section>
+            <section
+              onClick={() => navigate('/mypage/accounts')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <CreditCard className="text-black-500" />계좌 목록
+            </section>
+            <section
+              onClick={() => navigate('/mypage/assets')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <HandCoins className="text-black-500" />자산 목록
+            </section>
+            <section
+              onClick={() => navigate('/mypage/assets/deposit')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <Coins className="text-black-500" />예금/적금
+            </section>
+            <section
+              onClick={() => navigate('/mypage/assets/real_estate')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <House className="text-black-500" />부동산
+            </section>
+            <section
+              onClick={() => navigate('/mypage/assets/stock')}
+              className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+              <BarChart2 className="text-black-500" />주식
+            </section>
+
+            {/* 구분선 */}
+            <div className="border-t border-gray-200 my-2"></div>
+
+            {/* 로그아웃 버튼 */}
+            <section
+              onClick={onLogout}
+              className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer mt-auto">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              로그아웃
+            </section>
+          </div>
+        </div>
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}

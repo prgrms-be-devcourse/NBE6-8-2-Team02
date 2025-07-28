@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useRouter } from "./Router";
+import { authAPI } from "@/lib/auth";
 
 export function AccountRecoveryPage() {
     const [findAccountData, setFindAccountData] = useState({
@@ -49,21 +50,19 @@ export function AccountRecoveryPage() {
         setSuccess("");
 
         try {
-            // TODO: 실제 API 호출로 대체
             console.log("계정 찾기 시도:", findAccountData);
+            const response = await authAPI.findAccount(findAccountData);
+            console.log("계정 찾기 응답:", response);
 
-            // 임시 성공 응답 (실제로는 API 호출)
-            setTimeout(() => {
-                setFoundAccount({
-                    email: "test@example.com",
-                    name: findAccountData.name
-                });
-                setSuccess("계정을 찾았습니다!");
-                setIsLoading(false);
-            }, 1000);
+            setFoundAccount({
+                email: response.email,
+                name: response.name
+            });
+            setSuccess("계정을 찾았습니다!");
+            setIsLoading(false);
         } catch (error) {
             console.error("계정 찾기 실패:", error);
-            setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            setError(error instanceof Error ? error.message : "계정을 찾을 수 없습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }
     };
@@ -103,18 +102,16 @@ export function AccountRecoveryPage() {
         setSuccess("");
 
         try {
-            // TODO: 실제 API 호출로 대체
             console.log("비밀번호 재설정 시도:", resetPasswordData);
+            const response = await authAPI.resetPassword(resetPasswordData);
+            console.log("비밀번호 재설정 응답:", response);
 
-            // 임시 성공 응답 (실제로는 API 호출)
-            setTimeout(() => {
-                setIsPasswordResetMode(true);
-                setSuccess("계정을 확인했습니다. 새 비밀번호를 입력해주세요.");
-                setIsLoading(false);
-            }, 1000);
+            setIsPasswordResetMode(true);
+            setSuccess("계정을 확인했습니다. 새 비밀번호를 입력해주세요.");
+            setIsLoading(false);
         } catch (error) {
             console.error("비밀번호 재설정 실패:", error);
-            setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            setError(error instanceof Error ? error.message : "계정 정보가 일치하지 않습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }
     };
@@ -145,21 +142,27 @@ export function AccountRecoveryPage() {
         setError("");
 
         try {
-            // TODO: 실제 API 호출로 대체
-            console.log("비밀번호 재설정:", { ...resetPasswordData, newPassword });
-
-            // 임시 성공 응답 (실제로는 API 호출)
-            setTimeout(() => {
-                setSuccess("비밀번호가 성공적으로 변경되었습니다!");
+            // 실제 API 호출
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                setError("사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
                 setIsLoading(false);
-                // 2초 후 로그인 페이지로 이동
-                setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
-            }, 1000);
+                return;
+            }
+
+            console.log("비밀번호 변경 시도:", { userId, newPassword });
+            const response = await authAPI.changePassword(parseInt(userId), newPassword);
+            console.log("비밀번호 변경 응답:", response);
+
+            setSuccess("비밀번호가 성공적으로 변경되었습니다!");
+            setIsLoading(false);
+            // 2초 후 로그인 페이지로 이동
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
         } catch (error) {
             console.error("비밀번호 재설정 실패:", error);
-            setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            setError(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.");
             setIsLoading(false);
         }
     };

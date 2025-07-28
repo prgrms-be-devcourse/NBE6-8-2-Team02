@@ -102,4 +102,109 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("존재하지 않는 이메일입니다."));
 
     }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    void logoutSuccess() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        post("/api/v1/auth/logout")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+        
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(header().exists("Set-Cookie"));
+    }
+
+    @Test
+    @DisplayName("계정 찾기 성공")
+    void findAccountSuccess() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        post("/api/v1/auth/find-account")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "name": "관리자",
+                                            "phoneNumber": "010-0000-0000"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+        
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("admin@test.com"))
+                .andExpect(jsonPath("$.name").value("관리자"));
+    }
+
+    @Test
+    @DisplayName("계정 찾기 실패 - 일치하는 회원 없음")
+    void findAccountFailure() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        post("/api/v1/auth/find-account")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "name": "존재하지않는사람",
+                                            "phoneNumber": "010-9999-9999"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+        
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+                .andExpect(jsonPath("$.message").value("일치하는 회원 정보를 찾을 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 성공")
+    void resetPasswordSuccess() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        post("/api/v1/auth/reset-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "admin@test.com",
+                                            "name": "관리자",
+                                            "phoneNumber": "010-0000-0000"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+        
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 실패 - 일치하는 회원 없음")
+    void resetPasswordFailure() throws Exception {
+        ResultActions resultActions = mockMvc
+                .perform(
+                        post("/api/v1/auth/reset-password")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "email": "wrong@test.com",
+                                            "name": "관리자",
+                                            "phoneNumber": "010-1234-5678"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+        
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+                .andExpect(jsonPath("$.message").value("일치하는 회원 정보를 찾을 수 없습니다."));
+    }
 }

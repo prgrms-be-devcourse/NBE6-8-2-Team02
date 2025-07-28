@@ -46,12 +46,22 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
         return;
       }
 
+      // 1. 페이지 로드 시 쿠키에서 JWT 토큰 확인 및 자동 로그인
+      console.log("페이지 로드 - 쿠키에서 자동 로그인 시도");
+      // @ts-ignore - authAPI에 추가된 메서드들
+      const autoLoginSuccess = await authAPI.checkCookieAndAutoLogin();
+
+      if (autoLoginSuccess) {
+        console.log("쿠키에서 자동 로그인 성공");
+      }
+
       // 보호된 경로 목록
       const protectedPaths = ['/mypage', '/accounts', '/asset', '/goal'];
       const isProtectedPath = protectedPaths.some(path => currentPath.startsWith(path));
 
       if (isProtectedPath) {
-        // 인증 상태 확인
+        // 2. 인증 상태 확인
+        // @ts-ignore - authAPI에 추가된 메서드들
         const isAuth = authAPI.isAuthenticated();
 
         if (!isAuth) {
@@ -62,16 +72,19 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
           return;
         }
 
-        // 토큰 유효성 검증 (선택적)
+        // 3. 토큰 유효성 검증
         try {
+          // @ts-ignore - authAPI에 추가된 메서드들
           const isValid = await authAPI.validateToken();
           if (!isValid) {
             console.log("토큰이 유효하지 않음, 로그아웃 처리");
+            // @ts-ignore - authAPI에 추가된 메서드들
             authAPI.logout();
             navigate("/");
           }
         } catch (error) {
           console.log("토큰 검증 실패, 로그아웃 처리");
+          // @ts-ignore - authAPI에 추가된 메서드들
           authAPI.logout();
           navigate("/");
         }
