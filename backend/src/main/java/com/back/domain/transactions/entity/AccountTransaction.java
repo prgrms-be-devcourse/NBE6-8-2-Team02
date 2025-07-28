@@ -4,6 +4,8 @@ import com.back.domain.account.entity.Account;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 public class AccountTransaction extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id",nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;
 
     @Enumerated(EnumType.STRING)
