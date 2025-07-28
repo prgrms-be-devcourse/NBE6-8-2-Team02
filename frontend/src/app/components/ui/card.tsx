@@ -45,6 +45,19 @@ export function CardTitle({ className, children }: CardTitleProps) {
   );
 }
 
+interface CardDescriptionProps {
+  className?: string;
+  children: ReactNode;
+}
+
+export function CardDescription({ className, children }: CardDescriptionProps) {
+  return (
+    <p className={clsx("text-sm text-muted-foreground", className)}>
+      {children}
+    </p>
+  );
+}
+
 interface CardContentProps {
   className?: string;
   children: ReactNode;
