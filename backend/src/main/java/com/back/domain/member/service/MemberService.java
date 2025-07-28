@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -22,6 +23,11 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+
+    //일반 서비스//
+    public Optional<Member> findById(int id){
+        return memberRepository.findById(id);
+    }
 
     // 회원 가입
     // 회원 가입

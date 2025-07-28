@@ -7,7 +7,9 @@ import com.back.domain.asset.entity.AssetType;
 import com.back.domain.asset.repository.AssetRepository;
 import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.repository.GoalRepository;
+import com.back.domain.member.entity.Snapshot;
 import com.back.domain.member.entity.Member;
+import com.back.domain.member.repository.SnapshotRepository;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.entity.Transaction;
@@ -25,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class BaseInitData {
     private final TransactionRepository transactionRepository;
     private final GoalRepository goalRepository;
     private final AccountTransactionRepository accountTransactionRepository;
+    private final SnapshotRepository snapshotRepository;
 
     @Autowired
     @Lazy
@@ -53,6 +57,7 @@ public class BaseInitData {
             self.assetInit();
             self.transactionInit();
             self.accountTransactionInit();
+            self.snapShotInit();
             self.goalInit();
         };
     }
@@ -171,15 +176,19 @@ public class BaseInitData {
 
         //유저1
         Asset asset1 = assetRepository.findById(1).get();
-        transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 1000, "1입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        Asset asset2 = assetRepository.findById(2).get();
+        Asset asset3 = assetRepository.findById(3).get();
+        transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 30000, "적금 이자", LocalDateTime.of(2025, 7, 23, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset2, TransactionType.REMOVE, 12000, "주가 하락", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 30000, "부동산 가치 상승", LocalDateTime.of(2025, 7, 9, 0, 0, 0)));
 
         //유저1
-        Asset asset2 = assetRepository.findById(4).get();
-        transactionRepository.save(new Transaction(asset2, TransactionType.ADD, 1000, "2입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        Asset asset4 = assetRepository.findById(4).get();
+        transactionRepository.save(new Transaction(asset4, TransactionType.ADD, 24000, "2입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
 
         //유저1
-        Asset asset3 = assetRepository.findById(7).get();
-        transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 1000, "3입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        Asset asset5 = assetRepository.findById(7).get();
+        transactionRepository.save(new Transaction(asset5, TransactionType.ADD, 71000, "3입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 
     @Transactional
@@ -188,17 +197,69 @@ public class BaseInitData {
         if(accountTransactionRepository.count() > 0)
             return;
 
-        //유저1
         Account account1 = accountRepository.findById(1).get();
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 1000, "1입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 17000, "입금", LocalDateTime.of(2025, 7, 2, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 2000, "입금", LocalDateTime.of(2025, 7, 8, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 18000, "출금", LocalDateTime.of(2025, 7, 12, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 12000, "출금", LocalDateTime.of(2025, 7, 13, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 9000, "입금", LocalDateTime.of(2025, 7, 22, 0, 0, 0)));
 
         //유저1
         Account account2 = accountRepository.findById(3).get();
-        accountTransactionRepository.save(new AccountTransaction(account2, TransactionType.ADD, 1000, "2입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account2, TransactionType.REMOVE, 21000, "2출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
 
         //유저1
         Account account3 = accountRepository.findById(5).get();
-        accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.ADD, 1000, "3입금", LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.REMOVE, 30000, "3출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+    }
+
+    @Transactional
+    @Profile("!test")
+    public void snapShotInit() {
+        if(snapshotRepository.count() > 0)
+            return;
+
+        Member user1 = memberRepository.findById(4).orElseThrow();
+        Member user2 = memberRepository.findById(5).orElseThrow();
+        Member user3 = memberRepository.findById(6).orElseThrow();
+
+        YearMonth now = YearMonth.now();
+
+        // user1: 100만 시작, 매달 +20만 증가
+        for (int i = 0; i < 6; i++) {
+            YearMonth target = now.minusMonths(i);
+            Snapshot snapshot = Snapshot.builder()
+                    .member(user1)
+                    .year(target.getYear())
+                    .month(target.getMonthValue())
+                    .totalAsset(1000000 + (20000 * i))
+                    .build();
+            snapshotRepository.save(snapshot);
+        }
+
+        // user2: 200만 시작, 매달 -10만 감소
+        for (int i = 0; i < 6; i++) {
+            YearMonth target = now.minusMonths(i);
+            Snapshot snapshot = Snapshot.builder()
+                    .member(user2)
+                    .year(target.getYear())
+                    .month(target.getMonthValue())
+                    .totalAsset(2000000 - (10000 * i))
+                    .build();
+            snapshotRepository.save(snapshot);
+        }
+
+        // user3: 150만 고정
+        for (int i = 0; i < 6; i++) {
+            YearMonth target = now.minusMonths(i);
+            Snapshot snapshot = Snapshot.builder()
+                    .member(user3)
+                    .year(target.getYear())
+                    .month(target.getMonthValue())
+                    .totalAsset(1500000)
+                    .build();
+            snapshotRepository.save(snapshot);
+        }
     }
 
     @Transactional
