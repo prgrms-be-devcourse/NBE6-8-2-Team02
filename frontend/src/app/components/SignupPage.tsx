@@ -14,7 +14,7 @@ export function SignupPage() {
     phoneNumber: ""
   });
 
-  
+
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +44,18 @@ export function SignupPage() {
 
     if (!signupData.name.trim()) {
       setError("이름을 입력해주세요.");
+      return;
+    }
+
+    if (!signupData.phoneNumber.trim()) {
+      setError("전화번호를 입력해주세요.");
+      return;
+    }
+
+    // 전화번호 형식 검증 (010-1234-5678 형식)
+    const phoneRegex = /^010-\d{4}-\d{4}$/;
+    if (!phoneRegex.test(signupData.phoneNumber)) {
+      setError("올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)");
       return;
     }
 
@@ -152,6 +164,24 @@ export function SignupPage() {
             value={signupData.email}
             onChange={(e) => {
               setSignupData({ ...signupData, email: e.target.value });
+              setError(""); // 입력 시 에러 메시지 초기화
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSignup();
+              }
+            }}
+          />
+        </div>
+        <div className="space-y-2 text-left">
+          <Label htmlFor="signup-phone">전화번호</Label>
+          <Input
+            id="signup-phone"
+            type="tel"
+            placeholder="전화번호를 입력하세요 (010-1234-5678)"
+            value={signupData.phoneNumber}
+            onChange={(e) => {
+              setSignupData({ ...signupData, phoneNumber: e.target.value });
               setError(""); // 입력 시 에러 메시지 초기화
             }}
             onKeyPress={(e) => {

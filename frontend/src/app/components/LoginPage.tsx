@@ -63,6 +63,10 @@ export function LoginPage() {
     navigate("/signup");
   };
 
+  const handleForgotPasswordClick = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <motion.div
       key="login"
@@ -147,12 +151,18 @@ export function LoginPage() {
         {isLoading ? "로그인 중..." : "로그인"}
       </Button>
 
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <button
           onClick={handleSignupClick}
-          className="text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="text-sm text-muted-foreground hover:text-primary transition-colors block w-full"
         >
           아직 계정이 없나요?
+        </button>
+        <button
+          onClick={handleForgotPasswordClick}
+          className="text-sm text-muted-foreground hover:text-primary transition-colors block w-full"
+        >
+          계정을 잊어버리셨나요?
         </button>
       </div>
     </motion.div>
