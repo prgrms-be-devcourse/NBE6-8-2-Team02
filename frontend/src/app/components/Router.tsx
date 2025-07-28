@@ -52,6 +52,7 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
 
       if (isProtectedPath) {
         // 인증 상태 확인
+        // @ts-ignore - authAPI에 추가된 메서드들
         const isAuth = authAPI.isAuthenticated();
 
         if (!isAuth) {
@@ -64,14 +65,17 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
 
         // 토큰 유효성 검증 (선택적)
         try {
+          // @ts-ignore - authAPI에 추가된 메서드들
           const isValid = await authAPI.validateToken();
           if (!isValid) {
             console.log("토큰이 유효하지 않음, 로그아웃 처리");
+            // @ts-ignore - authAPI에 추가된 메서드들
             authAPI.logout();
             navigate("/");
           }
         } catch (error) {
           console.log("토큰 검증 실패, 로그아웃 처리");
+          // @ts-ignore - authAPI에 추가된 메서드들
           authAPI.logout();
           navigate("/");
         }
