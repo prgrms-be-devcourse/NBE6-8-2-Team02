@@ -32,8 +32,9 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public List<Account> getAccounts() {
-        return accountRepository.findAll();}
+    public List<Account> getAccountsByMemberId(int memberId) {
+        return accountRepository.findAllByMemberId(memberId);
+    }
 
     public Account getAccount(int accountId) {
         return accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("해당 계좌가 존재하지 않습니다. id: " + accountId));

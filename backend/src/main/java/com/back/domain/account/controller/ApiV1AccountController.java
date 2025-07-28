@@ -6,9 +6,11 @@ import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.service.AccountService;
 import com.back.global.rsData.RsData;
+import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +35,10 @@ public class ApiV1AccountController {
 
     @GetMapping
     @Operation(summary = "계좌 다건 조회", description = "계좌 다건 조회")
-    public RsData<List<AccountDto>> getAccunts(){
-        List<Account> accounts=accountService.getAccounts();
+    public RsData<List<AccountDto>> getAccunts(@AuthenticationPrincipal CustomUserDetails userDetails){
+        int memberId=userDetails.getMember().getId();
+
+        List<Account> accounts=accountService.getAccountsByMemberId(memberId);
         List<AccountDto> accountDtos = accounts.stream().map(AccountDto::new).toList();
 
         return new
