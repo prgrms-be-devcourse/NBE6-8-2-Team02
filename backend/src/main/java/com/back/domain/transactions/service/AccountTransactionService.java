@@ -2,9 +2,8 @@ package com.back.domain.transactions.service;
 
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.repository.AccountRepository;
-import com.back.domain.transactions.Dto.CreateAccTracRequestDto;
+import com.back.domain.transactions.dto.CreateAccTracRequestDto;
 import com.back.domain.transactions.entity.AccountTransaction;
-import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
 import com.back.domain.transactions.repository.AccountTransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class AccountTransactionService {
         accountRepository.findById(accountId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 자산입니다. id: " + accountId));
 
-        return accountTransactionRepository.findByAccountId(accountId);
+        return accountTransactionRepository.findByAccount_Id(accountId);
     }
 
     // ------- 일반 서비스 -------- //

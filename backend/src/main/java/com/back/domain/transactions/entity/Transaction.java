@@ -1,6 +1,7 @@
 package com.back.domain.transactions.entity;
 
 import com.back.domain.asset.entity.Asset;
+import com.back.domain.asset.entity.AssetType;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

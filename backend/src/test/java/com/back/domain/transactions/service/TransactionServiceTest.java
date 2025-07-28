@@ -39,7 +39,7 @@ class TransactionServiceTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        CreateTransactionRequestDto dto = new CreateTransactionRequestDto(1, "ADD", 1000, "테스트", "2024-07-23T15:00:00");
+        CreateTransactionRequestDto dto = new CreateTransactionRequestDto(1, "ADD", "REAL_ESTATE", 1000, "테스트", "2024-07-23T15:00:00");
 
         // 4. 가짜 동작 정의
         when(assetRepository.findById(1)).thenReturn(Optional.of(asset));

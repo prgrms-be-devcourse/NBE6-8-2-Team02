@@ -1,5 +1,6 @@
 package com.back.domain.transactions.repository;
 
+import com.back.domain.asset.entity.Asset;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +13,7 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     
     // 특정 자산의 거래 목록 조회
-    List<Transaction> findByAssetId(int assetId);
+    List<Transaction> findByAsset_Id(int assetId);
     
     // 특정 계좌의 거래 목록 조회 (Asset을 통해 Account 연결)
     @Query("SELECT t FROM Transaction t JOIN t.asset a WHERE a.member.id = :accountId")
