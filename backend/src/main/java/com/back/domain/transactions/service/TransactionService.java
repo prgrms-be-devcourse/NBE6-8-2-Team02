@@ -1,6 +1,7 @@
 package com.back.domain.transactions.service;
 
 import com.back.domain.asset.entity.Asset;
+import com.back.domain.asset.entity.AssetType;
 import com.back.domain.asset.repository.AssetRepository;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.transactions.dto.CreateTransactionRequestDto;
@@ -77,16 +78,7 @@ public class TransactionService {
         assetRepository.findById(assetId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 자산입니다. id: " + assetId));
         
-        return transactionRepository.findByAssetId(assetId);
-    }
-
-    // 특정 계좌의 거래 목록 조회
-    public List<Transaction> findByAccountId(int accountId) {
-        // 계좌가 존재하는지 확인
-        accountRepository.findById(accountId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 계좌입니다. id: " + accountId));
-        
-        return transactionRepository.findByAccountId(accountId);
+        return transactionRepository.findByAsset_Id(assetId);
     }
 
     // 거래 검색 및 필터링
