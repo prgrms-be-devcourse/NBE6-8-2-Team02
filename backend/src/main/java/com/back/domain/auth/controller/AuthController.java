@@ -63,7 +63,7 @@ public class AuthController {
                 .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
                 .path("/")
                 .maxAge(jwtProperties.getAccessTokenValidity() / 1000)
-                .sameSite("Lax") // "None"은 cross-origin 쿠키가 필요한 경우
+                .sameSite("Lax") //
                 .build();
 
         return ResponseEntity.ok()
@@ -79,7 +79,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "비밀번호 재설정", description = "이메일, 이름, 전화번호 확인 후 임시 비밀번호를 발급합니다.")
+    @Operation(summary = "비밀번호 재설정", description = "이메일, 이름, 전화번호 확인 후 비밀번호를 재설정합니다.")
     public ResponseEntity<ResetPasswordResponseDto> resetPassword(@Valid @RequestBody ResetPasswordRequestDto request) {
         ResetPasswordResponseDto response = authService.resetPassword(
                 request.email(),
