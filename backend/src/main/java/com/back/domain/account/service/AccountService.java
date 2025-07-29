@@ -6,6 +6,7 @@ import com.back.domain.account.entity.Account;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.domain.transactions.entity.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,15 @@ public class AccountService {
 
         accountRepository.deleteById(accountId);
 
+        return account;
+    }
+
+    public Account updateBalance(Account account, TransactionType type, int amount){
+        if(type==TransactionType.ADD){
+            account.setBalance(account.getBalance()+amount);
+        } else if (type==TransactionType.REMOVE) {
+            account.setBalance(account.getBalance()-amount);
+        }
         return account;
     }
 
