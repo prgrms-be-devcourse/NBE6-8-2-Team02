@@ -26,6 +26,7 @@ public class ApiV1GoalController {
     @Operation(summary = "다건 조회")
     public List<GoalDto> getGoals(@AuthenticationPrincipal CustomUserDetails userDetails) {
         int memberId = userDetails.getMember().getId();
+
         List<Goal> goals = goalService.findByMemberId(memberId);
 
         return goals
