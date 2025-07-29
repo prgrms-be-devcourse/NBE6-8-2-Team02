@@ -12,9 +12,9 @@ public record GoalRequestDto(
         @Size(min = 2, max = 100)
         String description,
         @NotNull
-        int currentAmount,
+        long currentAmount,
         @NotNull
-        int targetAmount,
+        long targetAmount,
         @NotNull
         LocalDateTime deadline,
         GoalStatus status

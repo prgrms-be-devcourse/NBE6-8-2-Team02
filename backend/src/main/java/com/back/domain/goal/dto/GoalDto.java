@@ -9,8 +9,8 @@ public record GoalDto(
         int id,
         int memberId,
         String description,
-        int currentAmount,
-        int targetAmount,
+        long currentAmount,
+        long targetAmount,
         LocalDateTime deadline,
         GoalStatus status
 ) {
