@@ -73,12 +73,6 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 번호 수정
   const updateAccount = (id: number, newNumber: string) => {
-    setAccounts((prev) =>
-      prev.map((acc) =>
-        acc.id === id ? { ...acc, accountNumber: newNumber } : acc
-      )
-    );
-
     const fetchUpdateAccount = async () => {
       try {
         const response = await fetch(
@@ -94,6 +88,14 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
         if (result.resultCode === "200-1") {
           alert("계좌번호가 변경되었습니다.");
+          setAccounts((prev) =>
+            prev.map((acc) =>
+              acc.id === id ? { ...acc, accountNumber: newNumber } : acc
+            )
+          );
+        } else {
+          console.log("계좌번호 변경 실패");
+          alert("계좌번호 변경에 실패했습니다.");
         }
       } catch (error) {
         console.error("계좌번호 변경 요청 실패.", error);
@@ -105,10 +107,6 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 삭제
   const deleteAccount = (id: number) => {
-    setAccounts((prev) => prev.filter((acc) => acc.id !== id));
-    // 관련 거래들도 삭제
-    setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
-
     const fetchDeleteAccount = async () => {
       try {
         const response = await fetch(
@@ -123,6 +121,12 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
         if (result.resultCode === "200-1") {
           console.log(result.msg);
+          setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+          // 관련 거래들도 삭제
+          setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
+        } else {
+          console.log("계좌 삭제 실패");
+          alert("계좌 삭제에 실패했습니다.");
         }
       } catch (error) {
         console.error("계좌 삭제 요청을 실패하였습니다.");
