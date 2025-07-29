@@ -58,9 +58,6 @@ export function CreateAssetModal({ open, onOpenChange, onSuccess }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogDescription>
-            이 다이얼로그는 자산을을 추가하는 데 사용됩니다.
-        </DialogDescription>
         <DialogHeader>
           <DialogTitle>자산 추가</DialogTitle>
         </DialogHeader>

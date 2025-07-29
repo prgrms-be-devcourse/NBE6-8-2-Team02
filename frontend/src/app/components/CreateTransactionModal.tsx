@@ -87,9 +87,6 @@ export function CreateTransactionModal({ open, onOpenChange, onSuccess, assetId 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogDescription>
-            이 다이얼로그는 거래를 추가하는 데 사용됩니다.
-        </DialogDescription>
         <DialogHeader>
           <DialogTitle>거래 추가</DialogTitle>
         </DialogHeader>
