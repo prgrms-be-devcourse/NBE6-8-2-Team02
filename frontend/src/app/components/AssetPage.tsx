@@ -3,6 +3,7 @@
 import { useRouter } from "./Router";
 import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section} from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
+import { CreateAssetModal } from "./CreateAssetModal";
 import * as React from "react"
 import { apiFetch } from '../lib/backend/client';
 import { Asset } from 'next/font/google';
@@ -24,24 +25,23 @@ export function AssetPage() {
 
   const [depositAssets, setDepositAssets] = useState([
     { id: 1, title: "KB 적금", value: 10000 },
-    { id: 2, title: "KB 예금", value: 30000 },
-    { id: 3, title: "신한 적금", value: 170000 },
-    { id: 4, title: "신한 예예금", value: 300000 },
   ]);
   const [estateAssets, setEstateAssets] = useState([
     { id: 5, title: "압구정 현대", value: 11500000000 },
-    { id: 6, title: "한남더힐", value: 10000000000 },
-    { id: 7, title: "롯데 시그니엘", value: 7000000000 },
   ]);
   const [stockAssets, setStockAssets] = useState([
     { id: 8, title: "삼성전자", value: 704000 },
-    { id: 9, title: "SK하이닉스", value: 2620000 },
-    { id: 10, title: "S-OIL", value: 622000 },
   ]);
 
   const [sumAll, setSumAll] = useState([
     { deposit: 0, estate: 0, stock: 0}
   ])
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const handleCreate = () => {
+    setModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchAssetInfo = async () => {
@@ -115,7 +115,7 @@ export function AssetPage() {
       }
     };
     fetchAssetInfo();
-  }, []);
+  }, [reloadTrigger]);
 
   const { navigate } = useRouter();
 
@@ -131,6 +131,7 @@ export function AssetPage() {
   };
 
   return (
+    <>
     <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
       <div
         className="flex flex-col min-h-screen p-6 max-w-6xl ml-auto text-right space-y-6 border-r"
@@ -171,10 +172,11 @@ export function AssetPage() {
           className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
           >
           <section className='border-b p-2'>
-            <Style.CardAsset 
+            <Style.CardAssetCreate
                 icon={<Coins className="w-6 h-6 text-blue-500" />} 
                 title="예금/적금" 
                 value={sumAll[0].deposit}
+                onCreate={handleCreate}
               />
           </section>
           <section className='p-2 space-y-6'>
@@ -193,10 +195,11 @@ export function AssetPage() {
             className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
           >
             <section className='border-b p-2'>
-              <Style.CardAsset
+              <Style.CardAssetCreate
                   icon={<House className="w-6 h-6 text-orange-500" />} 
                   title="부동산" 
                   value={sumAll[0].estate}
+                  onCreate={handleCreate}
                 />
             </section>
             <section className='p-2 space-y-6'>
@@ -215,10 +218,11 @@ export function AssetPage() {
             className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l"
           >
             <section className='border-b p-2'>
-              <Style.CardAsset
+              <Style.CardAssetCreate
                   icon={<BarChart2 className="w-6 h-6 text-purple-500" />} 
                   title="주식" 
                   value={sumAll[0].stock}
+                  onCreate={handleCreate}
                 />
             </section>
     
@@ -239,5 +243,11 @@ export function AssetPage() {
       <div>
       </div>
     </div>
+    <CreateAssetModal 
+    open={modalOpen} 
+    onOpenChange={setModalOpen}
+    onSuccess={() => setReloadTrigger(prev => prev + 1)}
+    />
+    </>
   );
 }

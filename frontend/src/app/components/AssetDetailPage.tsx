@@ -5,7 +5,8 @@ import { useRouter } from "./Router";
 import { useParams } from "@/lib/useParams";
 import { useEffect, useState, ReactNode } from "react";
 import { apiFetch } from "../lib/backend/client";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section} from 'lucide-react';
+import { CreateTransactionModal } from "./CreateTransactionModal";
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon} from 'lucide-react';
 import * as Style from './ui/styles'
 
 type Asset = {
@@ -32,7 +33,12 @@ export function AssetDetailPage() {
       };
 
     const [reloadFlag, setReloadFlag] = useState(false);
-    const handleDelete = async (id:number) => {
+    const [modalOpen, setModalOpen] = useState(false);
+    const handleCreate = () => {
+        setModalOpen(true);
+    };
+
+    const handleDeleteTransaction = async (id:number) => {
         try {
             await apiFetch(`/api/v1/transactions/asset/${id}`, {
                 method: "DELETE",
@@ -44,9 +50,21 @@ export function AssetDetailPage() {
         }
     }
 
+    const handleDeleteAsset = async (id:number) => {
+        try {
+            await apiFetch(`/api/v1/assets/${id}`, {
+                method: "DELETE",
+            });
+            console.log("삭제 완료!" + id);
+            navigate('/mypage/assets');
+        } catch (error) {
+            console.log("삭제 에러");
+        }
+    }
+
     const params = useParams();
 
-    const id = params.id;
+    const id = Number(params.id);
     const [asset, setAsset] = useState<Asset>({
         id: 0,
         memberId: 0,
@@ -57,7 +75,7 @@ export function AssetDetailPage() {
         modifyDate: new Date().toISOString(),
       });
       const [activities, setActivities] = useState([
-        { id: 0, amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK", onDelete: handleDelete },
+        { id: 0, amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK", onDelete: handleDeleteTransaction },
       ]);
 
     useEffect (() => {
@@ -75,8 +93,9 @@ export function AssetDetailPage() {
                     date: item.date,
                     content: item.content,
                     assetType: assetType,
-                    onDelete: handleDelete
-                  }));
+                    onDelete: handleDeleteTransaction
+                  }))
+                  .sort((a: { date: string }, b: { date: string }) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
                 setActivities(assetTransaction);
                 setAsset(assetInfo);
@@ -89,60 +108,82 @@ export function AssetDetailPage() {
     }, [reloadFlag]);
     
     return (
-        <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
-            <div className="flex flex-col min-h-screen p-6 max-w-6xl ml-auto text-right space-y-6 border-r">
-                <header className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
-                </header>
+        <>
+            <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
+                <div className="flex flex-col min-h-screen p-6 max-w-6xl ml-auto text-right space-y-6 border-r">
+                    <header className="flex items-center justify-between">
+                        <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
+                    </header>
 
-                <section 
-                    onClick={() => navigate('/mypage')}
-                    className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <LayoutDashboard className="text-black-500"/>대시 보드
-                </section>
-                <section 
-                    onClick={() => navigate('/accounts')}
-                    className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <CreditCard className="text-black-500"/>계좌 목록
-                </section>
-                <section 
-                    onClick={() => navigate('/mypage/assets')}
-                    className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <HandCoins className="text-black-500"/>자산 목록
-                </section>
-                <section
-                    onClick={onLogout}
-                    className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
-                    <ArrowRight className="text-red-500" />로그아웃
-                </section>
+                    <section 
+                        onClick={() => navigate('/mypage')}
+                        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <LayoutDashboard className="text-black-500"/>대시 보드
+                    </section>
+                    <section 
+                        onClick={() => navigate('/accounts')}
+                        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <CreditCard className="text-black-500"/>계좌 목록
+                    </section>
+                    <section 
+                        onClick={() => navigate('/mypage/assets')}
+                        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <HandCoins className="text-black-500"/>자산 목록
+                    </section>
+                    <section
+                        onClick={onLogout}
+                        className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
+                        <ArrowRight className="text-red-500" />로그아웃
+                    </section>
+                </div>
+                <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r">
+                    <header className="flex items-center justify-between">
+                        <h1 className="text-2xl font-bold tracking-tight">자산 정보</h1>
+                    </header>
+                    <section>
+                        <Style.CardAssetDetail
+                            id={asset.id}
+                            icon={Style.formatIcon(asset.assetType)}
+                            title={asset.name}
+                            value={asset.assetValue}
+                            onDelete={handleDeleteAsset}
+                        />
+                    </section>
+                    <div className='flex flex-row mr-auto gap-2'>
+                        <header className="flex items-center justify-between">
+                            <h1 className="text-2xl font-bold tracking-tight">거래 내역</h1>
+                        </header>
+                        <div className="flex ml-auto">
+                        <button
+                            onClick={handleCreate}
+                            className="text-green-600 hover:text-red-800 transition-colors duration-200"
+                            aria-label="생성성"
+                            type="button"
+                        >
+                        <SquarePlusIcon></SquarePlusIcon>
+                </button>
             </div>
-            <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r">
-                <header className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold tracking-tight">자산 정보</h1>
-                </header>
-                <section>
-                    <Style.CardAssetDetail
-                        icon={Style.formatIcon(asset.assetType)}
-                        title={asset.name}
-                        value={asset.assetValue} 
-                    />
-                </section>
-                <header className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold tracking-tight">거래 내역</h1>
-                </header>
-                <section>
-                    {activities.length === 0 ? (
-                    <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
-                    ) : (
-                    <Style.ActivityListEditable 
-                        activities={activities}>
-                        </Style.ActivityListEditable>
-                    )}
-                </section>
-            </div>
-            <div>
+                    </div>
+                    <section>
+                        {activities.length === 0 ? (
+                        <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
+                        ) : (
+                        <Style.ActivityListEditable 
+                            activities={activities}>
+                            </Style.ActivityListEditable>
+                        )}
+                    </section>
+                </div>
+                <div>
 
+                </div>
             </div>
-        </div>
+            <CreateTransactionModal 
+            open={modalOpen} 
+            onOpenChange={setModalOpen}
+            onSuccess={() => setReloadFlag(prev => !prev)}
+            assetId={id}
+            />
+        </>
     );
 }
