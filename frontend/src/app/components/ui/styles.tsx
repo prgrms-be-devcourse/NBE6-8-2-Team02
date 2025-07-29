@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut } from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut, SquareXIcon, SquarePen, SquarePlusIcon} from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
 import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
@@ -59,7 +59,24 @@ export function CardAsset({ icon, title, value, onClick }: CardAssetProps) {
         </div>
       </motion.div>
     );
-  }
+}
+
+export function CardAssetDetail({ icon, title, value, onClick }: CardAssetProps) {
+    return (
+      <motion.div
+        whileHover={{ scale: 1.015 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="w-[600px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
+        onClick={onClick} // 🔹 클릭 이벤트 추가
+      >
+        <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
+        <div>
+          <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
+          <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
+        </div>
+      </motion.div>
+    );
+}
   
 interface CardMainProps {
     value: number;
@@ -315,6 +332,11 @@ function TypeIconTick({ x, y, payload }: any) {
       </foreignObject>
     );
 }
+
+export function formatDateString(dateStr: string): string {
+    const [year, month, day] = dateStr.split("T")[0].split("-");
+    return `${year}년 ${month}월 ${day}일`;
+}
   
 interface ActivityItemProps {
     amount: number;
@@ -323,10 +345,15 @@ interface ActivityItemProps {
     content: string;
     assetType: string;
 }
-  
-export function formatDateString(dateStr: string): string {
-    const [year, month, day] = dateStr.split("T")[0].split("-");
-    return `${year}년 ${month}월 ${day}일`;
+
+interface ActivityItemPropsEditable {
+    id: number;  // id 추가
+    amount: number;
+    type: string;
+    date: string;
+    content: string;
+    assetType: string;
+    onDelete?: (id: number) => void;
 }
   
 export function ActivityItem({ content, date, amount, type, assetType }: ActivityItemProps) {
@@ -367,9 +394,58 @@ export function ActivityItem({ content, date, amount, type, assetType }: Activit
       </div>
     );
 }
+
+export function ActivityItemEditable({ id, content, date, amount, type, assetType, onDelete }: ActivityItemPropsEditable) {
+    const amountColor =
+      type === 'ADD' ? 'text-green-600' :
+      type === 'REMOVE' ? 'text-red-600' :
+      'text-gray-600';
   
-  interface ActivityListProps {
+    const formattedAmount =
+      (type === 'REMOVE' ? '' : '') +
+      amount.toLocaleString();
+  
+    const assetIcon =
+      assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500" /> :
+      assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500" /> :
+      assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
+      assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
+      <Coins className="w-6 h-6 text-green-500" />;
+  
+    return (
+      <div className="flex flex-row gap-4 py-1 border-b border-gray-200 items-center">
+        <section className="flex items-start gap-4 flex-grow">
+          <div className="p-2 bg-gray-100 rounded-full">{assetIcon}</div>
+          <div className="flex flex-col">
+            <span className="font-medium">{content}</span>
+            <span className="text-sm text-gray-400 mt-1">{formatDateString(date)}</span>
+          </div>
+        </section>
+  
+        <section className="flex items-center gap-2">
+          <span className={`${amountColor} font-semibold`}>₩{formattedAmount}</span>
+        </section>
+        <section className="flex mb-auto">
+            <button
+                onClick={() => onDelete?.(id)}
+                className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                aria-label="삭제"
+                type="button"
+            >
+              <SquareXIcon></SquareXIcon>
+            </button>
+        </section>
+      </div>
+    );
+  }
+  
+  
+interface ActivityListProps {
     activities: ActivityItemProps[];
+}
+
+interface ActivityListPropsEditable {
+    activities: ActivityItemPropsEditable[];
 }
   
 export function ActivityList({ activities }: ActivityListProps) {
@@ -377,6 +453,16 @@ export function ActivityList({ activities }: ActivityListProps) {
       <div className="bg-white rounded-2xl shadow-md border p-4 space-y-2 w-full">
         {activities.map((activity, index) => (
           <ActivityItem key={index} {...activity} />
+        ))}
+      </div>
+    );
+}
+
+export function ActivityListEditable({ activities }: ActivityListPropsEditable) {
+    return (
+      <div className="bg-white rounded-2xl shadow-md border p-4 space-y-2 w-full">
+        {activities.map((activity, index) => (
+          <ActivityItemEditable key={index} {...activity} />
         ))}
       </div>
     );

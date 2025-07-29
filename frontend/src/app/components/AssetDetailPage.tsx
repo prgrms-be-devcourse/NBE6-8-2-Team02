@@ -31,7 +31,21 @@ export function AssetDetailPage() {
         }
       };
 
+    const [reloadFlag, setReloadFlag] = useState(false);
+    const handleDelete = async (id:number) => {
+        try {
+            await apiFetch(`/api/v1/transactions/asset/${id}`, {
+                method: "DELETE",
+            });
+            setReloadFlag(prev => !prev);
+            console.log("삭제 완료!" + id)
+        } catch (error) {
+            console.log("삭제 에러")
+        }
+    }
+
     const params = useParams();
+
     const id = params.id;
     const [asset, setAsset] = useState<Asset>({
         id: 0,
@@ -42,20 +56,37 @@ export function AssetDetailPage() {
         createDate: new Date().toISOString(),
         modifyDate: new Date().toISOString(),
       });
+      const [activities, setActivities] = useState([
+        { id: 0, amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK", onDelete: handleDelete },
+      ]);
 
     useEffect (() => {
         const fetchAssetDetail = async () => {
             try {
-              const assetRes = await apiFetch(`/api/v1/assets/${id}`);
-              const assetInfo: Asset = assetRes.data;
-              setAsset(assetInfo);
+                const assetRes = await apiFetch(`/api/v1/assets/${id}`);
+                const assetInfo: Asset = assetRes.data;
+                const assetType = assetInfo.assetType;
+
+                const assetTransactionRes = await apiFetch(`/api/v1/transactions/asset/search/${id}`);
+                const assetTransaction = assetTransactionRes.data?.map((item: { id: number; amount: number; type: string; date: string; content: string; assetType: string }) => ({
+                    id: item.id,
+                    amount: item.amount,
+                    type: item.type,
+                    date: item.date,
+                    content: item.content,
+                    assetType: assetType,
+                    onDelete: handleDelete
+                  }));
+
+                setActivities(assetTransaction);
+                setAsset(assetInfo);
       
             } catch (error) {
                 console.log("에러 발생");
             }
         };
         fetchAssetDetail();
-    }, []);
+    }, [reloadFlag]);
     
     return (
         <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
@@ -89,8 +120,8 @@ export function AssetDetailPage() {
                 <header className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold tracking-tight">자산 정보</h1>
                 </header>
-                <section className='border-b p-2'>
-                    <Style.CardAsset 
+                <section>
+                    <Style.CardAssetDetail
                         icon={Style.formatIcon(asset.assetType)}
                         title={asset.name}
                         value={asset.assetValue} 
@@ -99,6 +130,15 @@ export function AssetDetailPage() {
                 <header className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold tracking-tight">거래 내역</h1>
                 </header>
+                <section>
+                    {activities.length === 0 ? (
+                    <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
+                    ) : (
+                    <Style.ActivityListEditable 
+                        activities={activities}>
+                        </Style.ActivityListEditable>
+                    )}
+                </section>
             </div>
             <div>
 

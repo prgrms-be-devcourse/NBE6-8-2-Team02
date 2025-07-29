@@ -1,20 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
 import { useRouter } from "./Router";
 import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section} from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
-import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
 import { apiFetch } from '../lib/backend/client';
 import { Asset } from 'next/font/google';
-import { assert, error, time } from 'console';
-import { totalmem } from 'os';
-import { title } from 'process';
-import { Value } from '@radix-ui/react-select';
 import * as Style from './ui/styles'
 
 type Asset = {
@@ -22,8 +13,7 @@ type Asset = {
   memberId: number;
   name: string;
   assetType: string;
-  assetValue: number;
-  createDate: string;
+  assetValue: number;createDate: string;
   modifyDate: string;
 };
 
