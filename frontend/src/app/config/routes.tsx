@@ -4,6 +4,7 @@ import { SignupPage } from "../components/SignupPage";
 import { AccountRecoveryPage } from "../components/AccountRecoveryPage";
 import { MyPage } from "../components/MyPage";
 import { AssetPage } from "../components/AssetPage";
+import { AssetDetailPage } from "../components/AssetDetailPage";
 import AccountsPage from "../accounts/page";
 import { GoalPage } from "../components/GoalPage";
 
@@ -37,12 +38,12 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage",
     component: MyPage,
-    layout: "auth"
+    layout: "full"
   },
   {
     path: "/mypage/assets",
     component: AssetPage,
-    layout: "auth"
+    layout: "full"
   },
   {
     path: "/accounts",
@@ -55,6 +56,10 @@ export const routes: RouteConfig[] = [
     layout: "full"
   },
   {
+    path: "/mypage/assets/:id",
+    component: AssetDetailPage,
+    layout: "full"
+  },
     path: "/goals",
     component: GoalPage,
     layout: "full"
