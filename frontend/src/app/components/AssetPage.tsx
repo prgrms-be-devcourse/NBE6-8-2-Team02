@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section} from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon} from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import { CreateAssetModal } from "./CreateAssetModal";
 import * as React from "react"
@@ -164,9 +164,19 @@ export function AssetPage() {
       <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
       >
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">자산 목록</h1>
-        </header>
+        <div className='flex flex-row mr-auto gap-2'>
+          <header className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold tracking-tight">자산 목록</h1>
+          </header>
+        <button
+          onClick={handleCreate}
+          className="text-green-600 hover:text-red-800 transition-colors duration-200"
+          aria-label="생성성"
+          type="button"
+        >
+        <SquarePlusIcon></SquarePlusIcon>
+        </button>
+        </div>
         <div className="min-h-screen grid grid-cols-[auto_auto_auto]">
           <div
           className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
@@ -176,7 +186,6 @@ export function AssetPage() {
                 icon={<Coins className="w-6 h-6 text-blue-500" />} 
                 title="예금/적금" 
                 value={sumAll[0].deposit}
-                onCreate={handleCreate}
               />
           </section>
           <section className='p-2 space-y-6'>
@@ -199,7 +208,6 @@ export function AssetPage() {
                   icon={<House className="w-6 h-6 text-orange-500" />} 
                   title="부동산" 
                   value={sumAll[0].estate}
-                  onCreate={handleCreate}
                 />
             </section>
             <section className='p-2 space-y-6'>
@@ -222,7 +230,6 @@ export function AssetPage() {
                   icon={<BarChart2 className="w-6 h-6 text-purple-500" />} 
                   title="주식" 
                   value={sumAll[0].stock}
-                  onCreate={handleCreate}
                 />
             </section>
     

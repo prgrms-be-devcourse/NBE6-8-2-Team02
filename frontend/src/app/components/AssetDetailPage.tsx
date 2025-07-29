@@ -38,11 +38,51 @@ export function AssetDetailPage() {
         setModalOpen(true);
     };
 
+    const params = useParams();
+
+    const id = Number(params.id);
+    const [asset, setAsset] = useState<Asset>({
+        id: 0,
+        memberId: 0,
+        name: "기본 자산",
+        assetType: "DEPOSIT",
+        assetValue: 0,
+        createDate: new Date().toISOString(),
+        modifyDate: new Date().toISOString(),
+      });
+
     const handleDeleteTransaction = async (id:number) => {
         try {
-            await apiFetch(`/api/v1/transactions/asset/${id}`, {
+            const deleteRes = await apiFetch(`/api/v1/transactions/asset/${id}`, {
                 method: "DELETE",
             });
+
+            const type = deleteRes.data?.type;
+            const amount = deleteRes.data?.amount;
+
+            const assetId = deleteRes.data?.assetId;
+            const assetRes = await apiFetch(`/api/v1/assets/${assetId}`);
+
+            let newValue = assetRes.data?.assetValue;
+
+            if(type === "ADD"){
+                newValue -= amount;
+            }
+            else{
+                newValue += amount;
+            }
+
+            await apiFetch(`/api/v1/assets/${assetId}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                  id: assetId,
+                  name: assetRes.data?.name,
+                  assetType: assetRes.data?.assetType,
+                  assetValue: newValue
+                  
+                }),
+            });
+
             setReloadFlag(prev => !prev);
             console.log("삭제 완료!" + id)
         } catch (error) {
@@ -62,19 +102,7 @@ export function AssetDetailPage() {
         }
     }
 
-    const params = useParams();
-
-    const id = Number(params.id);
-    const [asset, setAsset] = useState<Asset>({
-        id: 0,
-        memberId: 0,
-        name: "기본 자산",
-        assetType: "DEPOSIT",
-        assetValue: 0,
-        createDate: new Date().toISOString(),
-        modifyDate: new Date().toISOString(),
-      });
-      const [activities, setActivities] = useState([
+    const [activities, setActivities] = useState([
         { id: 0, amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK", onDelete: handleDeleteTransaction },
       ]);
 

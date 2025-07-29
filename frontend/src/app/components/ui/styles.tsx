@@ -38,7 +38,6 @@ interface CardAssetPropsCreate {
     icon: ReactNode;
     title: string;
     value: number;
-    onCreate: () => void;
 }
   
 export function Card({ icon, title, value, description, onClick }: CardProps) {
@@ -76,23 +75,13 @@ export function CardAsset({ icon, title, value, onClick }: CardAssetProps) {
     );
 }
 
-export function CardAssetCreate({ icon, title, value, onCreate }: CardAssetPropsCreate) {
+export function CardAssetCreate({ icon, title, value}: CardAssetPropsCreate) {
     return (
       <div className="w-[300px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 transition-shadow">
         <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
         <div>
           <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
           <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
-        </div>
-        <div className="flex ml-auto">
-            <button
-                onClick={() => onCreate()}
-                className="text-green-600 hover:text-red-800 transition-colors duration-200"
-                aria-label="삭제"
-                type="button"
-            >
-              <SquarePlusIcon></SquarePlusIcon>
-            </button>
         </div>
       </div>
     );
