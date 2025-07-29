@@ -24,7 +24,7 @@ public class Goal extends BaseEntity {
     private LocalDateTime deadline;
 
     @Enumerated(EnumType.STRING)
-    GoalType goalType;
+    GoalStatus status;
 
     public Goal(
             Member member,
@@ -38,7 +38,7 @@ public class Goal extends BaseEntity {
         this.currentAmount = currentAmount;
         this.targetAmount = targetAmount;
         this.deadline = deadline;
-        goalType = GoalType.NOT_STARTED;
+        this.status = GoalStatus.NOT_STARTED;
     }
 
     public int getMemberId() {
@@ -57,7 +57,7 @@ public class Goal extends BaseEntity {
     public void modifyDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
-    public void modifyGoalType(GoalType goalType) {
-        this.goalType = goalType;
+    public void modifyGoalType(GoalStatus status) {
+        this.status = status;
     }
 }

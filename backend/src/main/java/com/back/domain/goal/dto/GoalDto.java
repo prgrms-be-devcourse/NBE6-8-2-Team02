@@ -1,7 +1,7 @@
 package com.back.domain.goal.dto;
 
 import com.back.domain.goal.entity.Goal;
-import com.back.domain.goal.entity.GoalType;
+import com.back.domain.goal.entity.GoalStatus;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +12,7 @@ public record GoalDto(
         int currentAmount,
         int targetAmount,
         LocalDateTime deadline,
-        GoalType goalType
+        GoalStatus status
 ) {
     public GoalDto(Goal goal) {
         this(
@@ -22,7 +22,7 @@ public record GoalDto(
                 goal.getCurrentAmount(),
                 goal.getTargetAmount(),
                 goal.getDeadline(),
-                goal.getGoalType()
+                goal.getStatus()
         );
     }
 }

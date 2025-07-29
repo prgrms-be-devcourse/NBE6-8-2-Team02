@@ -4,6 +4,7 @@ import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.service.GoalService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.global.security.jwt.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,13 +39,19 @@ class ApiV1GoalControllerTest {
     @Autowired
     private GoalService goalService;
 
-    private Member testmember;
+    @Autowired
+    JwtUtil jwtutil;
+
+    //테스트용 엔티티
+    private Member testMember;
+    private String jwtToken;
     private Goal testGoal;
 
     @BeforeEach
     void setUp() {
-        testmember = memberRepository.findById(1).get();
-        testGoal = goalService.findById(1).get();
+        testMember = memberRepository.findByEmail("user1@user.com").orElseThrow();
+        jwtToken = jwtutil.generateToken(testMember.getEmail(), testMember.getId());
+        testGoal = goalService.findById(1);
     }
 
     @Test
@@ -52,11 +59,12 @@ class ApiV1GoalControllerTest {
     void read1() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
-                        get("/api/v1/goals?memberId=" + testmember.getId())
+                        get("/api/v1/goals")
+                                .header("Authorization", "Bearer " + jwtToken)
                 )
                 .andDo(print());
 
-        List<Goal> goalList = goalService.findByMemberId(testmember.getId());
+        List<Goal> goalList = goalService.findByMemberId(testMember.getId());
 
         resultActions
                 .andExpect(status().isOk())
@@ -72,9 +80,7 @@ class ApiV1GoalControllerTest {
                 )
                 .andDo(print());
 
-        Goal goal = goalService.findById(testGoal.getId()).get();
-
-        System.out.println(" ====================== " + goal.getDeadline().toString());
+        Goal goal = goalService.findById(testGoal.getId());
 
         resultActions
                 .andExpect(status().isOk())
@@ -84,7 +90,7 @@ class ApiV1GoalControllerTest {
                 .andExpect(jsonPath("$.currentAmount").value(goal.getCurrentAmount()))
                 .andExpect(jsonPath("$.targetAmount").value(goal.getTargetAmount()))
                 .andExpect(jsonPath("$.deadline").value(goal.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).substring(0, 19)))
-                .andExpect(jsonPath("$.goalType").value(goal.getGoalType().name()));
+                .andExpect(jsonPath("$.status").value(goal.getStatus().name()));
     }
 
     @Test
@@ -94,6 +100,7 @@ class ApiV1GoalControllerTest {
                 .perform(
                         post("/api/v1/goals")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + jwtToken)
                                 .content("""
                                         {
                                             "description": "테스트",
@@ -108,14 +115,6 @@ class ApiV1GoalControllerTest {
         resultActions
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.resultCode").value("201-1"));
-//                .andExpect(jsonPath("$.msg").value("목표(id: %d)가 작성되었습니다.".formatted(goal.getId())))
-//                .andExpect(jsonPath("$.data.id").value(goal.getId()))
-//                .andExpect(jsonPath("$.data.memberId").value(goal.getMemberId()))
-//                .andExpect(jsonPath("$.data.description").value(goal.getDescription()))
-//                .andExpect(jsonPath("$.data.currentAmount").value(goal.getCurrentAmount()))
-//                .andExpect(jsonPath("$.data.targetAmount").value(goal.getTargetAmount()))
-//                .andExpect(jsonPath("$.data.deadline").value(Matchers.startsWith(goal.getDeadline().toString().substring(0, 20))))
-//                .andExpect(jsonPath("$.data.goalType").value(goal.getGoalType().name()));
     }
 
     @Test
@@ -131,7 +130,7 @@ class ApiV1GoalControllerTest {
                                             "currentAmount": "20",
                                             "targetAmount": "2000",
                                             "deadline": "2030-12-20T00:00:00",
-                                            "goalType": "IN_PROGRESS"
+                                            "goalStatus": "IN_PROGRESS"
                                         }
                                         """)
                 )
