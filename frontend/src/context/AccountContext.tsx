@@ -14,10 +14,10 @@ export interface Account {
 export interface Transaction {
   id: number;
   accountId: number;
+  type: "ADD" | "REMOVE";
   amount: number;
-  type: "deposit" | "withdraw";
-  note: string;
-  date: string; // ISO 문자열
+  content: string;
+  date: string;
 }
 
 // Context에서 제공할 타입
@@ -26,7 +26,7 @@ interface AccountContextType {
   transactions: Transaction[];
   setAccounts: React.Dispatch<React.SetStateAction<Account[]>>;
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-  addAccount: (account: Account) => void;
+  addAccount: (name: string, accountNumber: string, balance: string) => void;
   updateAccount: (id: number, newNumber: string) => void;
   deleteAccount: (id: number) => void;
 
@@ -36,63 +36,29 @@ interface AccountContextType {
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
 
-// 초기 계좌 예시
-const initialAccounts: Account[] = [
-  { id: 1, name: "농협", accountNumber: "123456789", balance: 120000 },
-  { id: 2, name: "국민", accountNumber: "987654321", balance: 500000 },
-];
-
-const initialTransactions: Transaction[] = [
-  {
-    id: 1,
-    accountId: 1,
-    amount: 100000,
-    type: "deposit",
-    note: "월급 입금",
-    date: "2025-07-01T10:00:00.000Z",
-  },
-  {
-    id: 2,
-    accountId: 1,
-    amount: 20000,
-    type: "withdraw",
-    note: "마트 쇼핑",
-    date: "2025-07-05T14:30:00.000Z",
-  },
-  {
-    id: 3,
-    accountId: 2,
-    amount: 500000,
-    type: "deposit",
-    note: "사업 수익",
-    date: "2025-07-03T09:00:00.000Z",
-  },
-];
-
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // 계좌 추가
-  const addAccount = (account: Account) => {
+  const addAccount = (name: string, accountNumber: string, balance: string) => {
     const fetchCreateAccount = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/v1/accounts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            memberId: 1,
-            name: account.name,
-            accountNumber: account.accountNumber,
-            balance: account.balance,
+            name: name,
+            accountNumber: accountNumber,
+            balance: balance,
           }),
+          credentials: "include",
         });
         const result = await response.json();
 
         if (result.resultCode === "200-1") {
           console.log("계좌가 생성되었습니다.");
-          setAccounts((prev) => [...prev, account]);
+          setAccounts((prev) => [result.data, ...prev]);
           alert("계좌가 생성되었습니다.");
         } else {
           console.log("계좌 생성에 실패하였습니다.");
@@ -106,12 +72,6 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 번호 수정
   const updateAccount = (id: number, newNumber: string) => {
-    setAccounts((prev) =>
-      prev.map((acc) =>
-        acc.id === id ? { ...acc, accountNumber: newNumber } : acc
-      )
-    );
-
     const fetchUpdateAccount = async () => {
       try {
         const response = await fetch(
@@ -120,12 +80,21 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ accountNumber: newNumber }),
+            credentials: "include",
           }
         );
         const result = await response.json();
 
         if (result.resultCode === "200-1") {
           alert("계좌번호가 변경되었습니다.");
+          setAccounts((prev) =>
+            prev.map((acc) =>
+              acc.id === id ? { ...acc, accountNumber: newNumber } : acc
+            )
+          );
+        } else {
+          console.log("계좌번호 변경 실패");
+          alert("계좌번호 변경에 실패했습니다.");
         }
       } catch (error) {
         console.error("계좌번호 변경 요청 실패.", error);
@@ -137,10 +106,6 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 삭제
   const deleteAccount = (id: number) => {
-    setAccounts((prev) => prev.filter((acc) => acc.id !== id));
-    // 관련 거래들도 삭제
-    setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
-
     const fetchDeleteAccount = async () => {
       try {
         const response = await fetch(
@@ -148,12 +113,19 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
           {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
           }
         );
         const result = await response.json();
 
         if (result.resultCode === "200-1") {
           console.log(result.msg);
+          setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+          // 관련 거래들도 삭제
+          setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
+        } else {
+          console.log("계좌 삭제 실패");
+          alert("계좌 삭제에 실패했습니다.");
         }
       } catch (error) {
         console.error("계좌 삭제 요청을 실패하였습니다.");
@@ -164,14 +136,14 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 거래 추가
   const addTransaction = (transaction: Transaction) => {
-    setTransactions((prev) => [...prev, transaction]);
+    setTransactions((prev) => [transaction, ...prev]);
 
     // 거래 추가 시 계좌 잔액도 업데이트
     setAccounts((prev) =>
       prev.map((acc) => {
         if (acc.id === transaction.accountId) {
           const newBalance =
-            transaction.type === "deposit"
+            transaction.type === "ADD"
               ? acc.balance + transaction.amount
               : acc.balance - transaction.amount;
           return { ...acc, balance: newBalance };
@@ -193,7 +165,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
       prev.map((acc) => {
         if (acc.id === txToDelete.accountId) {
           const newBalance =
-            txToDelete.type === "deposit"
+            txToDelete.type === "ADD"
               ? acc.balance - txToDelete.amount
               : acc.balance + txToDelete.amount;
           return { ...acc, balance: newBalance };

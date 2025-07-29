@@ -2,6 +2,7 @@ package com.back.domain.transactions.service;
 
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.repository.AccountRepository;
+import com.back.domain.account.service.AccountService;
 import com.back.domain.transactions.dto.CreateAccTracRequestDto;
 import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.entity.TransactionType;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class AccountTransactionService {
     private final AccountTransactionRepository accountTransactionRepository;
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     // 거래 생성
     public AccountTransaction createAccountTransaction(CreateAccTracRequestDto dto) {
@@ -33,7 +35,10 @@ public class AccountTransactionService {
                 .date(LocalDateTime.parse(dto.date()))
                 .build();
 
-        return accountTransactionRepository.save(accountTransaction);
+        accountTransactionRepository.save(accountTransaction);
+        accountService.updateBalance(account, TransactionType.valueOf(dto.type()), dto.amount());
+
+        return accountTransaction;
     }
 
     public List<AccountTransaction> findByAccountId(int accountId) {

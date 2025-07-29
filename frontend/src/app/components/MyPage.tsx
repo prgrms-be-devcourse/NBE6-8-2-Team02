@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut } from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut, Target } from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
 import { apiFetch } from '../lib/backend/client';
@@ -231,6 +231,11 @@ export function MyPage() {
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500" />대시 보드
 
+        </section>
+        <section
+          onClick={() => navigate('/goals')}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <Target className="text-black-500" />나의 목표
         </section>
         <section
           onClick={() => navigate('/accounts')}

@@ -15,10 +15,15 @@ import {
 } from "@/components/ui/select";
 
 export default function AccountsPage() {
+  const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
+    useAccountContext();
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/v1/accounts");
+        const response = await fetch("http://localhost:8080/api/v1/accounts", {
+          method: "GET",
+          credentials: "include",
+        });
         const result = await response.json();
 
         if (result.resultCode === "200-1") {
@@ -33,8 +38,6 @@ export default function AccountsPage() {
     fetchAccounts();
   }, []);
 
-  const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
-    useAccountContext();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -43,14 +46,7 @@ export default function AccountsPage() {
   const handleAdd = () => {
     if (!name || !accountNumber || !balance) return;
 
-    const newAccount = {
-      id: Date.now(),
-      name,
-      accountNumber,
-      balance: Number(balance),
-    };
-
-    addAccount(newAccount);
+    addAccount(name, accountNumber, balance);
     setName("");
     setAccountNumber("");
     setBalance("");
