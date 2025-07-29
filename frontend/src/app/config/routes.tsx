@@ -60,6 +60,7 @@ export const routes: RouteConfig[] = [
     component: AssetDetailPage,
     layout: "full"
   },
+  {
     path: "/goals",
     component: GoalPage,
     layout: "full"
