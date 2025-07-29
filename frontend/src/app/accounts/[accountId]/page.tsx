@@ -101,15 +101,40 @@ export default function AccountDetailPage() {
     fetchCreateTransaction();
   };
 
+  const handleDeleteAccount = () => {
+    const fetchDeleteAccount = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/accounts/${accountId}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        ).then((res) => res.json());
+
+        if (response.resultCode === "200-1") {
+          console.log("계좌 연결이 해제되었습니다.");
+        } else {
+          console.log(response.msg);
+          alert("계좌 연결 해제에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("계좌 연결 해제 요청을 실패했습니다.");
+      }
+    };
+
+    fetchDeleteAccount();
+  };
+
   return (
     <div className="max-w-xl mx-auto py-10 space-y-6">
       <div className="text-2xl font-bold">{account.name}</div>
       <div className="text-gray-600 font-medium">{account.accountNumber}</div>
       <div className="text-lg">잔액: {account.balance.toLocaleString()}원</div>
 
-      {/* 거래 등록 폼 토글 버튼 */}
-      <Button onClick={() => setShowForm((prev) => !prev)}>
-        {showForm ? "거래 등록 취소" : "거래 추가"}
+      {/*계좌 연결 해제*/}
+      <Button className="bg-red-600" onClick={handleDeleteAccount}>
+        계좌 연결 해제
       </Button>
 
       {/* 거래 등록 폼 */}
@@ -149,7 +174,13 @@ export default function AccountDetailPage() {
 
       {/* 거래 목록 */}
       <div>
-        <h2 className="text-xl font-semibold mb-2">거래 내역</h2>
+        <div className="flex justify-between mb-2">
+          <h2 className="text-xl font-semibold mb-2">거래 내역</h2>
+          {/* 거래 등록 폼 토글 버튼 */}
+          <Button onClick={() => setShowForm((prev) => !prev)}>
+            {showForm ? "거래 등록 취소" : "거래 추가"}
+          </Button>
+        </div>
         {accountTransactions.length === 0 ? (
           <div className="text-gray-500">거래 내역이 없습니다.</div>
         ) : (
