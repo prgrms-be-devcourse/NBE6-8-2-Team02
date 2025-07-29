@@ -18,22 +18,22 @@ export const routes: RouteConfig[] = [
   {
     path: "/",
     component: WelcomePage,
-    layout: "auth"
+    layout: "auth",
   },
   {
     path: "/login",
     component: LoginPage,
-    layout: "auth"
+    layout: "auth",
   },
   {
     path: "/signup",
     component: SignupPage,
-    layout: "auth"
+    layout: "auth",
   },
   {
     path: "/forgot-password",
     component: AccountRecoveryPage,
-    layout: "auth"
+    layout: "auth",
   },
   {
     path: "/mypage",
@@ -48,12 +48,12 @@ export const routes: RouteConfig[] = [
   {
     path: "/accounts",
     component: AccountsPage,
-    layout: "full"
+    layout: "full",
   },
   {
     path: "/mypage/assets",
     component: AssetPage,
-    layout: "full"
+    layout: "full",
   },
   {
     path: "/mypage/assets/:id",
@@ -63,6 +63,6 @@ export const routes: RouteConfig[] = [
   {
     path: "/goals",
     component: GoalPage,
-    layout: "full"
+    layout: "full",
   },
 ];
