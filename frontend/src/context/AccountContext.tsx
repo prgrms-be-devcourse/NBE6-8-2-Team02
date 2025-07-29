@@ -26,7 +26,7 @@ interface AccountContextType {
   transactions: Transaction[];
   setAccounts: React.Dispatch<React.SetStateAction<Account[]>>;
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-  addAccount: (account: Account) => void;
+  addAccount: (name: string, accountNumber: string, balance: string) => void;
   updateAccount: (id: number, newNumber: string) => void;
   deleteAccount: (id: number) => void;
 
@@ -41,17 +41,16 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // 계좌 추가
-  const addAccount = (account: Account) => {
+  const addAccount = (name: string, accountNumber: string, balance: string) => {
     const fetchCreateAccount = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/v1/accounts`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            memberId: 1,
-            name: account.name,
-            accountNumber: account.accountNumber,
-            balance: account.balance,
+            name: name,
+            accountNumber: accountNumber,
+            balance: balance,
           }),
           credentials: "include",
         });
@@ -59,7 +58,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
         if (result.resultCode === "200-1") {
           console.log("계좌가 생성되었습니다.");
-          setAccounts((prev) => [...prev, account]);
+          setAccounts((prev) => [result.data, ...prev]);
           alert("계좌가 생성되었습니다.");
         } else {
           console.log("계좌 생성에 실패하였습니다.");

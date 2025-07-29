@@ -46,14 +46,7 @@ export default function AccountsPage() {
   const handleAdd = () => {
     if (!name || !accountNumber || !balance) return;
 
-    const newAccount = {
-      id: Date.now(),
-      name,
-      accountNumber,
-      balance: Number(balance),
-    };
-
-    addAccount(newAccount);
+    addAccount(name, accountNumber, balance);
     setName("");
     setAccountNumber("");
     setBalance("");
