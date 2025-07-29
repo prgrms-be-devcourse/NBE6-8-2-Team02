@@ -4,11 +4,24 @@ import { AnimatePresence } from "framer-motion";
 import { Router, Route, useRouter } from "./components/Router";
 import { routes } from "./config/routes";
 
+function matchPath(pattern: string, pathname: string): boolean {
+  const patternParts = pattern.split("/").filter(Boolean);
+  const pathParts = pathname.split("/").filter(Boolean);
+  if (patternParts.length !== pathParts.length) return false;
+
+  return patternParts.every((part, i) =>
+    part.startsWith(":") ? true : part === pathParts[i]
+  );
+}
+
+
 function AppContent() {
   const { currentPath } = useRouter();
 
   // 현재 경로에 해당하는 라우트 찾기
-  const currentRoute = routes.find((route) => route.path === currentPath);
+  const currentRoute = routes.find((route) =>
+    matchPath(route.path, currentPath)
+  );
 
   if (!currentRoute) {
     // 404 처리 (기본적으로 홈으로 리다이렉트)

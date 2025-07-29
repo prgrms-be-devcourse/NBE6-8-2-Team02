@@ -4,6 +4,7 @@ import { SignupPage } from "../components/SignupPage";
 import { AccountRecoveryPage } from "../components/AccountRecoveryPage";
 import { MyPage } from "../components/MyPage";
 import { AssetPage } from "../components/AssetPage";
+import { AssetDetailPage } from "../components/AssetDetailPage";
 import AccountsPage from "../accounts/page";
 import { GoalPage } from "../components/GoalPage";
 
@@ -52,6 +53,11 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage/assets",
     component: AssetPage,
+    layout: "full"
+  },
+  {
+    path: "/mypage/assets/:id",
+    component: AssetDetailPage,
     layout: "full"
   },
   {

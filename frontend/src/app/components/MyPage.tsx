@@ -141,9 +141,6 @@ export function MyPage() {
       const myAssetIds = myAssets.map((asset) => asset.id);
       const myAccountIds = myAccounts.map((account) => account.id);
 
-      console.log("내 자산 id 정보", myAssetIds);
-      console.log("내 거래 id 정보", myAccountIds);
-
       const allAssetTransactionResList = await Promise.all(
         myAssetIds.map((id) => apiFetch(`/api/v1/transactions/asset/search/${id}`))
       );
@@ -179,15 +176,6 @@ export function MyPage() {
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
 
-      const mySnapShotRes = await apiFetch(`/api/v1/snapshot/${memberId}`);
-      const mySnapShot = mySnapShotRes.data;
-      setLinearChartData(
-        mySnapShot.map((item: { month: number; totalAsset: number }) => ({
-          month: item.month,
-          total: item.totalAsset,
-        }))
-      );
-
       let revenueSum = 0;
       let expenseSum = 0;
       let totalAssetSum = 0;
@@ -207,21 +195,7 @@ export function MyPage() {
         }
       })
 
-      console.log("자산 추이 데이터", linearChartData);
-
-      console.log("내 자산 정보", myAssets);
-      console.log("내 계좌 정보", myAccounts);
-      console.log("내 스냅샷", mySnapShot);
-
-
-
-      console.log("자산 거래 정보", allAssetTransactions);
-      console.log("계좌 거래 정보", allAccountTransactions);
-      console.log("통합 거래 내역", mergedTransactions);
-
       const newBarChartData = [...barChartDataRaw];
-
-
       myAssets.forEach(asset => {
         const type = asset.assetType.toLowerCase(); // "DEPOSIT" -> "deposit"
         const target = newBarChartData.find(item => item.type === type);
@@ -231,7 +205,6 @@ export function MyPage() {
           totalAssetSum += asset.assetValue;
         }
       });
-
       myAccounts.forEach(account => {
         const type = "account" // "DEPOSIT" -> "deposit"
         const target = newBarChartData.find(item => item.type === type);
@@ -248,15 +221,18 @@ export function MyPage() {
       setCurrentExpense(expenseSum);
       setTotalAsset(totalAssetSum);
 
-      const saveSnapShot = await apiFetch(`/api/v1/snapshot/save/${memberId}?totalAsset=${totalAssetSum}`,
+      await apiFetch(`/api/v1/snapshot/save/${memberId}?totalAsset=${totalAssetSum}`,
         {
           method: "POST",
         }
       );
 
-      console.log("스냅샷 저장 성공", saveSnapShot);
-      console.log("이번달 수익", revenueSum);
-      console.log("이번달 손해", expenseSum);
+      const mySnapShotRes = await apiFetch(`/api/v1/snapshot/${memberId}`);
+      const mySnapShot = mySnapShotRes.data?.map((item: { month: number; totalAsset: number }) => ({
+        month: item.month,
+        total: item.totalAsset,
+      }));
+      setLinearChartData(mySnapShot);
 
     } catch (error) {
       console.log("유저 정보 조회 실패", error);
@@ -267,10 +243,7 @@ export function MyPage() {
     <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
       >
         <header className="flex items-center justify-between">
@@ -299,11 +272,8 @@ export function MyPage() {
           <ArrowRight className="text-red-500" />로그아웃
 
         </section>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      </div>
+      <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
       >
         <header className="flex items-center justify-between">
@@ -342,11 +312,8 @@ export function MyPage() {
         <section>
           <ChartBarHorizontal barChartData={barChartData} />
         </section>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      </div>
+      <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l"
       >
         <header className="flex items-center justify-between">
@@ -357,7 +324,7 @@ export function MyPage() {
           <ActivityList activities={activities} />
         </section>
 
-      </motion.div>
+      </div>
       <div>
       </div>
     </div>
