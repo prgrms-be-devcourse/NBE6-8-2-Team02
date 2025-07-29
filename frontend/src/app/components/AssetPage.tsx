@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon} from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon, Target} from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import { CreateAssetModal } from "./CreateAssetModal";
 import * as React from "react"
@@ -145,6 +145,11 @@ export function AssetPage() {
         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500"/>대시 보드
         </section>
+        <section
+          onClick={() => navigate('/goals')}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+          <Target className="text-black-500" />나의 목표
+        </section>
         <section 
         onClick={() => navigate('/accounts')}
         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
@@ -161,9 +166,7 @@ export function AssetPage() {
           <ArrowRight className="text-red-500" />로그아웃
         </section>
       </div>
-      <div
-        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
-      >
+      <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto border-r">
         <div className='flex flex-row mr-auto gap-2'>
           <header className="flex items-center justify-between">
             <h1 className="text-2xl font-bold tracking-tight">자산 목록</h1>
@@ -171,24 +174,24 @@ export function AssetPage() {
         <button
           onClick={handleCreate}
           className="text-green-600 hover:text-red-800 transition-colors duration-200"
-          aria-label="생성성"
+          aria-label="생성"
           type="button"
         >
         <SquarePlusIcon></SquarePlusIcon>
         </button>
         </div>
         <div className="min-h-screen grid grid-cols-[auto_auto_auto]">
-          <div
-          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
-          >
-          <section className='border-b p-2'>
+          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 border-r pr-4">
+          <section className='flex flex-col gap-2 mt-4'>
             <Style.CardAssetCreate
                 icon={<Coins className="w-6 h-6 text-blue-500" />} 
                 title="예금/적금" 
                 value={sumAll[0].deposit}
               />
+            <section className="border-b">
+            </section>
           </section>
-          <section className='p-2 space-y-6'>
+          <section className='space-y-6'>
             {depositAssets.map(asset => (
               <Style.CardAsset
                 key={asset.id}
@@ -200,17 +203,17 @@ export function AssetPage() {
             ))}
           </section>
           </div>
-          <div
-            className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
-          >
-            <section className='border-b p-2'>
+          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 px-4">
+            <section className='flex flex-col gap-2 mt-4'>
               <Style.CardAssetCreate
                   icon={<House className="w-6 h-6 text-orange-500" />} 
                   title="부동산" 
                   value={sumAll[0].estate}
                 />
+                <section className="border-b">
+                </section>
             </section>
-            <section className='p-2 space-y-6'>
+            <section className='space-y-6'>
               {estateAssets.map(asset => (
                 <Style.CardAsset
                   key={asset.id}
@@ -222,18 +225,17 @@ export function AssetPage() {
               ))}
             </section>
           </div>
-          <div
-            className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l"
-          >
-            <section className='border-b p-2'>
+          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 pl-4 border-l">
+            <section className='flex flex-col gap-2 mt-4'>
               <Style.CardAssetCreate
                   icon={<BarChart2 className="w-6 h-6 text-purple-500" />} 
                   title="주식" 
                   value={sumAll[0].stock}
                 />
+                <section className="border-b">
+                </section>
             </section>
-    
-            <section className='p-2 space-y-6'>
+            <section className='space-y-6'>
               {stockAssets.map(asset => (
                 <Style.CardAsset
                   key={asset.id}

@@ -6,7 +6,7 @@ import { useParams } from "@/lib/useParams";
 import { useEffect, useState, ReactNode } from "react";
 import { apiFetch } from "../lib/backend/client";
 import { CreateTransactionModal } from "./CreateTransactionModal";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon} from 'lucide-react';
+import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon, Target} from 'lucide-react';
 import * as Style from './ui/styles'
 
 type Asset = {
@@ -147,6 +147,11 @@ export function AssetDetailPage() {
                         onClick={() => navigate('/mypage')}
                         className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
                         <LayoutDashboard className="text-black-500"/>대시 보드
+                    </section>
+                    <section
+                        onClick={() => navigate('/goals')}
+                        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <Target className="text-black-500" />나의 목표
                     </section>
                     <section 
                         onClick={() => navigate('/accounts')}
