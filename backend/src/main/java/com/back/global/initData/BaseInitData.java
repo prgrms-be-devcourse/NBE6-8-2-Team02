@@ -153,9 +153,14 @@ public class BaseInitData {
             return;
 
         //유저1
-        assetRepository.save(new Asset(user[1], "1-예금1", AssetType.DEPOSIT, 10000));
-        assetRepository.save(new Asset(user[1], "1-주식1", AssetType.STOCK, 20000));
-        assetRepository.save(new Asset(user[1], "1-부동산1", AssetType.REAL_ESTATE, 30000));
+        assetRepository.save(new Asset(user[1], "KB 적금", AssetType.DEPOSIT, 140000));
+        assetRepository.save(new Asset(user[1], "KB 예금", AssetType.DEPOSIT, 70000));
+        assetRepository.save(new Asset(user[1], "S-Oil", AssetType.STOCK, 622000));
+        assetRepository.save(new Asset(user[1], "삼성전자", AssetType.STOCK, 704000));
+        assetRepository.save(new Asset(user[1], "SK하이닉스", AssetType.STOCK, 2620000));
+        assetRepository.save(new Asset(user[1], "압구정 현대 (int값 제한..)", AssetType.REAL_ESTATE, 115000000));
+        assetRepository.save(new Asset(user[1], "한남더힐 (int값 제한..)", AssetType.REAL_ESTATE, 100000000));
+        assetRepository.save(new Asset(user[1], "롯데 시그니엘 (int값 제한..)", AssetType.REAL_ESTATE, 70000000));
 
         //유저2
         assetRepository.save(new Asset(user[2], "2-예금1", AssetType.DEPOSIT, 10000));
@@ -176,18 +181,18 @@ public class BaseInitData {
 
         //유저1
         Asset asset1 = assetRepository.findById(1).get();
-        Asset asset2 = assetRepository.findById(2).get();
-        Asset asset3 = assetRepository.findById(3).get();
+        Asset asset2 = assetRepository.findById(4).get();
+        Asset asset3 = assetRepository.findById(6).get();
         transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 30000, "적금 이자", LocalDateTime.of(2025, 7, 23, 0, 0, 0)));
         transactionRepository.save(new Transaction(asset2, TransactionType.REMOVE, 12000, "주가 하락", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
         transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 30000, "부동산 가치 상승", LocalDateTime.of(2025, 7, 9, 0, 0, 0)));
 
         //유저1
-        Asset asset4 = assetRepository.findById(4).get();
+        Asset asset4 = assetRepository.findById(9).get();
         transactionRepository.save(new Transaction(asset4, TransactionType.ADD, 24000, "2입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
 
         //유저1
-        Asset asset5 = assetRepository.findById(7).get();
+        Asset asset5 = assetRepository.findById(12).get();
         transactionRepository.save(new Transaction(asset5, TransactionType.ADD, 71000, "3입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 

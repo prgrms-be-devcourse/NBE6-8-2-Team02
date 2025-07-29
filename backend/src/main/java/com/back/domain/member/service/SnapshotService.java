@@ -4,10 +4,11 @@ import com.back.domain.member.dto.SnapshotResponse;
 import com.back.domain.member.entity.Snapshot;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.SnapshotRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -20,22 +21,25 @@ public class SnapshotService {
     private final SnapshotRepository snapshotRepository;
 
     @Transactional
-    public void saveMonthlySnapshot(Member member, int totalAsset) {
+    public void saveMonthlySnapshot(Member member, Integer totalAsset) {
         YearMonth now = YearMonth.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
 
-        boolean exists = snapshotRepository.existsByMemberAndYearAndMonth(
-                member, now.getYear(), now.getMonthValue()
-        );
-        if (exists) return;
+        Optional<Snapshot> optionalSnapshot = snapshotRepository.findByMemberAndYearAndMonth(member, year, month);
 
-        Snapshot snapshot = Snapshot.builder()
-                .member(member)
-                .year(now.getYear())
-                .month(now.getMonthValue())
-                .totalAsset(totalAsset)
-                .build();
-
-        snapshotRepository.save(snapshot);
+        if (optionalSnapshot.isPresent()) {
+            Snapshot snapshot = optionalSnapshot.get();
+            snapshot.setTotalAsset(totalAsset);
+        } else {
+            Snapshot snapshot = Snapshot.builder()
+                    .member(member)
+                    .year(year)
+                    .month(month)
+                    .totalAsset(totalAsset)
+                    .build();
+            snapshotRepository.save(snapshot);
+        }
 
         // 6개월 초과 삭제
         List<Snapshot> snapshots = snapshotRepository.findByMemberOrderByYearAscMonthAsc(member);
@@ -45,6 +49,8 @@ public class SnapshotService {
         }
     }
 
+
+    @Transactional(readOnly = true)
     public List<SnapshotResponse> getSnapshots(Member member) {
         return snapshotRepository.findByMemberOrderByYearAscMonthAsc(member).stream()
                 .map(s -> SnapshotResponse.builder()
@@ -55,7 +61,12 @@ public class SnapshotService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public long count() {return snapshotRepository.count();}
+
+    @Transactional(readOnly = true)
     public Optional<Snapshot> findById(int id) {return snapshotRepository.findById(id);}
+
+    @Transactional(readOnly = true)
     public List<Snapshot> findAll() {return snapshotRepository.findAll();}
 }

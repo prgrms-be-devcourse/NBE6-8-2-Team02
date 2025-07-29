@@ -24,7 +24,6 @@ public class ApiV1AssetController {
 
     // 생성
     @PostMapping
-    @Transactional(readOnly = true)
     @Operation(summary = "자산 등록")
     public RsData<AssetDto> createAsset(
             @RequestBody CreateAssetRequestDto createAssetRequestDto
@@ -35,7 +34,6 @@ public class ApiV1AssetController {
     }
 
     // 다건 조회
-    @Transactional(readOnly = true)
     @GetMapping
     @Operation(summary = "자산 다건 조회")
     public RsData<List<AssetDto>> getAssets() {
@@ -45,7 +43,6 @@ public class ApiV1AssetController {
     }
 
     // 단건 조회
-    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     @Operation(summary = "자산 단건 조회")
     public RsData<AssetDto> getAsset(@PathVariable int id) {
@@ -59,7 +56,6 @@ public class ApiV1AssetController {
     }
 
     // id 기반 삭제
-    @Transactional(readOnly = true)
     @DeleteMapping("/{id}")
     @Operation(summary = "자산 삭제 (id 기반)")
     public RsData<AssetDto> deleteAsset(@PathVariable int id) {
@@ -73,7 +69,6 @@ public class ApiV1AssetController {
     }
 
     // id 기반 수정
-    @Transactional(readOnly = true)
     @PutMapping("/{id}")
     @Operation(summary = "자산 수정 (id 기반)")
     public RsData<AssetDto> updateAsset(@RequestBody UpdateAssetRequestDto updateAssetRequestDto) {

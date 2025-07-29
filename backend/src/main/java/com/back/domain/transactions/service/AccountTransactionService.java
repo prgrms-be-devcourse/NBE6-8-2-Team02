@@ -8,6 +8,7 @@ import com.back.domain.transactions.entity.TransactionType;
 import com.back.domain.transactions.repository.AccountTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ public class AccountTransactionService {
     private final AccountRepository accountRepository;
 
     // 거래 생성
+    @Transactional
     public AccountTransaction createAccountTransaction(CreateAccTracRequestDto dto) {
         Account account = accountRepository.findById(dto.accountId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 자산입니다."));
@@ -45,14 +47,22 @@ public class AccountTransactionService {
     }
 
     // ------- 일반 서비스 -------- //
+    @Transactional(readOnly = true)
     public long count() { return accountTransactionRepository.count();}
+
     public void flush() { accountTransactionRepository.flush();}
+
+    @Transactional
     public AccountTransaction deleteById(int id) {
         AccountTransaction accountTransaction = accountTransactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 id의 거래가 없습니다. id:" + id));
         accountTransactionRepository.deleteById(id);
         return accountTransaction;
     }
+
+    @Transactional(readOnly = true)
     public List<AccountTransaction> findAll() { return accountTransactionRepository.findAll();}
+
+    @Transactional(readOnly = true)
     public Optional<AccountTransaction> findById(int id) { return accountTransactionRepository.findById(id);}
 }

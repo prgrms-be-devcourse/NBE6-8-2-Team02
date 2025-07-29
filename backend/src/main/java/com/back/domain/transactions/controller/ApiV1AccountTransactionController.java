@@ -23,7 +23,6 @@ public class ApiV1AccountTransactionController {
 
     // 거래 등록
     @PostMapping
-    @Transactional
     @Operation(summary = "거래 등록")
     public RsData<AccountTransactionDto> createTransaction(
             @RequestBody CreateAccTracRequestDto createAccTracRequestDto
@@ -35,7 +34,6 @@ public class ApiV1AccountTransactionController {
 
     // 거래 목록 조회
     @GetMapping
-    @Transactional(readOnly = true)
     @Operation(summary = "거래 목록 조회")
     public RsData<List<AccountTransactionDto>> getTransactions() {
         List<AccountTransaction> accountTransactions = acctTransactionService.findAll();
@@ -45,7 +43,6 @@ public class ApiV1AccountTransactionController {
 
     // 거래 단건 조회
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     @Operation(summary = "거래 단건 조회")
     public RsData<AccountTransactionDto> getTransaction(@PathVariable int id) {
         AccountTransaction accountTransaction = acctTransactionService.findById(id)
@@ -56,7 +53,6 @@ public class ApiV1AccountTransactionController {
 
     // 거래 삭제
     @DeleteMapping("/{id}")
-    @Transactional
     @Operation(summary = "거래 삭제")
     public RsData<AccountTransactionDto> deleteTransaction(@PathVariable int id) {
         AccountTransaction accountTransaction = acctTransactionService.deleteById(id);
@@ -66,7 +62,6 @@ public class ApiV1AccountTransactionController {
 
     // 특정 계좌의 거래 목록 조회
     @GetMapping("/search/{accountId}")
-    @Transactional(readOnly = true)
     @Operation(summary = "특정 계좌의 거래 목록 조회")
     public RsData<List<AccountTransactionDto>> getTransactionsByAccount(@PathVariable int accountId) {
         List<AccountTransaction> accountTransactions = acctTransactionService.findByAccountId(accountId);

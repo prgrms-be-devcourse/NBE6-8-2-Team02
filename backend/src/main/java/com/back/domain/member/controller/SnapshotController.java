@@ -19,7 +19,7 @@ public class SnapshotController {
     private final MemberService memberService;
 
     @PostMapping("/save/{memberId}")
-    public RsData<?> saveSnapshot(@PathVariable int memberId, int totalAsset) {
+    public RsData<?> saveSnapshot(@PathVariable int memberId, @RequestParam Integer totalAsset) {
         Member member = memberService.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException("해당 id의 사용자가 없습니다." + memberId));
 

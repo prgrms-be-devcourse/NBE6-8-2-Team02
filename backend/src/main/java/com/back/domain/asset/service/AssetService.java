@@ -9,6 +9,7 @@ import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,6 +22,7 @@ public class AssetService {
     private final MemberRepository memberRepository;
 
     // 엔티티 빌더
+    @Transactional
     public Asset createAsset(CreateAssetRequestDto createAssetRequestDto) {
         Member member = memberRepository.findById(createAssetRequestDto.memberId())
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
@@ -37,10 +39,16 @@ public class AssetService {
     }
 
     // ------- 일반 서비스 -------- //
+    @Transactional(readOnly = true)
     public long count() {return assetRepository.count();}
+
+    @Transactional(readOnly = true)
     public Optional<Asset> findById(int id) {return assetRepository.findById(id);}
+
+    @Transactional(readOnly = true)
     public List<Asset> findAll() {return assetRepository.findAll();}
 
+    @Transactional
     public Asset deleteById(int id) {
         Asset asset = assetRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + id));
@@ -50,6 +58,7 @@ public class AssetService {
         return asset;
     }
 
+    @Transactional
     public Asset updateById(UpdateAssetRequestDto updateAssetRequestDto) {
         Asset asset = assetRepository.findById(updateAssetRequestDto.id())
                 .orElseThrow(() -> new NoSuchElementException("해당 id는 존재하지 않는 자산입니다. id:" + updateAssetRequestDto.id()));
