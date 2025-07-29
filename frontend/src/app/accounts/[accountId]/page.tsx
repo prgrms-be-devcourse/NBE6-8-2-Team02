@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAccountContext } from "@/context/AccountContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function AccountDetailPage() {
+  const router = useRouter();
   const params = useParams();
   const accountId = Number(params.accountId);
 
@@ -113,7 +114,9 @@ export default function AccountDetailPage() {
         ).then((res) => res.json());
 
         if (response.resultCode === "200-1") {
-          console.log("계좌 연결이 해제되었습니다.");
+          console.log(response.msg);
+          router.push("/accounts");
+          alert("계좌 연결 해제에 성공 했습니다.");
         } else {
           console.log(response.msg);
           alert("계좌 연결 해제에 실패했습니다.");
