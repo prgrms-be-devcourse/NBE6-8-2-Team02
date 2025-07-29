@@ -57,15 +57,6 @@ export default function AccountDetailPage() {
   const handleAddTransaction = () => {
     if (!amount || isNaN(Number(amount))) return;
 
-    addTransaction({
-      id: Date.now(),
-      accountId,
-      amount: Number(amount),
-      type,
-      content,
-      date: new Date().toISOString(),
-    });
-
     const fetchCreateTransaction = async () => {
       try {
         const response = await fetch(
@@ -86,18 +77,28 @@ export default function AccountDetailPage() {
 
         if (response.resultCode === "200-1") {
           console.log("거래가 정상적으로 등록되었습니다.");
+          addTransaction({
+            id: Date.now(),
+            accountId,
+            amount: Number(amount),
+            type,
+            content,
+            date: new Date().toISOString(),
+          });
+
+          setAmount("");
+          setContent("");
+          setType("ADD");
+          setShowForm(false); // 등록 후 폼 닫기
         } else {
           console.log("거래 등록 실패");
+          alert(response.msg);
         }
       } catch (error) {
         console.error("거래 등록 요청에 실패했습니다.");
       }
     };
     fetchCreateTransaction();
-    setAmount("");
-    setContent("");
-    setType("ADD");
-    setShowForm(false); // 등록 후 폼 닫기
   };
 
   return (

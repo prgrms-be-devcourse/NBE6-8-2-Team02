@@ -70,6 +70,9 @@ public class AccountService {
         if(type==TransactionType.ADD){
             account.setBalance(account.getBalance()+amount);
         } else if (type==TransactionType.REMOVE) {
+            if(account.getBalance()<amount){
+                throw new IllegalArgumentException("잔액이 부족합니다.");
+            }
             account.setBalance(account.getBalance()-amount);
         }
         return account;
