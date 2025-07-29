@@ -19,8 +19,8 @@ public class Goal extends BaseEntity {
     private Member member;
 
     private String description;
-    private int currentAmount;
-    private int targetAmount;
+    private long currentAmount;
+    private long targetAmount;
     private LocalDateTime deadline;
 
     @Enumerated(EnumType.STRING)
@@ -29,8 +29,8 @@ public class Goal extends BaseEntity {
     public Goal(
             Member member,
             String description,
-            int currentAmount,
-            int targetAmount,
+            long currentAmount,
+            long targetAmount,
             LocalDateTime deadline
     ) {
         this.member = member;
@@ -48,10 +48,10 @@ public class Goal extends BaseEntity {
     public void modifyDescription(String description) {
         this.description = description;
     }
-    public void modifyCurrentAmount(int currentAmount) {
+    public void modifyCurrentAmount(long currentAmount) {
         this.currentAmount = currentAmount;
     }
-    public void modifyTargetAmount(int targetAmount) {
+    public void modifyTargetAmount(long targetAmount) {
         this.targetAmount = targetAmount;
     }
     public void modifyDeadline(LocalDateTime deadline) {
