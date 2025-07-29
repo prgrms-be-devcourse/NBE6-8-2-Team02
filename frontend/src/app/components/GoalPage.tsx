@@ -83,12 +83,77 @@ const goalAPI = {
     try {
       console.log("목표 조회 API 호출 시작");
       
-      const data = await apiFetch('/api/v1/goals/');
+      const data = await apiFetch('/api/v1/goals');
       
       console.log("API 응답 데이터:", data);
       return data;
     } catch (error) {
       console.error("목표 조회 API 에러:", error);
+      throw error;
+    }
+  },
+
+  // 목표 수정
+  async updateGoal(id: number, goalData: {
+    description: string;
+    currentAmount: number;
+    targetAmount: number;
+    deadline: string;
+    status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
+  }) {
+    try {
+      console.log("목표 수정 API 호출 시작", { id, goalData });
+      
+      const data = await apiFetch(`/api/v1/goals/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(goalData)
+      });
+      
+      console.log("목표 수정 API 응답:", data);
+      return data;
+    } catch (error) {
+      console.error("목표 수정 API 에러:", error);
+      throw error;
+    }
+  },
+
+  // 목표 삭제
+  async deleteGoal(id: number) {
+    try {
+      console.log("목표 삭제 API 호출 시작", { id });
+      
+      const data = await apiFetch(`/api/v1/goals/${id}`, {
+        method: 'DELETE'
+      });
+      
+      console.log("목표 삭제 API 응답:", data);
+      return data;
+    } catch (error) {
+      console.error("목표 삭제 API 에러:", error);
+      throw error;
+    }
+  },
+
+  // 목표 생성
+  async createGoal(goalData: {
+    description: string;
+    currentAmount: number;
+    targetAmount: number;
+    deadline: string;
+    status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
+  }) {
+    try {
+      console.log("목표 생성 API 호출 시작", { goalData });
+      
+      const data = await apiFetch('/api/v1/goals', {
+        method: 'POST',
+        body: JSON.stringify(goalData)
+      });
+      
+      console.log("목표 생성 API 응답:", data);
+      return data;
+    } catch (error) {
+      console.error("목표 생성 API 에러:", error);
       throw error;
     }
   },
@@ -116,7 +181,21 @@ export function GoalPage() {
         setError(null);
 
         const goalsData = await goalAPI.getGoals();
-        setGoals(goalsData);
+        
+        // 목표 데이터의 ID를 숫자로 변환하여 설정
+        const processedGoals = Array.isArray(goalsData) 
+          ? goalsData.map((goal: any) => ({
+              ...goal,
+              id: Number(goal.id)
+            }))
+          : Array.isArray(goalsData.data) 
+            ? goalsData.data.map((goal: any) => ({
+                ...goal,
+                id: Number(goal.id)
+              }))
+            : [];
+            
+        setGoals(processedGoals);
       } catch (error) {
         console.error("목표 조회 실패:", error);
         
@@ -145,7 +224,9 @@ export function GoalPage() {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    console.log("handleSave 호출됨", { editingId, editForm });
+    
     if (editingId && editForm) {
       // 유효성 검사
       if (!editForm.description || editForm.description.trim() === "") {
@@ -162,48 +243,114 @@ export function GoalPage() {
         alert("목표 금액은 0보다 커야 합니다.");
         return;
       }
-      
-      setGoals(prevGoals =>
-        prevGoals.map(goal =>
-          goal.id === editingId
-            ? { ...goal, ...editForm }
-            : goal
-        )
-      );
-      setEditingId(null);
-      setEditForm({});
+
+      if (editForm.targetAmount < editForm.currentAmount) {
+        alert("목표 금액은 현재 금액보다 많아야 합니다.");
+        return;
+      }
+
+      try {
+        const goalData = {
+          description: editForm.description!,
+          currentAmount: editForm.currentAmount!,
+          targetAmount: editForm.targetAmount!,
+          deadline: editForm.deadline!,
+          status: editForm.status!,
+        };
+
+        // 임시 목표인지 확인 (음수 ID)
+        if (editingId < 0) {
+          console.log("새 목표 생성 API 호출:", goalData);
+          
+          // 생성 API 호출
+          const createdGoal = await goalAPI.createGoal(goalData);
+          console.log("생성된 목표:", createdGoal);
+          
+          // 백엔드에서 반환된 데이터 구조 확인 및 처리
+          let newGoal = createdGoal.data;
+          
+          // ID를 숫자로 확실히 변환
+          const newId = Number(newGoal.id || newGoal.goalId || Date.now());
+          console.log("새로 생성된 ID:", newId);
+          
+          // 임시 목표를 실제 목표로 교체
+          setGoals(prevGoals =>
+            prevGoals.map(goal =>
+              goal.id === editingId
+                ? { ...newGoal, id: newId }
+                : goal
+            )
+          );
+        } else {
+          console.log("목표 수정 API 호출:", { id: editingId, data: goalData });
+          
+          // 수정 API 호출 (ID를 숫자로 변환)
+          await goalAPI.updateGoal(Number(editingId), goalData);
+          console.log("수정 성공");
+
+          // 성공 시 로컬 상태 업데이트
+          setGoals(prevGoals =>
+            prevGoals.map(goal =>
+              Number(goal.id) === Number(editingId)
+                ? { ...goal, ...editForm }
+                : goal
+            )
+          );
+        }
+        
+        setEditingId(null);
+        setEditForm({});
+      } catch (error) {
+        console.error("목표 저장 실패:", error);
+        alert("목표 저장에 실패했습니다. 다시 시도해주세요.");
+      }
+    } else {
+      console.log("조건 불만족:", { editingId, editForm });
     }
   };
 
   const handleCancel = () => {
+    // 임시 목표인 경우 목록에서 제거
+    if (editingId && editingId < 0) {
+      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== editingId));
+    }
     setEditingId(null);
     setEditForm({});
   };
 
-  const handleDelete = (goalId: number) => {
+  const handleDelete = async (goalId: number) => {
     if (confirm("삭제하시겠습니까?")) {
-      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
-      // 만약 삭제 중인 목표가 편집 중이었다면 편집 모드 종료
-      if (editingId === goalId) {
-        setEditingId(null);
-        setEditForm({});
+      try {
+        // 백엔드 API 호출 (ID를 숫자로 변환)
+        await goalAPI.deleteGoal(Number(goalId));
+
+        // 성공 시 로컬 상태 업데이트
+        setGoals(prevGoals => prevGoals.filter(goal => Number(goal.id) !== Number(goalId)));
+        // 만약 삭제 중인 목표가 편집 중이었다면 편집 모드 종료
+        if (editingId && Number(editingId) === Number(goalId)) {
+          setEditingId(null);
+          setEditForm({});
+        }
+      } catch (error) {
+        console.error("목표 삭제 실패:", error);
+        alert("목표 삭제에 실패했습니다. 다시 시도해주세요.");
       }
     }
   };
 
   const handleAdd = () => {
-    // 새로운 ID 생성 (기존 ID 중 최대값 + 1)
-    const newId = Math.max(...goals.map(g => g.id), 0) + 1;
-    
     // 내일 날짜를 ISO 문자열로 생성
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowISO = tomorrow.toISOString();
     
-    // 새 목표 객체 생성
-    const newGoal: Goal = {
-      id: newId,
-      memberId: 4, // 임시 memberId
+    // 임시 ID 생성 (음수로 하여 실제 ID와 구분)
+    const tempId = -Date.now();
+    
+    // 임시 목표 객체 생성
+    const tempGoal: Goal = {
+      id: tempId,
+      memberId: 0, // 임시값
       description: "새 목표",
       currentAmount: 0,
       targetAmount: 0,
@@ -211,17 +358,17 @@ export function GoalPage() {
       status: "NOT_STARTED",
     };
     
-    // 목표 목록에 추가
-    setGoals(prevGoals => [...prevGoals, newGoal]);
+    // 목표 목록에 임시 목표 추가
+    setGoals(prevGoals => [...prevGoals, tempGoal]);
     
     // 편집 모드로 설정
-    setEditingId(newId);
+    setEditingId(tempId);
     setEditForm({
-      description: newGoal.description,
-      currentAmount: newGoal.currentAmount,
-      targetAmount: newGoal.targetAmount,
-      deadline: newGoal.deadline,
-      status: newGoal.status,
+      description: "새 목표",
+      currentAmount: 0,
+      targetAmount: 0,
+      deadline: tomorrowISO,
+      status: "NOT_STARTED",
     });
   };
 
@@ -263,13 +410,13 @@ export function GoalPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
+    <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div></div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
+        className="flex flex-col min-h-screen p-6 space-y-6 border-r"
       >
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
@@ -320,19 +467,19 @@ export function GoalPage() {
           <Button className="h-10 px-6" onClick={handleAdd}>+ 목표 추가</Button>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {goals.length === 0 && (
-            <Card>
+            <Card key="empty-state">
               <CardContent>등록된 목표가 없습니다.</CardContent>
             </Card>
           )}
-          {goals.map((goal) => {
-            const isEditing = editingId === goal.id;
+          {goals.map((goal, index) => {
+            const isEditing = editingId !== null && Number(editingId) === Number(goal.id);
             
             return (
-              <Card key={goal.id} className={`flex flex-col ${isEditing ? 'min-h-64' : 'h-64'}`}>
+              <Card key={goal.id || `goal-${index}`} className={`flex flex-col min-w-80 ${isEditing ? 'min-h-64' : 'h-64'}`}>
                 <CardHeader className="flex flex-row items-start justify-between pb-2 flex-shrink-0">
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 mr-4">
                     {isEditing ? (
                       <Input
                         value={editForm.description || ""}
@@ -358,13 +505,13 @@ export function GoalPage() {
                         </SelectContent>
                         </Select>
                       ) : (
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(goal.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${getStatusStyle(goal.status)}`}>
                           {getStatusDisplay(goal.status)}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2 ml-2 flex-shrink-0">
+                  <div className="flex gap-2 flex-shrink-0">
                     {isEditing ? (
                       <>
                         <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700">
@@ -394,26 +541,26 @@ export function GoalPage() {
                         type="number"
                         value={editForm.currentAmount || ""}
                         onChange={(e) => handleInputChange("currentAmount", parseInt(e.target.value) || 0)}
-                        className="w-24 text-right"
+                        className="w-32 text-right"
                       />
                     ) : (
-                      <span className="font-semibold">{goal.currentAmount.toLocaleString()}원</span>
+                      <span className="font-semibold text-lg">{(goal.currentAmount || 0).toLocaleString()}원</span>
                     )}
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">목표 금액</span>
                     {isEditing ? (
                       <Input
                         type="number"
                         value={editForm.targetAmount || ""}
                         onChange={(e) => handleInputChange("targetAmount", parseInt(e.target.value) || 0)}
-                        className="w-24 text-right"
+                        className="w-32 text-right"
                       />
                     ) : (
-                      <span className="font-semibold">{goal.targetAmount.toLocaleString()}원</span>
+                      <span className="font-semibold text-lg">{(goal.targetAmount || 0).toLocaleString()}원</span>
                     )}
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">기한</span>
                     {isEditing ? (
                       <Input
@@ -424,16 +571,16 @@ export function GoalPage() {
                           const isoString = date.toISOString();
                           handleInputChange("deadline", isoString);
                         }}
-                        className="w-32"
+                        className="w-36"
                       />
                     ) : (
-                      <span>{formatDate(goal.deadline)}</span>
+                      <span className="font-medium">{formatDate(goal.deadline)}</span>
                     )}
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">달성률</span>
-                    <span className={goal.currentAmount >= goal.targetAmount ? "text-green-600 font-bold" : "font-semibold"}>
-                      {((goal.currentAmount / goal.targetAmount) * 100).toFixed(1)}%
+                    <span className={(goal.currentAmount || 0) >= (goal.targetAmount || 1) ? "text-green-600 font-bold text-lg" : "font-semibold text-lg"}>
+                      {(((goal.currentAmount || 0) / (goal.targetAmount || 1)) * 100).toFixed(1)}%
                     </span>
                   </div>
                 </CardContent>
