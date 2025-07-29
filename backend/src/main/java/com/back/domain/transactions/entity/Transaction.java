@@ -5,6 +5,8 @@ import com.back.domain.asset.entity.AssetType;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +22,7 @@ public class Transaction extends BaseEntity {
     
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "asset_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset asset; // 연결된 자산
 
     @Enumerated(EnumType.STRING)

@@ -24,7 +24,6 @@ public class ApiV1TransactionController {
 
     // 거래 등록
     @PostMapping
-    @Transactional
     @Operation(summary = "거래 등록")
     public RsData<TransactionDto> createTransaction(
             @RequestBody CreateTransactionRequestDto createTransactionRequestDto
@@ -36,7 +35,6 @@ public class ApiV1TransactionController {
 
     // 거래 목록 조회
     @GetMapping
-    @Transactional(readOnly = true)
     @Operation(summary = "거래 목록 조회")
     public RsData<List<TransactionDto>> getTransactions() {
         List<Transaction> transactions = transactionService.findAll();
@@ -46,7 +44,6 @@ public class ApiV1TransactionController {
 
     // 거래 단건 조회
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     @Operation(summary = "거래 단건 조회")
     public RsData<TransactionDto> getTransaction(@PathVariable int id) {
         Transaction transaction = transactionService.findById(id)
@@ -57,7 +54,6 @@ public class ApiV1TransactionController {
 
     // 거래 삭제
     @DeleteMapping("/{id}")
-    @Transactional
     @Operation(summary = "거래 삭제")
     public RsData<TransactionDto> deleteTransaction(@PathVariable int id) {
         Transaction transaction = transactionService.deleteById(id);
@@ -67,7 +63,6 @@ public class ApiV1TransactionController {
 
     // 거래 수정
     @PutMapping("/{id}")
-    @Transactional
     @Operation(summary = "거래 수정")
     public RsData<TransactionDto> updateTransaction(@RequestBody UpdateTransactionRequestDto updateTransactionRequestDto) {
         Transaction transaction = transactionService.updateById(updateTransactionRequestDto);
@@ -77,7 +72,6 @@ public class ApiV1TransactionController {
 
     // 특정 자산의 거래 목록 조회
     @GetMapping("/search/{assetId}")
-    @Transactional(readOnly = true)
     @Operation(summary = "특정 자산의 거래 목록 조회")
     public RsData<List<TransactionDto>> getTransactionsByAsset(@PathVariable int assetId) {
         List<Transaction> transactions = transactionService.findByAssetId(assetId);
