@@ -230,7 +230,6 @@ export function MyPage() {
           onClick={() => navigate('/mypage')}
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <LayoutDashboard className="text-black-500" />대시 보드
-
         </section>
         <section
           onClick={() => navigate('/goals')}
@@ -242,6 +241,7 @@ export function MyPage() {
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
           <CreditCard className="text-black-500" />계좌 목록
         </section>
+        
         <section
           onClick={() => navigate('/mypage/assets')}
           className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
@@ -293,17 +293,17 @@ export function MyPage() {
           <Style.ChartBarHorizontal barChartData={barChartData} />
         </section>
       </div>
-      <div
-        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l"
-      >
+      <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">최근 거래</h1>
         </header>
 
         <section>
-          <Style.ActivityList activities={activities} />
+          {activities.length === 0 ? (
+          <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
+          ) : (
+          <Style.ActivityList activities={activities}/>)} 
         </section>
-
       </div>
       <div>
       </div>
