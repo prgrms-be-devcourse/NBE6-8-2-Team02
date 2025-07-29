@@ -1,56 +1,51 @@
 package com.back.domain.goal.service;
 
+import com.back.domain.goal.dto.GoalRequestDto;
 import com.back.domain.goal.entity.Goal;
-import com.back.domain.goal.entity.GoalType;
 import com.back.domain.goal.repository.GoalRepository;
 import com.back.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
 
-    public Optional<Goal> findById(int id) {
-        return goalRepository.findById(id);
+    @Transactional(readOnly = true)
+    public Goal findById(int id) {
+        return goalRepository.findById(id).orElseThrow();
     }
 
+    @Transactional(readOnly = true)
     public List<Goal> findByMemberId(int memberId) {
         return goalRepository.findByMember_Id(memberId);
     }
 
-    public Goal create(
-            Member member,
-            String description,
-            int currentAmount,
-            int targetAmount,
-            LocalDateTime deadline
-    ) {
-        Goal goal = new Goal(member, description, currentAmount, targetAmount, deadline);
+    @Transactional
+    public Goal create(Member member, GoalRequestDto reqBody) {
+        Goal goal = new Goal(member, reqBody.description(), reqBody.currentAmount(), reqBody.targetAmount(), reqBody.deadline());
 
         return goalRepository.save(goal);
     }
 
-    public void modify(
-            Goal goal,
-            String description,
-            int currentAmount,
-            int targetAmount,
-            LocalDateTime deadline,
-            GoalType goalType
-    ) {
-        goal.modifyDescription(description);
-        goal.modifyCurrentAmount(currentAmount);
-        goal.modifyTargetAmount(targetAmount);
-        goal.modifyDeadline(deadline);
-        goal.modifyGoalType(goalType);
+    @Transactional
+    public Goal modify(int id, GoalRequestDto reqBody) {
+        Goal goal = this.findById(id);
+
+        goal.modifyDescription(reqBody.description());
+        goal.modifyCurrentAmount(reqBody.currentAmount());
+        goal.modifyTargetAmount(reqBody.targetAmount());
+        goal.modifyDeadline(reqBody.deadline());
+        goal.modifyGoalType(reqBody.status());
+
+        return goal;
     }
 
+    @Transactional
     public void delete(Goal post) {
         goalRepository.delete(post);
     }

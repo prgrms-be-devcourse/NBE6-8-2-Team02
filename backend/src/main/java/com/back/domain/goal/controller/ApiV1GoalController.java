@@ -1,23 +1,18 @@
 package com.back.domain.goal.controller;
 
 import com.back.domain.goal.dto.GoalDto;
+import com.back.domain.goal.dto.GoalRequestDto;
 import com.back.domain.goal.entity.Goal;
-import com.back.domain.goal.entity.GoalType;
 import com.back.domain.goal.service.GoalService;
-import com.back.domain.member.entity.Member;
-import com.back.domain.member.entity.MemberRole;
 import com.back.global.rsData.RsData;
+import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -28,9 +23,9 @@ public class ApiV1GoalController {
     private final GoalService goalService;
 
     @GetMapping
-    @Transactional(readOnly = true)
     @Operation(summary = "다건 조회")
-    public List<GoalDto> getGoals(@RequestParam int memberId) {
+    public List<GoalDto> getGoals(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        int memberId = userDetails.getMember().getId();
         List<Goal> goals = goalService.findByMemberId(memberId);
 
         return goals
@@ -40,37 +35,17 @@ public class ApiV1GoalController {
     }
 
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     @Operation(summary = "단건 조회")
     public GoalDto getGoal(@PathVariable int id) {
-        Goal goal = goalService.findById(id).get();
+        Goal goal = goalService.findById(id);
 
         return new GoalDto(goal);
     }
 
-    record GoalReqBody(
-            @NotBlank
-            @Size(min = 2, max = 100)
-            String description,
-            @NotNull
-            int currentAmount,
-            @NotNull
-            int targetAmount,
-            @NotNull
-            LocalDateTime deadline,
-            GoalType goalType
-    ) {
-    }
-
     @PostMapping
-    @Transactional
     @Operation(summary = "생성")
-    public RsData<GoalDto> create(
-            @Valid @RequestBody GoalReqBody reqBody
-    ) {
-        Member user = new Member("abc@abc.com", "pw", "Name", "01012341234", Member.MemberRole.USER); //임시
-
-        Goal goal = goalService.create(user, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline);
+    public RsData<GoalDto> create(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody GoalRequestDto reqBody) {
+        Goal goal = goalService.create(userDetails.getMember(), reqBody);
 
         return new RsData<>(
                 "201-1",
@@ -80,14 +55,9 @@ public class ApiV1GoalController {
     }
 
     @PutMapping("/{id}")
-    @Transactional
     @Operation(summary = "수정")
-    public RsData<GoalDto> modify(
-            @PathVariable int id,
-            @Valid @RequestBody GoalReqBody reqBody
-    ) {
-        Goal goal = goalService.findById(id).get();
-        goalService.modify(goal, reqBody.description, reqBody.currentAmount, reqBody.targetAmount, reqBody.deadline, reqBody.goalType);
+    public RsData<GoalDto> modify(@PathVariable int id, @Valid @RequestBody GoalRequestDto reqBody) {
+        Goal goal = goalService.modify(id, reqBody);
 
         return new RsData<>(
                 "200-1",
@@ -96,10 +66,9 @@ public class ApiV1GoalController {
     }
 
     @DeleteMapping("/{id}")
-    @Transactional
     @Operation(summary = "삭제")
     public RsData<GoalDto> delete(@PathVariable int id) {
-        Goal goal = goalService.findById(id).get();
+        Goal goal = goalService.findById(id);
 
         goalService.delete(goal);
 
