@@ -56,7 +56,7 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
         return;
       }
 
-      const protectedPaths = ['/mypage', '/accounts', '/asset', '/goal'];
+      const protectedPaths = ['/mypage', '/accounts', '/asset', '/goals'];
       const isProtectedPath = protectedPaths.some(path => actualPath.startsWith(path));
 
       // 쿠키에서 자동 로그인 시도

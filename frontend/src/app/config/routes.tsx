@@ -55,7 +55,7 @@ export const routes: RouteConfig[] = [
     layout: "full"
   },
   {
-    path: "mypage/goals",
+    path: "/goals",
     component: GoalPage,
     layout: "full"
   },
