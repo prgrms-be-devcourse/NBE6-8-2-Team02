@@ -53,6 +53,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             accountNumber: account.accountNumber,
             balance: account.balance,
           }),
+          credentials: "include",
         });
         const result = await response.json();
 
@@ -86,6 +87,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ accountNumber: newNumber }),
+            credentials: "include",
           }
         );
         const result = await response.json();
@@ -114,6 +116,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
           {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
           }
         );
         const result = await response.json();
