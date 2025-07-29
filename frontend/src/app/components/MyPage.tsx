@@ -1,29 +1,13 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
 import { useRouter } from "./Router";
 import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut } from 'lucide-react';
 import { useEffect, useState, ReactNode } from "react";
 import * as React from "react"
-import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
 import { apiFetch } from '../lib/backend/client';
 import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
-import { error } from 'console';
-import { totalmem } from 'os';
-
-export const description = "A line chart with a label"
-
-function formatValue(value: number) {
-  return `₩${value.toLocaleString()}`;
-}
-
-function formatCount(count: number) {
-  return `${count}개 자산 연결됨`;
-}
+import * as Style from './ui/styles';
 
 type Asset = {
   id: number;
@@ -55,14 +39,6 @@ type Account = {
   createDate: string;
   modifyDate: string;
 };
-
-interface CardChartProps {
-  data: { month: number, total: number }[];
-}
-
-interface ChartBarHorizontalProps {
-  barChartData: { type: string; value: number }[];
-}
 
 export function MyPage() {
   const now = new Date();
@@ -270,7 +246,6 @@ export function MyPage() {
           onClick={onLogout}
           className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
           <ArrowRight className="text-red-500" />로그아웃
-
         </section>
       </div>
       <div
@@ -281,7 +256,7 @@ export function MyPage() {
         </header>
 
         <section>
-          <CardMain
+          <Style.CardMain
             value={totalAsset}
             revenue={currentRevenue}
             expense={currentExpense}
@@ -289,7 +264,7 @@ export function MyPage() {
         </section>
 
         <section>
-          <ChartLineInteractive data={linearChartData} />
+          <Style.ChartLineInteractive data={linearChartData} />
         </section>
 
         <header className="flex items-center justify-between">
@@ -298,19 +273,19 @@ export function MyPage() {
 
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card
+          <Style.Card
             icon={<Coins className="w-6 h-6 text-green-500" />}
             title="입출금 계좌"
-            value={formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}
-            description={formatCount(barChartDataRaw.find((d) => d.type === "account")?.count ?? 0)}
+            value={Style.formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}
+            description={Style.formatCount(barChartDataRaw.find((d) => d.type === "account")?.count ?? 0)}
           />
-          <Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
-          <Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value={formatValue(barChartDataRaw.find((d) => d.type === "real_estate")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
-          <Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value={formatValue(barChartDataRaw.find((d) => d.type === "stock")?.value ?? 0)} description={formatCount(barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Style.Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Style.Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "real_estate")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Style.Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "stock")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
         </section>
 
         <section>
-          <ChartBarHorizontal barChartData={barChartData} />
+          <Style.ChartBarHorizontal barChartData={barChartData} />
         </section>
       </div>
       <div
@@ -321,7 +296,7 @@ export function MyPage() {
         </header>
 
         <section>
-          <ActivityList activities={activities} />
+          <Style.ActivityList activities={activities} />
         </section>
 
       </div>
@@ -331,352 +306,4 @@ export function MyPage() {
   );
 }
 
-interface CardProps {
-  icon: ReactNode;
-  title: string;
-  value: string;
-  description: string;
-  chartData?: any[]; // optional
-  onClick?: () => void;
-}
-
-function Card({ icon, title, value, description, onClick }: CardProps) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.015 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-      className="rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={onClick} // 🔹 클릭 이벤트 추가
-    >
-      <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
-      <div>
-        <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
-        <p className="text-xl font-semibold text-gray-800 mt-1">{value}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
-      </div>
-    </motion.div>
-  );
-}
-
-interface CardMainProps {
-  value: number;
-  revenue: number;
-  expense: number;
-}
-
-export function CardMain({ value, revenue, expense }: CardMainProps) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.015 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-      className="rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
-    >
-      <section className="flex items-start gap-4">
-        <div className="p-2 bg-gray-100 rounded-full"><Coins className="w-6 h-6 text-blue-500" /></div>
-        <div>
-          <h3 className="text-sm text-gray-500 font-medium">자산 가치</h3>
-          <p className="text-xl font-semibold text-gray-800 mt-1">₩{value.toLocaleString()}</p>
-        </div>
-      </section>
-
-      <section className="flex items-start gap-4 ml-auto">
-        <div className="p-2 bg-gray-100 rounded-full"><ArrowUpRight className="w-6 h-6 text-green-500" /></div>
-        <div>
-          <h3 className="text-sm text-gray-500 font-medium">이번 달 수익</h3>
-          <p className="text-xl font-semibold text-gray-800 mt-1">₩{revenue.toLocaleString()}</p>
-        </div>
-      </section>
-
-      <section className="flex items-start gap-4 ml-auto">
-        <div className="p-2 bg-gray-100 rounded-full"><ArrowDownLeft className="w-6 h-6 text-red-500" /></div>
-        <div>
-          <h3 className="text-sm text-gray-500 font-medium">이번 달 지출</h3>
-          <p className="text-xl font-semibold text-gray-800 mt-1">₩{expense.toLocaleString()}</p>
-        </div>
-      </section>
-    </motion.div>
-  );
-}
-
-const chartConfig = {
-  total: {
-    label: "자산 가치",
-    color: "blue",
-  },
-  revenue: {
-    label: "수익",
-    color: "green",
-  },
-  expense: {
-    label: "지출",
-    color: "red",
-  },
-
-  type: {
-    label: "유형",
-    color: "red",
-  },
-  value: {
-    label: "가치",
-    color: "red",
-  },
-} satisfies ChartConfig
-
-export const monthMap: Record<string, string> = {
-  "1": "Jan",
-  "2": "Feb",
-  "3": "Mar",
-  "4": "Apr",
-  "5": "May",
-  "6": "Jun",
-  "7": "Jul",
-  "8": "Aug",
-  "9": "Sep",
-  "10": "Oct",
-  "11": "Nov",
-  "12": "Dec",
-};
-
-export function ChartLineInteractive({ data }: CardChartProps) {
-  const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>("total")
-  const total = React.useMemo(
-    () => {
-      if (!data || data.length === 0) {
-        return { total: 0 };
-      }
-      const last = data[data.length - 1];  // 마지막 항목
-      return {
-        total: last?.total || 0  // last가 undefined이면 0 반환
-      };
-    },
-    [data]
-  )
-  return (
-    <UICard className="py-4 sm:py-0">
-      <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
-          <CardTitle>자산 변화 추이</CardTitle>
-          <CardDescription>
-            최근 6개월 간의 변화
-          </CardDescription>
-        </div>
-        <div className="flex">
-          {["total"].map((key) => {
-            const chart = key as keyof typeof chartConfig
-            return (
-              <button
-                key={chart}
-                data-active={activeChart === chart}
-                className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
-                onClick={() => setActiveChart(chart)}
-              >
-                <span className="text-muted-foreground text-xs">
-                  <CardTitle>{chartConfig[chart].label}</CardTitle>
-                </span>
-                <span className="text-lg leading-none font-bold sm:text-3xl">
-                  ₩{total[key as keyof typeof total].toLocaleString()}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </CardHeader>
-      <CardContent className="px-2 sm:p-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <LineChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => monthMap[String(value)]?.slice(0, 3) ?? ""}
-
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[200px]"
-                />
-              }
-            />
-            <Line
-              dataKey={activeChart}
-              type="monotone"
-              stroke={`var(--color-${activeChart})`}
-              strokeWidth={1}
-              dot={true}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </UICard>
-  )
-}
-
-export function ChartBarHorizontal({ barChartData }: ChartBarHorizontalProps) {
-  return (
-    <UICard>
-      <CardHeader className='border-b'>
-        <CardTitle>자산 비율</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[200px]">
-          <BarChart
-            accessibilityLayer
-            data={barChartData}
-            layout="vertical"
-            margin={{
-              left: -10,
-            }}
-          >
-            <XAxis type="number" dataKey="value" hide />
-            <YAxis
-              dataKey="type"
-              type="category"
-              tickLine={false}
-              tickMargin={25}
-              axisLine={false}
-              tick={<TypeIconTick />}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[200px]"
-                />
-              }
-            />
-            <Bar dataKey="value" radius={5} barSize={10}>
-              {barChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getBarColor(entry.type)} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </UICard>
-  )
-}
-
-function getBarColor(type: string) {
-  switch (type) {
-    case 'account':
-      return '#4ade80'; // green
-    case 'deposit':
-      return '#60a5fa'; // blue
-    case 'real_estate':
-      return 'orange'; // red
-    case 'stock':
-      return 'purple'; // yellow
-    default:
-      return '#a3a3a3'; // gray
-  }
-}
-
-function TypeIconTick({ x, y, payload }: any) {
-  const month = payload.value;
-
-  const getIcon = () => {
-    switch (month) {
-      case "account":
-        return <Coins className="w-6 h-6 text-green-500" />;
-      case "deposit":
-        return <Coins className="w-6 h-6 text-blue-500" />;
-      case "real_estate":
-        return <House className="w-6 h-6 text-orange-500" />;
-      case "stock":
-        return <BarChart2 className="w-6 h-6 text-purple-500" />;
-      default:
-        return <Coins className="w-6 h-6 text-green-500" />;
-    }
-  };
-
-  return (
-    <foreignObject x={x - 16} y={y - 16} width={32} height={32}>
-      <div
-        className="p-1 bg-gray-100 rounded-full flex items-center justify-center w-8 h-8"
-      >
-        {getIcon()}
-      </div>
-    </foreignObject>
-  );
-}
-
-interface ActivityItemProps {
-  amount: number;
-  type: string;
-  date: string;
-  content: string;
-  assetType: string;
-}
-
-function formatDateString(dateStr: string): string {
-  const [year, month, day] = dateStr.split("T")[0].split("-");
-  return `${year}년 ${month}월 ${day}일`;
-}
-
-function ActivityItem({ content, date, amount, type, assetType }: ActivityItemProps) {
-  // type에 따른 색상 설정
-  const amountColor =
-    type === 'ADD' ? 'text-green-600' :
-      type === 'REMOVE' ? 'text-red-600' :
-        'text-gray-600';
-
-  // 금액 표시 형식, 예: +50,000 or -30,000
-  const formattedAmount =
-    (type === 'REMOVE' ? '' : '') +
-    amount.toLocaleString();
-
-  const assetIcon =
-    assetType === 'ACCOUNT' ? <Coins className="w-6 h-6 text-green-500" /> :
-      assetType === 'DEPOSIT' ? <Coins className="w-6 h-6 text-blue-500" /> :
-        assetType === 'REAL_ESTATE' ? <House className="w-6 h-6 text-orange-500" /> :
-          assetType === 'STOCK' ? <BarChart2 className="w-6 h-6 text-purple-500" /> :
-            <Coins className="w-6 h-6 text-green-500" />;
-
-  return (
-    <div className="flex flex-row gap-4 py-1 border-b border-gray-200">
-      <section className="flex items-start gap-4">
-        <div className="p-2 bg-gray-100 rounded-full">{assetIcon}</div> {/* 아이콘 */}
-        <div className="flex flex-col">
-          <span className="font-medium">{content}</span>
-          <span className="text-sm text-gray-400 mt-1">{formatDateString(date)}</span>
-        </div>
-      </section>
-      <section className="flex items-start gap-4 ml-auto">
-      </section>
-      <section className="flex items-start gap-4 ml-auto">
-        <div className="flex justify-end flex-grow">
-          <span className={`${amountColor} font-semibold`}>₩{formattedAmount}</span>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-
-interface ActivityListProps {
-  activities: ActivityItemProps[];
-}
-
-export function ActivityList({ activities }: ActivityListProps) {
-  return (
-    <div className="bg-white rounded-2xl shadow-md border p-4 space-y-2 w-full">
-      {activities.map((activity, index) => (
-        <ActivityItem key={index} {...activity} />
-      ))}
-    </div>
-  );
-}
 

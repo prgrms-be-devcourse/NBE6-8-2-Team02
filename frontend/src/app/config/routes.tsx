@@ -38,12 +38,12 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage",
     component: MyPage,
-    layout: "auth"
+    layout: "full"
   },
   {
     path: "/mypage/assets",
     component: AssetPage,
-    layout: "auth"
+    layout: "full"
   },
   {
     path: "/accounts",
