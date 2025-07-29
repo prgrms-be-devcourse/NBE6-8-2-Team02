@@ -55,7 +55,6 @@ export default function AccountDetailPage() {
   }
 
   const handleAddTransaction = () => {
-    console.log("최종 거래 타입:", type);
     if (!amount || isNaN(Number(amount))) return;
 
     addTransaction({
@@ -67,6 +66,34 @@ export default function AccountDetailPage() {
       date: new Date().toISOString(),
     });
 
+    const fetchCreateTransaction = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/v1/transactions/account",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              accountId: accountId,
+              type: type,
+              amount: amount,
+              content: content,
+              date: new Date().toISOString().replace("Z", ""),
+            }),
+            credentials: "include",
+          }
+        ).then((res) => res.json());
+
+        if (response.resultCode === "200-1") {
+          console.log("거래가 정상적으로 등록되었습니다.");
+        } else {
+          console.log("거래 등록 실패");
+        }
+      } catch (error) {
+        console.error("거래 등록 요청에 실패했습니다.");
+      }
+    };
+    fetchCreateTransaction();
     setAmount("");
     setContent("");
     setType("ADD");
