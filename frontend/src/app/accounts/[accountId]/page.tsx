@@ -13,6 +13,7 @@ export default function AccountDetailPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = Number(params.accountId);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   useEffect(() => {
     if (isNaN(accountId)) {
@@ -136,9 +137,43 @@ export default function AccountDetailPage() {
       <div className="text-lg">잔액: {account.balance.toLocaleString()}원</div>
 
       {/*계좌 연결 해제*/}
-      <Button className="bg-red-600" onClick={handleDeleteAccount}>
+      <Button
+        className="bg-red-600 hover:bg-red-500"
+        onClick={() => {
+          setShowConfirm(true);
+        }}
+      >
         계좌 연결 해제
       </Button>
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-[300px] text-center">
+            <h2 className="text-lg font-semibold mb-4">
+              정말 삭제하시겠습니까?
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="flex justify-between">
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-4 rounded"
+                onClick={() => setShowConfirm(false)}
+              >
+                취소
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
+                onClick={() => {
+                  setShowConfirm(false);
+                  handleDeleteAccount();
+                }}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 거래 등록 폼 */}
       {showForm && (
