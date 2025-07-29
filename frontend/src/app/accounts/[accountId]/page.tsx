@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useAccountContext } from "@/context/AccountContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -10,9 +10,34 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function AccountDetailPage() {
-  const { id } = useParams();
-  const accountId = Number(id);
-  const { accounts, transactions, addTransaction } = useAccountContext();
+  const params = useParams();
+  const accountId = Number(params.accountId);
+
+  useEffect(() => {
+    if (isNaN(accountId)) {
+      console.warn("잘못된 accountId:", params.accountId);
+      return;
+    }
+    const fetchAccountTransaction = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/transactions/account/search/${accountId}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        ).then((res) => res.json());
+
+        setTransactions(response.data);
+      } catch (error) {
+        console.error("거래 목록 조회 요청에 실패했습니다.");
+      }
+    };
+    fetchAccountTransaction();
+  }, [accountId]);
+
+  const { accounts, transactions, setTransactions, addTransaction } =
+    useAccountContext();
 
   const account = accounts.find((acc) => acc.id === accountId);
   const accountTransactions = transactions.filter(
@@ -20,8 +45,8 @@ export default function AccountDetailPage() {
   );
 
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState<"deposit" | "withdraw">("deposit");
-  const [note, setNote] = useState("");
+  const [type, setType] = useState<"ADD" | "REMOVE">("ADD");
+  const [content, setContent] = useState("");
 
   const [showForm, setShowForm] = useState(false); // 폼 표시 여부
 
@@ -30,6 +55,7 @@ export default function AccountDetailPage() {
   }
 
   const handleAddTransaction = () => {
+    console.log("최종 거래 타입:", type);
     if (!amount || isNaN(Number(amount))) return;
 
     addTransaction({
@@ -37,13 +63,13 @@ export default function AccountDetailPage() {
       accountId,
       amount: Number(amount),
       type,
-      note,
+      content,
       date: new Date().toISOString(),
     });
 
     setAmount("");
-    setNote("");
-    setType("deposit");
+    setContent("");
+    setType("ADD");
     setShowForm(false); // 등록 후 폼 닫기
   };
 
@@ -70,22 +96,22 @@ export default function AccountDetailPage() {
           />
           <RadioGroup
             value={type}
-            onValueChange={(val) => setType(val as "deposit" | "withdraw")}
+            onValueChange={(val) => setType(val as "ADD" | "REMOVE")}
             className="flex gap-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="deposit" id="deposit" />
-              <Label htmlFor="deposit">입금</Label>
+              <RadioGroupItem value="ADD" id="ADD" />
+              <Label htmlFor="ADD">입금</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="withdraw" id="withdraw" />
-              <Label htmlFor="withdraw">출금</Label>
+              <RadioGroupItem value="REMOVE" id="REMOVE" />
+              <Label htmlFor="REMOVE">출금</Label>
             </div>
           </RadioGroup>
           <Input
             placeholder="메모"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
           <Button type="button" onClick={handleAddTransaction}>
             거래 저장
@@ -103,17 +129,17 @@ export default function AccountDetailPage() {
             {accountTransactions.map((tx) => (
               <Card key={tx.id} className="p-3 flex justify-between">
                 <div>
-                  <div className="font-medium">{tx.note || "메모 없음"}</div>
+                  <div className="font-medium">{tx.content || "메모 없음"}</div>
                   <div className="text-sm text-gray-500">
                     {new Date(tx.date).toLocaleString()}
                   </div>
                 </div>
                 <div
                   className={`font-bold ${
-                    tx.type === "deposit" ? "text-green-600" : "text-red-500"
+                    tx.type === "ADD" ? "text-green-600" : "text-red-500"
                   }`}
                 >
-                  {tx.type === "deposit" ? "+" : "-"}
+                  {tx.type === "ADD" ? "+" : "-"}
                   {tx.amount.toLocaleString()}원
                 </div>
               </Card>

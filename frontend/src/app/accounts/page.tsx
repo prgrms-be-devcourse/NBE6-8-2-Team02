@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 
 export default function AccountsPage() {
+  const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
+    useAccountContext();
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
@@ -36,8 +38,6 @@ export default function AccountsPage() {
     fetchAccounts();
   }, []);
 
-  const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
-    useAccountContext();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
