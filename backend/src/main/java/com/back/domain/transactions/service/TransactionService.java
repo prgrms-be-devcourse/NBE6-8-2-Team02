@@ -5,6 +5,7 @@ import com.back.domain.asset.entity.AssetType;
 import com.back.domain.asset.repository.AssetRepository;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.transactions.dto.CreateTransactionRequestDto;
+import com.back.domain.transactions.dto.TransactionDto;
 import com.back.domain.transactions.dto.UpdateTransactionRequestDto;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -104,5 +107,17 @@ public class TransactionService {
         }
         
         return transactionRepository.searchTransactions(transactionType, start, end, minAmount, maxAmount);
+    }
+
+    // id 목록 기반 조회.
+    // 사용 용이하도록 Dto로 return.
+    public Map<Integer, List<TransactionDto>> findTransactionsByAssetIds(List<Integer> assetIds) {
+        List<Transaction> allTransactions = transactionRepository.findByAssetIdIn(assetIds);
+
+        return allTransactions.stream()
+                .collect(Collectors.groupingBy(
+                        tx -> tx.getAsset().getId(),
+                        Collectors.mapping(TransactionDto::new, Collectors.toList())
+                ));
     }
 } 

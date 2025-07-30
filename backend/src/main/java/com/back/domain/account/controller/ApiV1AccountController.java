@@ -46,7 +46,6 @@ public class ApiV1AccountController {
                 RsData<>("200-1", "계좌 목록을 조회했습니다.", accountDtos);
     }
 
-
     @GetMapping("/{accountId}")
     @Operation(summary = "계좌 단건 조회", description = "계좌 단건 조회")
     public RsData<AccountDto> getAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){

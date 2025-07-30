@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -77,5 +78,12 @@ public class ApiV1TransactionController {
         List<Transaction> transactions = transactionService.findByAssetId(assetId);
         List<TransactionDto> transactionDtos = transactions.stream().map(TransactionDto::new).toList();
         return new RsData<>("200-1", assetId + "번 자산의 거래 목록을 조회했습니다.", transactionDtos);
+    }
+
+    @GetMapping("/search/bulk")
+    @Operation(summary = "자산 거래 목록 일괄 조회")
+    public RsData<Map<Integer, List<TransactionDto>>> getTransactionsBulk(@RequestParam List<Integer> ids) {
+        Map<Integer, List<TransactionDto>> result = transactionService.findTransactionsByAssetIds(ids);
+        return new RsData<>("200-1", "자산 거래를 일괄 조회했습니다.", result);
     }
 } 

@@ -14,6 +14,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     
     // 특정 자산의 거래 목록 조회
     List<Transaction> findByAsset_Id(int assetId);
+    List<Transaction> findByAssetIdIn(List<Integer> assetIds);
     
     // 특정 계좌의 거래 목록 조회 (Asset을 통해 Account 연결)
     @Query("SELECT t FROM Transaction t JOIN t.asset a WHERE a.member.id = :accountId")

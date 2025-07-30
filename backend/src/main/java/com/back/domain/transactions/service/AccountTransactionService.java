@@ -3,8 +3,11 @@ package com.back.domain.transactions.service;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.account.service.AccountService;
+import com.back.domain.transactions.dto.AccountTransactionDto;
 import com.back.domain.transactions.dto.CreateAccTracRequestDto;
+import com.back.domain.transactions.dto.TransactionDto;
 import com.back.domain.transactions.entity.AccountTransaction;
+import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
 import com.back.domain.transactions.repository.AccountTransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,4 +75,17 @@ public class AccountTransactionService {
 
     @Transactional(readOnly = true)
     public Optional<AccountTransaction> findById(int id) { return accountTransactionRepository.findById(id);}
+
+    // id 목록 기반 조회.
+    // 사용 용이하도록 Dto로 return.
+    @Transactional(readOnly = true)
+    public Map<Integer, List<AccountTransactionDto>> findAccTransactionsByAccountIds(List<Integer> accountIds) {
+        List<AccountTransaction> allTransactions = accountTransactionRepository.findByAccount_IdIn(accountIds);
+
+        return allTransactions.stream()
+                .collect(Collectors.groupingBy(
+                        tx -> tx.getAccount().getId(),
+                        Collectors.mapping(AccountTransactionDto::new, Collectors.toList())
+                ));
+    }
 }

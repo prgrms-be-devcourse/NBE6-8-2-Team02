@@ -6,9 +6,11 @@ import com.back.domain.asset.Dto.UpdateAssetRequestDto;
 import com.back.domain.asset.entity.Asset;
 import com.back.domain.asset.service.AssetService;
 import com.back.global.rsData.RsData;
+import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -78,6 +80,20 @@ public class ApiV1AssetController {
                 "200-1",
                 "%d번 자산을 수정했습니다.".formatted(updateAssetRequestDto.id()),
                 assetDto
+        );
+    }
+
+    @GetMapping("/member")
+    @Operation(summary = "사용자 기반 자산 목록 조회")
+    public RsData<List<AssetDto>> getAssetsByCurrentMember(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        int memberId = userDetails.getMember().getId();
+
+        List<Asset> assets = assetService.getAssetsByMemberId(memberId);
+        List<AssetDto> assetDtos = assets.stream().map(AssetDto::new).toList();
+        return new RsData<>(
+                "200-1",
+                "%d번 사용자의 자산 목록을 조회했습니다.".formatted(memberId),
+                assetDtos
         );
     }
 }

@@ -1,7 +1,9 @@
 package com.back.domain.transactions.controller;
 
+import com.back.domain.account.entity.Account;
 import com.back.domain.transactions.dto.AccountTransactionDto;
 import com.back.domain.transactions.dto.CreateAccTracRequestDto;
+import com.back.domain.transactions.dto.TransactionDto;
 import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.service.AccountTransactionService;
 import com.back.global.rsData.RsData;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -67,5 +70,12 @@ public class ApiV1AccountTransactionController {
         List<AccountTransaction> accountTransactions = acctTransactionService.findByAccountId(accountId);
         List<AccountTransactionDto> accountTransactionDtos = accountTransactions.stream().map(AccountTransactionDto::new).toList();
         return new RsData<>("200-1", accountId + "번 계좌의 거래 목록을 조회했습니다.", accountTransactionDtos);
+    }
+
+    @GetMapping("/search/bulk")
+    @Operation(summary = "계좌 거래 목록 일괄 조회")
+    public RsData<Map<Integer, List<AccountTransactionDto>>> getAccTransactionsBulk(@RequestParam List<Integer> ids) {
+        Map<Integer, List<AccountTransactionDto>> result = acctTransactionService.findAccTransactionsByAccountIds(ids);
+        return new RsData<>("200-1", "계좌 거래를 일괄 조회했습니다.", result);
     }
 }
