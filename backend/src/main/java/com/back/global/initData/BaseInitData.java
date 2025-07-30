@@ -153,24 +153,24 @@ public class BaseInitData {
             return;
 
         //유저1
-        assetRepository.save(new Asset(user[1], "KB 적금", AssetType.DEPOSIT, 140000));
-        assetRepository.save(new Asset(user[1], "KB 예금", AssetType.DEPOSIT, 70000));
-        assetRepository.save(new Asset(user[1], "S-Oil", AssetType.STOCK, 622000));
-        assetRepository.save(new Asset(user[1], "삼성전자", AssetType.STOCK, 704000));
-        assetRepository.save(new Asset(user[1], "SK하이닉스", AssetType.STOCK, 2620000));
-        assetRepository.save(new Asset(user[1], "압구정 현대 (int값 제한..)", AssetType.REAL_ESTATE, 115000000));
-        assetRepository.save(new Asset(user[1], "한남더힐 (int값 제한..)", AssetType.REAL_ESTATE, 100000000));
-        assetRepository.save(new Asset(user[1], "롯데 시그니엘 (int값 제한..)", AssetType.REAL_ESTATE, 70000000));
+        assetRepository.save(new Asset(user[1], "KB 적금", AssetType.DEPOSIT, 140000L));
+        assetRepository.save(new Asset(user[1], "KB 예금", AssetType.DEPOSIT, 70000L));
+        assetRepository.save(new Asset(user[1], "S-Oil", AssetType.STOCK, 622000L));
+        assetRepository.save(new Asset(user[1], "삼성전자", AssetType.STOCK, 704000L));
+        assetRepository.save(new Asset(user[1], "SK하이닉스", AssetType.STOCK, 2620000L));
+        assetRepository.save(new Asset(user[1], "압구정 현대 (int값 제한..)", AssetType.REAL_ESTATE, 115000000L));
+        assetRepository.save(new Asset(user[1], "한남더힐 (int값 제한..)", AssetType.REAL_ESTATE, 100000000L));
+        assetRepository.save(new Asset(user[1], "롯데 시그니엘 (int값 제한..)", AssetType.REAL_ESTATE, 70000000L));
 
         //유저2
-        assetRepository.save(new Asset(user[2], "2-예금1", AssetType.DEPOSIT, 10000));
-        assetRepository.save(new Asset(user[2], "2-주식1", AssetType.STOCK, 20000));
-        assetRepository.save(new Asset(user[2], "2-부동산1", AssetType.REAL_ESTATE, 30000));
+        assetRepository.save(new Asset(user[2], "2-예금1", AssetType.DEPOSIT, 10000L));
+        assetRepository.save(new Asset(user[2], "2-주식1", AssetType.STOCK, 20000L));
+        assetRepository.save(new Asset(user[2], "2-부동산1", AssetType.REAL_ESTATE, 30000L));
 
         //유저3
-        assetRepository.save(new Asset(user[3], "3-예금1", AssetType.DEPOSIT, 10000));
-        assetRepository.save(new Asset(user[3], "3-주식1", AssetType.STOCK, 20000));
-        assetRepository.save(new Asset(user[3], "3-부동산1", AssetType.REAL_ESTATE, 30000));
+        assetRepository.save(new Asset(user[3], "3-예금1", AssetType.DEPOSIT, 10000L));
+        assetRepository.save(new Asset(user[3], "3-주식1", AssetType.STOCK, 20000L));
+        assetRepository.save(new Asset(user[3], "3-부동산1", AssetType.REAL_ESTATE, 30000L));
     }
 
     @Transactional
@@ -183,17 +183,17 @@ public class BaseInitData {
         Asset asset1 = assetRepository.findById(1).get();
         Asset asset2 = assetRepository.findById(4).get();
         Asset asset3 = assetRepository.findById(6).get();
-        transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 30000, "적금 이자", LocalDateTime.of(2025, 7, 23, 0, 0, 0)));
-        transactionRepository.save(new Transaction(asset2, TransactionType.REMOVE, 12000, "주가 하락", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
-        transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 30000, "부동산 가치 상승", LocalDateTime.of(2025, 7, 9, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset1, TransactionType.ADD, 30000L, "적금 이자", LocalDateTime.of(2025, 7, 23, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset2, TransactionType.REMOVE, 12000L, "주가 하락", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset3, TransactionType.ADD, 30000L, "부동산 가치 상승", LocalDateTime.of(2025, 7, 9, 0, 0, 0)));
 
         //유저1
         Asset asset4 = assetRepository.findById(9).get();
-        transactionRepository.save(new Transaction(asset4, TransactionType.ADD, 24000, "2입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset4, TransactionType.ADD, 24000L, "2입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
 
         //유저1
         Asset asset5 = assetRepository.findById(12).get();
-        transactionRepository.save(new Transaction(asset5, TransactionType.ADD, 71000, "3입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        transactionRepository.save(new Transaction(asset5, TransactionType.ADD, 71000L, "3입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 
     @Transactional
@@ -203,19 +203,19 @@ public class BaseInitData {
             return;
 
         Account account1 = accountRepository.findById(1).get();
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 17000, "입금", LocalDateTime.of(2025, 7, 2, 0, 0, 0)));
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 2000, "입금", LocalDateTime.of(2025, 7, 8, 0, 0, 0)));
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 18000, "출금", LocalDateTime.of(2025, 7, 12, 0, 0, 0)));
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 12000, "출금", LocalDateTime.of(2025, 7, 13, 0, 0, 0)));
-        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 9000, "입금", LocalDateTime.of(2025, 7, 22, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 17000L, "입금", LocalDateTime.of(2025, 7, 2, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 2000L, "입금", LocalDateTime.of(2025, 7, 8, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 18000L, "출금", LocalDateTime.of(2025, 7, 12, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.REMOVE, 12000L, "출금", LocalDateTime.of(2025, 7, 13, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account1, TransactionType.ADD, 9000L, "입금", LocalDateTime.of(2025, 7, 22, 0, 0, 0)));
 
         //유저1
         Account account2 = accountRepository.findById(3).get();
-        accountTransactionRepository.save(new AccountTransaction(account2, TransactionType.REMOVE, 21000, "2출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account2, TransactionType.REMOVE, 21000L, "2출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
 
         //유저1
         Account account3 = accountRepository.findById(5).get();
-        accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.REMOVE, 30000, "3출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
+        accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.REMOVE, 30000L, "3출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 
     @Transactional
@@ -237,7 +237,7 @@ public class BaseInitData {
                     .member(user1)
                     .year(target.getYear())
                     .month(target.getMonthValue())
-                    .totalAsset(1000000 + (20000 * i))
+                    .totalAsset(1000000L + (20000 * i))
                     .build();
             snapshotRepository.save(snapshot);
         }
@@ -249,7 +249,7 @@ public class BaseInitData {
                     .member(user2)
                     .year(target.getYear())
                     .month(target.getMonthValue())
-                    .totalAsset(2000000 - (10000 * i))
+                    .totalAsset(2000000L - (10000 * i))
                     .build();
             snapshotRepository.save(snapshot);
         }
@@ -261,7 +261,7 @@ public class BaseInitData {
                     .member(user3)
                     .year(target.getYear())
                     .month(target.getMonthValue())
-                    .totalAsset(1500000)
+                    .totalAsset(1500000L)
                     .build();
             snapshotRepository.save(snapshot);
         }

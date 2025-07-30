@@ -21,7 +21,7 @@ public class SnapshotService {
     private final SnapshotRepository snapshotRepository;
 
     @Transactional
-    public void saveMonthlySnapshot(Member member, Integer totalAsset) {
+    public void saveMonthlySnapshot(Member member, Long totalAsset) {
         YearMonth now = YearMonth.now();
         int year = now.getYear();
         int month = now.getMonthValue();

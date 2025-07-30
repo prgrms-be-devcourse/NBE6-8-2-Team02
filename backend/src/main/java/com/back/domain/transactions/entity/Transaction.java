@@ -28,7 +28,7 @@ public class Transaction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private TransactionType type; // 거래 유형
 
-    private int amount; // 거래량
+    private Long amount; // 거래량
 
     private String content; // 필요 시 메모
 

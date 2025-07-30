@@ -66,7 +66,7 @@ public class AccountService {
         return account;
     }
 
-    public Account updateBalance(Account account, TransactionType type, int amount){
+    public void updateBalance(Account account, TransactionType type, Long amount){
         if(type==TransactionType.ADD){
             account.setBalance(account.getBalance()+amount);
         } else if (type==TransactionType.REMOVE) {
@@ -75,8 +75,5 @@ public class AccountService {
             }
             account.setBalance(account.getBalance()-amount);
         }
-        return account;
     }
-
-
 }

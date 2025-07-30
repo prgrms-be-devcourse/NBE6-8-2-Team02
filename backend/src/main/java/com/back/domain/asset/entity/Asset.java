@@ -23,7 +23,7 @@ public class Asset extends BaseEntity {
     @Enumerated(EnumType.STRING)
     AssetType assetType; // 자산 유형
 
-    int assetValue; // 자산 가치
+    Long assetValue; // 자산 가치
 
     // int id(PK) -> BaseEntity
     // LocalDateTime created_at -> BaseEntity
