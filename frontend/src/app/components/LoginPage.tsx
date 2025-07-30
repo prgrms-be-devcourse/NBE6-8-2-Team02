@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,20 +12,37 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useRouter();
 
+  // 입력 필드 refs
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
   const handleLogin = async () => {
+    // 입력값 검증
     if (!loginData.email.trim()) {
       setError("아이디를 입력해주세요.");
+      setTimeout(() => {
+        emailInputRef.current?.focus();
+        emailInputRef.current?.select();
+      }, 100);
       return;
     }
 
     if (!loginData.password.trim()) {
       setError("비밀번호를 입력해주세요.");
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+        passwordInputRef.current?.select();
+      }, 100);
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(loginData.email)) {
       setError("올바른 이메일 형식을 입력해주세요.");
+      setTimeout(() => {
+        emailInputRef.current?.focus();
+        emailInputRef.current?.select();
+      }, 100);
       return;
     }
 
@@ -58,7 +75,62 @@ export function LoginPage() {
       }
     } catch (error) {
       console.error("로그인 실패:", error);
-      setError("서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
+
+      // 에러 타입별 세분화된 처리
+      if (error instanceof Error) {
+        // 네트워크 에러 체크
+        if (error.message.includes('fetch') || error.message.includes('network')) {
+          setError("네트워크 연결을 확인해주세요. 인터넷 연결 상태를 점검해주세요.");
+          return;
+        }
+
+        // HTTP 상태 코드별 에러 처리
+        if (error.message.includes('401')) {
+          setError("아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.");
+          setTimeout(() => {
+            passwordInputRef.current?.focus();
+            passwordInputRef.current?.select();
+          }, 100);
+          return;
+        }
+
+        if (error.message.includes('403')) {
+          setError("계정이 잠겨있습니다. 관리자에게 문의해주세요.");
+          return;
+        }
+
+        if (error.message.includes('404')) {
+          setError("존재하지 않는 계정입니다. 회원가입을 먼저 진행해주세요.");
+          setTimeout(() => {
+            emailInputRef.current?.focus();
+            emailInputRef.current?.select();
+          }, 100);
+          return;
+        }
+
+        if (error.message.includes('429')) {
+          setError("로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.");
+          return;
+        }
+
+        if (error.message.includes('500')) {
+          setError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+          return;
+        }
+
+        // 서버에서 반환한 일반적인 에러 메시지
+        if (error.message) {
+          setError(error.message);
+          setTimeout(() => {
+            passwordInputRef.current?.focus();
+            passwordInputRef.current?.select();
+          }, 100);
+          return;
+        }
+      }
+
+      // 기타 예상치 못한 에러
+      setError("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +181,7 @@ export function LoginPage() {
             type="text"
             placeholder="아이디(이메일)를 입력하세요"
             value={loginData.email}
+            ref={emailInputRef}
             onChange={(e) => {
               setLoginData({ ...loginData, email: e.target.value });
               setError(""); // 입력 시 에러 메시지 초기화
@@ -127,6 +200,7 @@ export function LoginPage() {
             type="password"
             placeholder="비밀번호를 입력하세요"
             value={loginData.password}
+            ref={passwordInputRef}
             onChange={(e) => {
               setLoginData({ ...loginData, password: e.target.value });
               setError(""); // 입력 시 에러 메시지 초기화
