@@ -67,6 +67,7 @@ export default function AccountsPage() {
   const [name, setName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [balance, setBalance] = useState("");
+  const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
   const handleAdd = () => {
     if (!name || !accountNumber || !balance) return;
@@ -226,10 +227,39 @@ export default function AccountsPage() {
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => deleteAccount(account.id)}
+                    onClick={() => setShowConfirm(true)}
                   >
                     삭제
                   </Button>
+                  {showConfirm && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                      <div className="bg-white rounded-xl shadow-xl p-6 w-[300px] text-center">
+                        <h2 className="text-lg font-semibold mb-4">
+                          정말 삭제하시겠습니까?
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-6">
+                          이 작업은 되돌릴 수 없습니다.
+                        </p>
+                        <div className="flex justify-between">
+                          <button
+                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-4 rounded"
+                            onClick={() => setShowConfirm(false)}
+                          >
+                            취소
+                          </button>
+                          <button
+                            className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
+                            onClick={() => {
+                              setShowConfirm(false);
+                              deleteAccount(account.id);
+                            }}
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </Card>
