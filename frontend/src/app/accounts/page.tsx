@@ -14,7 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "../components/Router";
-import { ArrowRight, LayoutDashboard, CreditCard, HandCoins, LogOut, Target } from 'lucide-react';
+import {
+  ArrowRight,
+  LayoutDashboard,
+  CreditCard,
+  HandCoins,
+  LogOut,
+  Target,
+} from "lucide-react";
 
 export default function AccountsPage() {
   const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
@@ -34,7 +41,6 @@ export default function AccountsPage() {
       navigate("/");
     }
   };
-
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -87,9 +93,7 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
-      <div>
-
-      </div>
+      <div></div>
       {/* 메뉴 */}
       <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r">
         <header className="flex items-center justify-between">
@@ -97,30 +101,40 @@ export default function AccountsPage() {
         </header>
 
         <section
-          onClick={() => navigate('/mypage')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500" />대시 보드
+          onClick={() => navigate("/mypage")}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer"
+        >
+          <LayoutDashboard className="text-black-500" />
+          대시 보드
         </section>
         <section
-          onClick={() => navigate('/goals')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <Target className="text-black-500" />나의 목표
+          onClick={() => navigate("/goals")}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer"
+        >
+          <Target className="text-black-500" />
+          나의 목표
         </section>
         <section
-          onClick={() => navigate('/accounts')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500" />계좌 목록
+          onClick={() => navigate("/accounts")}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer"
+        >
+          <CreditCard className="text-black-500" />
+          계좌 목록
         </section>
-        
+
         <section
-          onClick={() => navigate('/mypage/assets')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500" />자산 목록
+          onClick={() => navigate("/mypage/assets")}
+          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer"
+        >
+          <HandCoins className="text-black-500" />
+          자산 목록
         </section>
         <section
           onClick={onLogout}
-          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
-          <ArrowRight className="text-red-500" />로그아웃
+          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer"
+        >
+          <ArrowRight className="text-red-500" />
+          로그아웃
         </section>
       </div>
       <div className="max-w-2xl mx-auto py-10 px-4">
@@ -185,7 +199,9 @@ export default function AccountsPage() {
                   <Input
                     value={newAccountNumber}
                     onChange={(e) =>
-                      setNewAccountNumber(e.target.value.replace(/[^0-9-]/g, ""))
+                      setNewAccountNumber(
+                        e.target.value.replace(/[^0-9-]/g, "")
+                      )
                     }
                   />
                   <Button
@@ -219,10 +235,6 @@ export default function AccountsPage() {
             </Card>
           ))}
         </div>
-      </div>
-      <div>
-      </div>
-      <div>
       </div>
     </div>
   );
