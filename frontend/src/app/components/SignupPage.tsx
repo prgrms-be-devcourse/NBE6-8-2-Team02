@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
 
-export function SignupPage() {
+export const SignupPage = memo(function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
@@ -14,13 +14,14 @@ export function SignupPage() {
     phoneNumber: ""
   });
 
-
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { navigate } = useRouter();
 
-  const handleSignup = async () => {
+  const handleSignup = useCallback(async () => {
     // 입력값 검증
     if (!signupData.email.trim()) {
       setError("이메일을 입력해주세요.");
@@ -100,11 +101,44 @@ export function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signupData, confirmPassword, navigate]);
 
-  const handleBackToLogin = () => {
+  const handleBackToLogin = useCallback(() => {
     navigate("/login");
-  };
+  }, [navigate]);
+
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, email: e.target.value }));
+    setError("");
+  }, []);
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, password: e.target.value }));
+    setError("");
+  }, []);
+
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, name: e.target.value }));
+    setError("");
+  }, []);
+
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, phoneNumber: e.target.value }));
+    setError("");
+  }, []);
+
+  const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setError("");
+  }, []);
+
+  const handlePasswordToggle = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const handleConfirmPasswordToggle = useCallback(() => {
+    setShowConfirmPassword(prev => !prev);
+  }, []);
 
   return (
     <motion.div
@@ -144,10 +178,10 @@ export function SignupPage() {
             type="text"
             placeholder="이름을 입력하세요 (2-20자)"
             value={signupData.name}
-            onChange={(e) => {
-              setSignupData({ ...signupData, name: e.target.value });
+            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+              setSignupData(prev => ({ ...prev, name: e.target.value }));
               setError(""); // 입력 시 에러 메시지 초기화
-            }}
+            }, [])}
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 handleSignup();
@@ -193,39 +227,75 @@ export function SignupPage() {
         </div>
         <div className="space-y-2 text-left">
           <Label htmlFor="signup-password">비밀번호</Label>
-          <Input
-            id="signup-password"
-            type="password"
-            placeholder="비밀번호를 입력하세요 (8-16자)"
-            value={signupData.password}
-            onChange={(e) => {
-              setSignupData({ ...signupData, password: e.target.value });
-              setError(""); // 입력 시 에러 메시지 초기화
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSignup();
-              }
-            }}
-          />
+          <div className="relative">
+            <Input
+              id="signup-password"
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호를 입력하세요 (8-16자)"
+              value={signupData.password}
+              onChange={(e) => {
+                setSignupData({ ...signupData, password: e.target.value });
+                setError(""); // 입력 시 에러 메시지 초기화
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSignup();
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {showPassword ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
         <div className="space-y-2 text-left">
           <Label htmlFor="signup-confirm-password">비밀번호 확인</Label>
-          <Input
-            id="signup-confirm-password"
-            type="password"
-            placeholder="비밀번호를 재입력하세요"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              setError(""); // 입력 시 에러 메시지 초기화
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSignup();
-              }
-            }}
-          />
+          <div className="relative">
+            <Input
+              id="signup-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="비밀번호를 재입력하세요"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setError(""); // 입력 시 에러 메시지 초기화
+              }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSignup();
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {showConfirmPassword ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
       {/* 에러 메시지 표시 */}
@@ -248,11 +318,11 @@ export function SignupPage() {
       <div className="text-center">
         <button
           onClick={handleBackToLogin}
-          className="text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer py-1 px-2 rounded hover:bg-gray-50"
         >
           이미 계정이 있나요?
         </button>
       </div>
     </motion.div>
   );
-}
+});
