@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
 
-export function AccountRecoveryPage() {
+export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
     const [findAccountData, setFindAccountData] = useState({
         name: "",
         phoneNumber: ""
@@ -541,4 +541,4 @@ export function AccountRecoveryPage() {
             </div>
         </motion.div>
     );
-} 
+}); 

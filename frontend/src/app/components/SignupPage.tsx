@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
 
-export function SignupPage() {
+export const SignupPage = memo(function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
@@ -21,7 +21,7 @@ export function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { navigate } = useRouter();
 
-  const handleSignup = async () => {
+  const handleSignup = useCallback(async () => {
     // 입력값 검증
     if (!signupData.email.trim()) {
       setError("이메일을 입력해주세요.");
@@ -101,11 +101,11 @@ export function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signupData, confirmPassword, navigate]);
 
-  const handleBackToLogin = () => {
+  const handleBackToLogin = useCallback(() => {
     navigate("/login");
-  };
+  }, [navigate]);
 
   return (
     <motion.div
@@ -145,10 +145,10 @@ export function SignupPage() {
             type="text"
             placeholder="이름을 입력하세요 (2-20자)"
             value={signupData.name}
-            onChange={(e) => {
-              setSignupData({ ...signupData, name: e.target.value });
+            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+              setSignupData(prev => ({ ...prev, name: e.target.value }));
               setError(""); // 입력 시 에러 메시지 초기화
-            }}
+            }, [])}
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 handleSignup();
@@ -292,4 +292,4 @@ export function SignupPage() {
       </div>
     </motion.div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
 
-export function LoginPage() {
+export const LoginPage = memo(function LoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +17,7 @@ export function LoginPage() {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     // 입력값 검증
     if (!loginData.email.trim()) {
       setError("아이디를 입력해주세요.");
@@ -135,15 +135,15 @@ export function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [loginData, navigate]);
 
-  const handleSignupClick = () => {
+  const handleSignupClick = useCallback(() => {
     navigate("/signup");
-  };
+  }, [navigate]);
 
-  const handleForgotPasswordClick = () => {
+  const handleForgotPasswordClick = useCallback(() => {
     navigate("/forgot-password");
-  };
+  }, [navigate]);
 
   return (
     <motion.div
@@ -183,15 +183,15 @@ export function LoginPage() {
             placeholder="아이디(이메일)를 입력하세요"
             value={loginData.email}
             ref={emailInputRef}
-            onChange={(e) => {
-              setLoginData({ ...loginData, email: e.target.value });
+            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+              setLoginData(prev => ({ ...prev, email: e.target.value }));
               setError(""); // 입력 시 에러 메시지 초기화
-            }}
-            onKeyPress={(e) => {
+            }, [])}
+            onKeyPress={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 handleLogin();
               }
-            }}
+            }, [handleLogin])}
           />
         </div>
         <div className="space-y-2 text-left">
@@ -203,19 +203,19 @@ export function LoginPage() {
               placeholder="비밀번호를 입력하세요"
               value={loginData.password}
               ref={passwordInputRef}
-              onChange={(e) => {
-                setLoginData({ ...loginData, password: e.target.value });
+              onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+                setLoginData(prev => ({ ...prev, password: e.target.value }));
                 setError(""); // 입력 시 에러 메시지 초기화
-              }}
-              onKeyPress={(e) => {
+              }, [])}
+              onKeyPress={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === 'Enter') {
                   handleLogin();
                 }
-              }}
+              }, [handleLogin])}
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={useCallback(() => setShowPassword(prev => !prev), [])}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
             >
               {showPassword ? (
@@ -265,4 +265,4 @@ export function LoginPage() {
       </div>
     </motion.div>
   );
-}
+});
