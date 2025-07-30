@@ -8,7 +8,7 @@ import { apiFetch } from '../lib/backend/client';
 import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
 import * as Style from './ui/styles';
-import { a } from "framer-motion/client";
+import { SideBar } from "./SideBar";
 
 type Asset = {
   id: number;
@@ -72,17 +72,6 @@ export function MyPage() {
   }));
 
   const { navigate } = useRouter();
-
-  const onLogout = async () => {
-    try {
-      // @ts-ignore
-      await authAPI.logout();
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      navigate("/");
-    }
-  };
 
   useEffect(() => {
     const isAuth = authAPI.isAuthenticated();
@@ -216,43 +205,9 @@ export function MyPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
-      <div>
-      </div>
-      <div
-        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r"
-      >
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
-        </header>
-
-        <section
-          onClick={() => navigate('/mypage')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500" />대시 보드
-        </section>
-        <section
-          onClick={() => navigate('/goals')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <Target className="text-black-500" />나의 목표
-        </section>
-        <section
-          onClick={() => navigate('/accounts')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500" />계좌 목록
-        </section>
-        
-        <section
-          onClick={() => navigate('/mypage/assets')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500" />자산 목록
-        </section>
-        <section
-          onClick={onLogout}
-          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
-          <ArrowRight className="text-red-500" />로그아웃
-        </section>
-      </div>
+    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
+      <div></div>
+      <SideBar navigate={navigate} active="mypage" />
       <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
       >
