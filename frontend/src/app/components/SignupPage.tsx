@@ -107,6 +107,39 @@ export const SignupPage = memo(function SignupPage() {
     navigate("/login");
   }, [navigate]);
 
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, email: e.target.value }));
+    setError("");
+  }, []);
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, password: e.target.value }));
+    setError("");
+  }, []);
+
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, name: e.target.value }));
+    setError("");
+  }, []);
+
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData(prev => ({ ...prev, phoneNumber: e.target.value }));
+    setError("");
+  }, []);
+
+  const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setError("");
+  }, []);
+
+  const handlePasswordToggle = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const handleConfirmPasswordToggle = useCallback(() => {
+    setShowConfirmPassword(prev => !prev);
+  }, []);
+
   return (
     <motion.div
       key="signup"

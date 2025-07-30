@@ -145,6 +145,32 @@ export const LoginPage = memo(function LoginPage() {
     navigate("/forgot-password");
   }, [navigate]);
 
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData(prev => ({ ...prev, email: e.target.value }));
+    setError(""); // 입력 시 에러 메시지 초기화
+  }, []);
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData(prev => ({ ...prev, password: e.target.value }));
+    setError(""); // 입력 시 에러 메시지 초기화
+  }, []);
+
+  const handleEmailKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
+  }, [handleLogin]);
+
+  const handlePasswordKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
+  }, [handleLogin]);
+
+  const handlePasswordToggle = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
   return (
     <motion.div
       key="login"
@@ -183,15 +209,8 @@ export const LoginPage = memo(function LoginPage() {
             placeholder="아이디(이메일)를 입력하세요"
             value={loginData.email}
             ref={emailInputRef}
-            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-              setLoginData(prev => ({ ...prev, email: e.target.value }));
-              setError(""); // 입력 시 에러 메시지 초기화
-            }, [])}
-            onKeyPress={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === 'Enter') {
-                handleLogin();
-              }
-            }, [handleLogin])}
+            onChange={handleEmailChange}
+            onKeyPress={handleEmailKeyPress}
           />
         </div>
         <div className="space-y-2 text-left">
@@ -203,19 +222,12 @@ export const LoginPage = memo(function LoginPage() {
               placeholder="비밀번호를 입력하세요"
               value={loginData.password}
               ref={passwordInputRef}
-              onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-                setLoginData(prev => ({ ...prev, password: e.target.value }));
-                setError(""); // 입력 시 에러 메시지 초기화
-              }, [])}
-              onKeyPress={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === 'Enter') {
-                  handleLogin();
-                }
-              }, [handleLogin])}
+              onChange={handlePasswordChange}
+              onKeyPress={handlePasswordKeyPress}
             />
             <button
               type="button"
-              onClick={useCallback(() => setShowPassword(prev => !prev), [])}
+              onClick={handlePasswordToggle}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
             >
               {showPassword ? (

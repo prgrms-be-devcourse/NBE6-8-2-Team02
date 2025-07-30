@@ -29,7 +29,7 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { navigate } = useRouter();
 
-    const handleFindAccount = async () => {
+    const handleFindAccount = useCallback(async () => {
         if (!findAccountData.name.trim()) {
             setError("이름을 입력해주세요.");
             return;
@@ -64,9 +64,9 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             setError(error instanceof Error ? error.message : "계정을 찾을 수 없습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }
-    };
+    }, [findAccountData]);
 
-    const handleResetPassword = async () => {
+    const handleResetPassword = useCallback(async () => {
         if (!resetPasswordData.email.trim()) {
             setError("이메일을 입력해주세요.");
             return;
@@ -110,9 +110,9 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             setError(error instanceof Error ? error.message : "계정 정보가 일치하지 않습니다. 입력 정보를 확인해주세요.");
             setIsLoading(false);
         }
-    };
+    }, [resetPasswordData]);
 
-    const handlePasswordReset = async () => {
+    const handlePasswordReset = useCallback(async () => {
         if (!newPassword.trim()) {
             setError("새 비밀번호를 입력해주세요.");
             return;
@@ -161,20 +161,20 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             setError(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.");
             setIsLoading(false);
         }
-    };
+    }, [newPassword, confirmPassword, navigate]);
 
-    const handleBackToLogin = () => {
+    const handleBackToLogin = useCallback(() => {
         navigate("/login");
-    };
+    }, [navigate]);
 
-    const handleResetForm = () => {
+    const handleResetForm = useCallback(() => {
         setFoundAccount(null);
         setIsPasswordResetMode(false);
         setNewPassword("");
         setConfirmPassword("");
         setError("");
         setSuccess("");
-    };
+    }, []);
 
     return (
         <motion.div
