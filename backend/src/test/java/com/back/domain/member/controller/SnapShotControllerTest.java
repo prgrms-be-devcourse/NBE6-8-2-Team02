@@ -1,7 +1,9 @@
 package com.back.domain.member.controller;
 
 import com.back.domain.member.repository.MemberRepository;
+import com.back.global.security.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +33,23 @@ class SnapShotControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    JwtUtil jwtutil;
+
+    String token;
     ObjectMapper objectMapper = new ObjectMapper();
 
+    @BeforeEach
+    void setUp() {
+        token = jwtutil.generateToken("user1@user.com", 4);
+    }
 
     @Test
     @DisplayName("스냅샷 등록")
     void createSnapShot() throws Exception {
-        ResultActions resultActions = mockMvc
-                .perform(
-                        post("/api/v1/snapshot/save/1?totalAsset=10000")
-                                .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/v1/snapshot/save?totalAsset=10000")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.msg").value("스냅샷을 저장했습니다."));
@@ -49,8 +58,9 @@ class SnapShotControllerTest {
     @Test
     @DisplayName("스냅샷 조회")
     void findSnapShot() throws Exception {
-        ResultActions resultActions = mockMvc
-                .perform(get("/api/v1/snapshot/1"))
+        mockMvc.perform(get("/api/v1/snapshot")
+                        .header("Authorization", "Bearer " + token)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.msg").value("스냅샷을 정상적으로 불러왔습니다."));
     }

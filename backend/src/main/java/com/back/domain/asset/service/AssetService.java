@@ -70,5 +70,11 @@ public class AssetService {
         return assetRepository.save(asset);
     }
 
+    @Transactional(readOnly = true)
+    public List<Asset> getAssetsByMemberId(int memberId) {
+        return assetRepository.findAllByMemberId(memberId);
+    }
+
+    @Transactional
     public void flush() {assetRepository.flush();}
 }
