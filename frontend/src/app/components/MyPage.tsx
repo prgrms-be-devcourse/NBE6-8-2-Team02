@@ -8,6 +8,7 @@ import { apiFetch } from '../lib/backend/client';
 import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
 import * as Style from './ui/styles';
+import { a } from "framer-motion/client";
 
 type Asset = {
   id: number;
@@ -91,44 +92,36 @@ export function MyPage() {
     }
 
     fetchUserInfo();
-  }, [navigate]);
+  }, []);
   const fetchUserInfo = async () => {
     try {
-      const memberRes = await apiFetch('/api/v1/members/me');
-      const memberId = memberRes.id;
-
-      if (!memberId) throw new Error("잘못된 사용자 정보입니다.");
-
       // 계좌, 자산 처리.
 
-      const allAccountRes = await apiFetch('/api/v1/accounts');
-      const allAssetRes = await apiFetch('/api/v1/assets');
+      const [allAccountRes, allAssetRes] = await Promise.all([
+        apiFetch('/api/v1/accounts'),
+        apiFetch('/api/v1/assets/member'),
+      ]);
 
-      const myAssets: Asset[] = allAssetRes.data?.filter(
-        (asset: Asset) => asset.memberId === memberId
-      );
-
-      const myAccounts: Account[] = allAccountRes.data?.filter(
-        (account: Account) => account.memberId === memberId
-      );
-
-      // 계좌, 자산의 id 추출 후 거래 내역 처리.
-
+      const myAccounts: Account[] = allAccountRes.data;
+      const myAssets: Asset[] = allAssetRes.data;
+      
+      // 자산, 계좌 id 추출 
       const myAssetIds = myAssets.map((asset) => asset.id);
       const myAccountIds = myAccounts.map((account) => account.id);
 
-      const allAssetTransactionResList = await Promise.all(
-        myAssetIds.map((id) => apiFetch(`/api/v1/transactions/asset/search/${id}`))
-      );
-      const allAccountTransactionResList = await Promise.all(
-        myAccountIds.map((id) => apiFetch(`/api/v1/transactions/account/search/${id}`))
-      );
+      const [accountBulkRes, assetBulkRes] = await Promise.all([
+        apiFetch(`/api/v1/transactions/account/search/bulk?ids=${myAccountIds.join(',')}`),
+        apiFetch(`/api/v1/transactions/asset/search/bulk?ids=${myAssetIds.join(',')}`),
+      ]);
 
-      const allAssetTransactions = allAssetTransactionResList.flatMap((res, index) => {
-        const assetId = myAssetIds[index];
+      // 자산들의 거래 목록 일괄 조회
+      const assetBulkData = assetBulkRes.data as Record<string, Transaction[]>;
+
+      const allAssetTransactions = Object.entries(assetBulkData).flatMap(([id, transactions]) => {
+        const assetId = parseInt(id, 10);
         const asset = myAssets.find((a) => a.id === assetId);
-
-        return (res.data ?? []).map((tx: any) => ({
+      
+        return transactions.map((tx: any) => ({
           amount: tx.amount,
           type: tx.type,
           date: tx.date,
@@ -137,14 +130,19 @@ export function MyPage() {
         }));
       });
 
-      const allAccountTransactions = allAccountTransactionResList.flatMap((res) => {
-        return (res.data ?? []).map((tx: any) => ({
+      // 계좌들의 거래 목록 일괄 조회
+      const accountBulkData = accountBulkRes.data as Record<string, Transaction[]>;
+
+      const allAccountTransactions = Object.entries(accountBulkData).flatMap(([id, transactions]) => {
+        const accountId = parseInt(id, 10);
+        const account = myAccounts.find((a) => a.id === accountId);
+      
+        return transactions.map((tx: any) => ({
           amount: tx.amount,
           type: tx.type,
           date: tx.date,
           content: tx.content,
           assetType: "ACCOUNT",
-
         }));
       });
 
@@ -197,13 +195,15 @@ export function MyPage() {
       setCurrentExpense(expenseSum);
       setTotalAsset(totalAssetSum);
 
-      await apiFetch(`/api/v1/snapshot/save/${memberId}?totalAsset=${totalAssetSum}`,
+      //스냅샷 등록
+      await apiFetch(`/api/v1/snapshot/save?totalAsset=${totalAssetSum}`,
         {
           method: "POST",
         }
       );
 
-      const mySnapShotRes = await apiFetch(`/api/v1/snapshot/${memberId}`);
+      //스냅샷 가져오기
+      const mySnapShotRes = await apiFetch(`/api/v1/snapshot`);
       const mySnapShot = mySnapShotRes.data?.map((item: { month: number; totalAsset: number }) => ({
         month: item.month,
         total: item.totalAsset,
