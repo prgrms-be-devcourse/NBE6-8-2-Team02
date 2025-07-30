@@ -62,7 +62,7 @@ class ApiV1AssetControllerTest {
                 "memberId", member.getId(),
                 "name", "카카오뱅크",
                 "assetType", "STOCK",
-                "assetValue", 500000
+                "assetValue", 500000L
         );
 
         var createResult = mvc.perform(post("/api/v1/assets")
@@ -88,7 +88,7 @@ class ApiV1AssetControllerTest {
                 "id", assetId,
                 "name", "카카오뱅크우",
                 "assetType", "STOCK",
-                "assetValue", 600000
+                "assetValue", 600000L
         );
 
         mvc.perform(put("/api/v1/assets/" + assetId)
@@ -96,7 +96,7 @@ class ApiV1AssetControllerTest {
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.name").value("카카오뱅크우"))
-                .andExpect(jsonPath("$.data.assetValue").value(600000));
+                .andExpect(jsonPath("$.data.assetValue").value(600000L));
 
         //4. 자산 전체 조회
         mvc.perform(get("/api/v1/assets"))

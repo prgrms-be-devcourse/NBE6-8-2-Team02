@@ -6,5 +6,5 @@ import lombok.Builder;
 public record SnapshotResponse(
         int year,
         int month,
-        long totalAsset
+        Long totalAsset
 ) {}

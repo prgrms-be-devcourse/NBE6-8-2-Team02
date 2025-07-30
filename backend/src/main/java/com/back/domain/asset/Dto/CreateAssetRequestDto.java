@@ -8,12 +8,12 @@ public record CreateAssetRequestDto (
     int memberId,
     String name,
     String assetType,
-    int assetValue
+    Long assetValue
     ) {
     public CreateAssetRequestDto(int memberId,
                                  String name,
                                  String assetType,
-                                 int assetValue
+                                 Long assetValue
     )
     {
         this.memberId = memberId;

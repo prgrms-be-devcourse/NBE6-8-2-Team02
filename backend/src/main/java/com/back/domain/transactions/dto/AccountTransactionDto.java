@@ -8,7 +8,7 @@ public record AccountTransactionDto(
         int id,
         int accountId,
         String type,
-        int amount,
+        Long amount,
         String content,
         LocalDateTime date,
         LocalDateTime createDate,

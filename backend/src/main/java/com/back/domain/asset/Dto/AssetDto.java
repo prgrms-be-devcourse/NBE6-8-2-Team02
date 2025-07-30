@@ -9,7 +9,7 @@ public record AssetDto (
         int memberId,
         String name,
         String assetType,
-        int assetValue,
+        Long assetValue,
         LocalDateTime createDate,
         LocalDateTime modifyDate
 ) {

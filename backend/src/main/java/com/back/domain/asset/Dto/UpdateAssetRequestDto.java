@@ -4,9 +4,9 @@ public record UpdateAssetRequestDto (
         int id,
         String name,
         String assetType,
-        int assetValue
+        Long assetValue
 ) {
-    public UpdateAssetRequestDto(int id, String name, String assetType, int assetValue) {
+    public UpdateAssetRequestDto(int id, String name, String assetType, Long assetValue) {
         this.id = id;
         this.name = name;
         this.assetType = assetType;

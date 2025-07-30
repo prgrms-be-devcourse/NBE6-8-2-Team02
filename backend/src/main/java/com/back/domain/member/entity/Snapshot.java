@@ -24,5 +24,5 @@ public class Snapshot extends BaseEntity {
     @Column(name = "asset_month")
     private int month;
 
-    private int totalAsset;
+    private Long totalAsset;
 }
