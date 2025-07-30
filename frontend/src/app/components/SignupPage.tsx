@@ -248,7 +248,7 @@ export function SignupPage() {
       <div className="text-center">
         <button
           onClick={handleBackToLogin}
-          className="text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer py-1 px-2 rounded hover:bg-gray-50"
         >
           이미 계정이 있나요?
         </button>

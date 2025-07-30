@@ -233,13 +233,13 @@ export function LoginPage() {
       <div className="text-center space-y-2">
         <button
           onClick={handleSignupClick}
-          className="text-sm text-muted-foreground hover:text-primary transition-colors block w-full"
+          className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer block w-full py-1 rounded hover:bg-gray-50"
         >
           아직 계정이 없나요?
         </button>
         <button
           onClick={handleForgotPasswordClick}
-          className="text-sm text-muted-foreground hover:text-primary transition-colors block w-full"
+          className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer block w-full py-1 rounded hover:bg-gray-50"
         >
           계정을 잊어버리셨나요?
         </button>
