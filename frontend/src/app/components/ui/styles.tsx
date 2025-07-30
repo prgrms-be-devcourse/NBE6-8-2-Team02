@@ -191,18 +191,24 @@ export const monthMap: Record<string, string> = {
 export function ChartLineInteractive({ data }: CardChartProps) {
     const [activeChart, setActiveChart] =
       React.useState<keyof typeof chartConfig>("total")
-    const total = React.useMemo(
-      () => {
-        if (!data || data.length === 0) {
-          return { total: 0 };
-        }
-        const last = data[data.length - 1];  // 마지막 항목
-        return {
-          total: last?.total || 0  // last가 undefined이면 0 반환
-        };
-      },
-      [data]
-    )
+    const total = React.useMemo(() => {
+      if (!data || data.length === 0) {
+        return { total: 0, changeRate: 0 };
+      }
+    
+      const last = data[data.length - 1];
+      const prev = data[data.length - 2];
+    
+      const lastTotal = last?.total || 0;
+      const prevTotal = prev?.total || 0;
+    
+      const changeRate = prevTotal > 0 ? ((lastTotal - prevTotal) / prevTotal) * 100 : 0;
+    
+      return {
+        total: lastTotal,
+        changeRate,
+      };
+    }, [data])
     return (
       <UICard className="py-4 sm:py-0">
         <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
@@ -212,25 +218,37 @@ export function ChartLineInteractive({ data }: CardChartProps) {
               최근 6개월 간의 변화
             </CardDescription>
           </div>
-          <div className="flex">
-            {["total"].map((key) => {
-              const chart = key as keyof typeof chartConfig
-              return (
-                <button
-                  key={chart}
-                  data-active={activeChart === chart}
-                  className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
-                  onClick={() => setActiveChart(chart)}
-                >
-                  <span className="text-muted-foreground text-xs">
-                    <CardTitle>{chartConfig[chart].label}</CardTitle>
-                  </span>
-                  <span className="text-lg leading-none font-bold sm:text-3xl">
-                    ₩{total[key as keyof typeof total].toLocaleString()}
-                  </span>
-                </button>
-              )
-            })}
+          {/* 💡 증감률 블럭 추가 */}
+          <div className={`flex items-center border-l`}>
+            <div className={`${total.changeRate >= 0 ? 'text-green-700' : 'text-red-700'} flex flex-1 flex-col sm:px-8 sm:py-6 gap-1 text-left px-6 py-4 justify-center`}>
+              <CardTitle className='text-muted-foreground text-xs'>
+                이전 월 대비
+              </CardTitle>
+              <section className='text-lg leading-none font-bold sm:text-3xl'>
+                {total.changeRate >= 0 ? '▲' : '▼'} {Math.abs(total.changeRate).toFixed(1)}%
+              </section>
+            </div>
+            
+            <div className="flex">
+              {["total"].map((key) => {
+                const chart = key as keyof typeof chartConfig
+                return (
+                  <button
+                    key={chart}
+                    data-active={activeChart === chart}
+                    className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
+                    onClick={() => setActiveChart(chart)}
+                  >
+                    <span className="text-muted-foreground text-xs">
+                      <CardTitle>{chartConfig[chart].label}</CardTitle>
+                    </span>
+                    <span className="text-lg leading-none font-bold sm:text-3xl">
+                      ₩{total[key as keyof typeof total].toLocaleString()}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="px-2 sm:p-6">
