@@ -8,6 +8,8 @@ import * as React from "react"
 import { apiFetch } from '../lib/backend/client';
 import { Asset } from 'next/font/google';
 import * as Style from './ui/styles'
+import { SideBar } from "./SideBar";
+import { authAPI } from "@/lib/auth";
 
 type Asset = {
   id: number;
@@ -119,53 +121,10 @@ export function AssetPage() {
 
   const { navigate } = useRouter();
 
-  const onLogout = async () => {
-    try {
-      // @ts-ignore
-      await authAPI.logout();
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      navigate("/");
-    }
-  };
-
   return (
     <>
-    <div className="min-h-screen grid grid-cols-[1fr_auto_1fr]">
-      <div
-        className="flex flex-col min-h-screen p-6 max-w-6xl ml-auto text-right space-y-6 border-r"
-      >
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
-        </header>
-
-        <section 
-        onClick={() => navigate('/mypage')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500"/>대시 보드
-        </section>
-        <section
-          onClick={() => navigate('/goals')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <Target className="text-black-500" />나의 목표
-        </section>
-        <section 
-        onClick={() => navigate('/accounts')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500"/>계좌 목록
-        </section>
-        <section 
-        onClick={() => navigate('/mypage/assets')}
-        className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500"/>자산 목록
-        </section>
-        <section
-          onClick={onLogout}
-          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
-          <ArrowRight className="text-red-500" />로그아웃
-        </section>
-      </div>
+    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_1fr]">
+      <SideBar navigate={navigate} active="assets" />
       <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto border-r">
         <div className='flex flex-row mr-auto gap-2'>
           <header className="flex items-center justify-between">

@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { authAPI } from "@/lib/auth";
 import { motion } from 'framer-motion';
 import { useRouter } from "./Router";
-import { ArrowRight, LayoutDashboard, CreditCard, HandCoins, Target } from 'lucide-react';
 import { apiFetch } from '../lib/backend/client';
+import { SideBar } from "./SideBar";
 
 interface Goal {
   id: number;
@@ -410,52 +410,9 @@ export function GoalPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
+    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
       <div></div>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col min-h-screen p-6 space-y-6 border-r"
-      >
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">메뉴</h1>
-        </header>
-
-        <section
-          onClick={() => navigate('/mypage')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <LayoutDashboard className="text-black-500" />대시 보드
-        </section>
-        <section
-          onClick={() => navigate('/goals')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer bg-gray-100">
-          <Target className="text-black-500" />나의 목표
-        </section>
-        <section
-          onClick={() => navigate('/accounts')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <CreditCard className="text-black-500" />계좌 목록
-        </section>
-        <section
-          onClick={() => navigate('/mypage/assets')}
-          className="flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer">
-          <HandCoins className="text-black-500" />자산 목록
-        </section>
-        <section
-          onClick={async () => {
-            try {
-              await authAPI.logout();
-              navigate("/");
-            } catch (error) {
-              console.error("로그아웃 실패:", error);
-              navigate("/");
-            }
-          }}
-          className="flex items-center p-2 gap-4 text-red-500 hover:bg-red-50 rounded-md cursor-pointer">
-          <ArrowRight className="text-red-500" />로그아웃
-        </section>
-      </motion.div>
+      <SideBar navigate={navigate} active="goals" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
