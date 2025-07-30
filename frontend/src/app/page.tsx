@@ -3,6 +3,7 @@
 import { AnimatePresence } from "framer-motion";
 import { Router, Route, useRouter } from "./components/Router";
 import { routes } from "./config/routes";
+import Navbar from "./components/Navbar";
 
 function matchPath(pattern: string, pathname: string): boolean {
   const patternParts = pattern.split("/").filter(Boolean);
@@ -13,7 +14,6 @@ function matchPath(pattern: string, pathname: string): boolean {
     part.startsWith(":") ? true : part === pathParts[i]
   );
 }
-
 
 function AppContent() {
   const { currentPath } = useRouter();
@@ -32,7 +32,12 @@ function AppContent() {
 
   // 레이아웃에 따라 다른 래퍼 적용
   if (currentRoute.layout === "full") {
-    return <Component />;
+    return (
+      <>
+        <Navbar />
+        <Component />
+      </>
+    );
   }
 
   // 기본 auth 레이아웃 (중앙 정렬)
@@ -51,4 +56,3 @@ export default function App() {
     </Router>
   );
 }
-

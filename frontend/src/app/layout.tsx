@@ -30,7 +30,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AccountProvider>
-          <Navbar />
           <main className="">{children}</main>
         </AccountProvider>
       </body>
