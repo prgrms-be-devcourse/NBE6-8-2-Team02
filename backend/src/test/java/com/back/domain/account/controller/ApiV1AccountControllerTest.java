@@ -64,7 +64,7 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.data.memberId").value(4))
                 .andExpect(jsonPath("$.data.name").value("농협"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1234567890"))
-                .andExpect(jsonPath("$.data.balance").value(1000));
+                .andExpect(jsonPath("$.data.balance").value(1000L));
     }
 
     @Test
@@ -82,7 +82,7 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-111"))
-                .andExpect(jsonPath("$.data.balance").value(10000));
+                .andExpect(jsonPath("$.data.balance").value(10000L));
     }
 
     @Test
@@ -95,7 +95,7 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
                 .andExpect(jsonPath("$.data.name").value("1-계좌1"))
                 .andExpect(jsonPath("$.data.accountNumber").value("1-333"))
-                .andExpect(jsonPath("$.data.balance").value(10000));
+                .andExpect(jsonPath("$.data.balance").value(10000L));
 
         mockMvc.perform(get("/api/v1/accounts/1")
                         .header("Authorization", "Bearer " + token))
