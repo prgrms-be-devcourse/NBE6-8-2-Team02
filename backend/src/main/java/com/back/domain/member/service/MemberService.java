@@ -85,9 +85,14 @@ public class MemberService {
 
     // 비밀번호 변경
     @Transactional
-    public MemberResponseDto changePassword(int memberId, String newPassword) {
+    public MemberResponseDto changePassword(int memberId, String newPassword, String currentPassword) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        // 현재 비밀번호 검증
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new NoSuchElementException("현재 비밀번호가 일치하지 않습니다.");
+        }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(newPassword);

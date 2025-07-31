@@ -91,7 +91,11 @@ public class MemberV1Controller {
     public ResponseEntity<MemberResponseDto> changePassword(
             @PathVariable int memberId,
             @RequestBody @Valid MemberPasswordChangeDto passwordChangeDto) {
-        MemberResponseDto response = memberService.changePassword(memberId,  passwordChangeDto.newPassword());
+        MemberResponseDto response = memberService.changePassword(
+                memberId,
+                passwordChangeDto.newPassword(),
+                passwordChangeDto.currentPassword());
+
         return ResponseEntity.ok(response);
     }
 
