@@ -12,7 +12,9 @@ import com.back.domain.notices.dto.DeleteNoticeRequestDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class NoticeService {
     
