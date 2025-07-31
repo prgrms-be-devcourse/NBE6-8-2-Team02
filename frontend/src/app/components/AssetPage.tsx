@@ -123,9 +123,10 @@ export function AssetPage() {
 
   return (
     <>
-    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_1fr]">
+    <div className="min-h-screen pt-[64px] grid grid-cols-[1fr_auto_1fr]">
+      <div></div>
       <SideBar navigate={navigate} active="assets" />
-      <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto border-r">
+      <div className="flex flex-col min-h-screen p-6 mx-auto">
         <div className='flex flex-row mr-auto gap-2'>
           <header className="flex items-center justify-between">
             <h1 className="text-2xl font-bold tracking-tight">자산 목록</h1>
@@ -140,7 +141,7 @@ export function AssetPage() {
         </button>
         </div>
         <div className="min-h-screen grid grid-cols-[auto_auto_auto]">
-          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 border-r pr-4">
+          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 pr-4">
           <section className='flex flex-col gap-2 mt-4'>
             <Style.CardAssetCreate
                 icon={<Coins className="w-6 h-6 text-blue-500" />} 
@@ -184,7 +185,7 @@ export function AssetPage() {
               ))}
             </section>
           </div>
-          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 pl-4 border-l">
+          <div className="flex flex-col min-h-screen max-w-6xl mx-auto space-y-6 pl-4">
             <section className='flex flex-col gap-2 mt-4'>
               <Style.CardAssetCreate
                   icon={<BarChart2 className="w-6 h-6 text-purple-500" />} 

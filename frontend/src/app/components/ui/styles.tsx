@@ -63,7 +63,7 @@ export function CardAsset({ icon, title, value, onClick }: CardAssetProps) {
       <motion.div
         whileHover={{ scale: 1.015 }}
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-[300px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
+        className="w-[400px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer"
         onClick={onClick} // 🔹 클릭 이벤트 추가
       >
         <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
@@ -77,7 +77,7 @@ export function CardAsset({ icon, title, value, onClick }: CardAssetProps) {
 
 export function CardAssetCreate({ icon, title, value}: CardAssetPropsCreate) {
     return (
-      <div className="w-[300px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 transition-shadow">
+      <div className="w-[400px] rounded-2xl border shadow-sm bg-white p-5 flex items-start gap-4 transition-shadow">
         <div className="p-2 bg-gray-100 rounded-full">{icon}</div>
         <div>
           <h3 className="text-sm text-gray-500 font-medium">{title}</h3>
