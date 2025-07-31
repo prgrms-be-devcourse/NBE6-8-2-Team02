@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/accounts/**").authenticated()      // 계좌 관리
                         .requestMatchers("/api/v1/transactions/**").authenticated()  // 거래내역 관리
                         .requestMatchers("/api/v1/goals/**").authenticated()         // 목표 관리
-                        .requestMatchers("/api/v1/snapshots/**").authenticated()     // 스냅샷 관리
+                        .requestMatchers("/api/v1/snapshot/**").authenticated()      // 스냅샷 관리
 
                         .anyRequest().denyAll() // 나머지는 모두 차단
                 )
