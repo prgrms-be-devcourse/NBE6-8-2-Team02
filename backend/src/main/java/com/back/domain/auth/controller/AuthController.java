@@ -2,12 +2,14 @@ package com.back.domain.auth.controller;
 
 
 import com.back.domain.auth.dto.*;
+import com.back.domain.auth.exception.AuthenticationException;
 import com.back.domain.auth.service.AuthService;
 import com.back.domain.member.entity.Member;
 import com.back.global.config.JwtProperties;
 import com.back.global.security.jwt.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +39,19 @@ public class AuthController {
         // 1. 사용자 인증
         Member member = authService.authenticateUser(loginRequest.email(), loginRequest.password());
 
-        // 2. JWT 토큰 생성
-        String accessToken = jwtUtil.generateToken(member.getEmail(), member.getId());
+        // 2. JWT 토큰 쌍 생성(Access Token과 Refresh Token)
+        // Access Token은 이메일과 사용자 ID를 포함
+        TokenPairDto tokenPair = authService.createTokenPair(member);
 
         // 3. 응답 DTO 생성
         LoginResponseDto response = LoginResponseDto.of(
-                accessToken,
+                tokenPair.accessToken(),
                 jwtProperties.getAccessTokenValidity() / 1000, // 초 단위로 변환
                 member
         );
 
-        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+        // 4. 쿠키 설정(Access Token과 Refresh Token)
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenPair.accessToken())
                 .httpOnly(true)
                 .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
                 .path("/")
@@ -55,8 +59,17 @@ public class AuthController {
                 .sameSite("Lax") //
                 .build();
 
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenPair.refreshToken())
+                .httpOnly(true)
+                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
+                .path("/")
+                .maxAge(jwtProperties.getRefreshTokenValidity() / 1000)
+                .sameSite("Lax") //
+                .build();
+
         return ResponseEntity.ok()
-                .header("Set-Cookie", cookie.toString())
+                .header("Set-Cookie", accessCookie.toString())
+                .header("Set-Cookie", refreshCookie.toString())
                 .body(response);
     }
 
@@ -107,6 +120,69 @@ public class AuthController {
                 .header("Set-Cookie", deleteCookie.toString())
                 .body(response);
     }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 갱신", description = "Refresh Token을 사용하여 새로운 Access Token을 발급받습니다.")
+    public ResponseEntity<LoginResponseDto> refreshToken(HttpServletRequest request) {
+    // 쿠키에서 RefreshToken 추출
+    String refreshToken = extractRefreshTokenFromCookie(request);
+
+    if (refreshToken == null) {
+        throw new AuthenticationException("Refresh Token이 존재하지 않습니다.");
+    }
+
+    // 새 토큰 쌍 발급
+        TokenPairDto tokenPair = authService.refreshAccessToken(refreshToken);
+
+    //사용자 정보 조회 (새 Access Token에서 추출)
+        String email = jwtUtil.getEmailFromToken(refreshToken);
+        int userId = jwtUtil.getUserIdFromToken(refreshToken);
+        Member member = authService.findMemberById(userId);
+
+        //응답 생성
+        LoginResponseDto response = LoginResponseDto.of(
+                tokenPair.accessToken(),
+                jwtProperties.getAccessTokenValidity() / 1000, // 초 단위로 변환
+                member
+        );
+
+        //새 쿠키 설정
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenPair.accessToken())
+                .httpOnly(true)
+                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
+                .path("/")
+                .maxAge(jwtProperties.getAccessTokenValidity() / 1000)
+                .sameSite("Lax")
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenPair.refreshToken())
+                .httpOnly(true)
+                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
+                .path("/")
+                .maxAge(jwtProperties.getRefreshTokenValidity() / 1000)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", accessCookie.toString())
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(response);
+
+    }
+
+    // Refresh Token을 쿠키에서 추출하는 메서드
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+
 
     private String getClientIpAddress(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
