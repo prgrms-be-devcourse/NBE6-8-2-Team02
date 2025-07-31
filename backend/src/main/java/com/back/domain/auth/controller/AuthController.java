@@ -2,7 +2,6 @@ package com.back.domain.auth.controller;
 
 
 import com.back.domain.auth.dto.*;
-import com.back.domain.auth.exception.AuthenticationException;
 import com.back.domain.auth.service.AuthService;
 import com.back.domain.member.entity.Member;
 import com.back.global.config.JwtProperties;
@@ -12,10 +11,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -94,10 +95,4 @@ public class AuthController {
                 .body(response);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponseDto> handleAuthenticationException(AuthenticationException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorResponseDto.of("INVALID_CREDENTIALS", e.getMessage()));
-    }
 }
