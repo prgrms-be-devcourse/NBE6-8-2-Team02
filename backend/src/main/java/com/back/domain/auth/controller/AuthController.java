@@ -50,27 +50,7 @@ public class AuthController {
                 member
         );
 
-        // 4. 쿠키 설정(Access Token과 Refresh Token)
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenPair.accessToken())
-                .httpOnly(true)
-                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
-                .path("/")
-                .maxAge(jwtProperties.getAccessTokenValidity() / 1000)
-                .sameSite("Lax") //
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenPair.refreshToken())
-                .httpOnly(true)
-                .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
-                .path("/")
-                .maxAge(jwtProperties.getRefreshTokenValidity() / 1000)
-                .sameSite("Lax") //
-                .build();
-
-        return ResponseEntity.ok()
-                .header("Set-Cookie", accessCookie.toString())
-                .header("Set-Cookie", refreshCookie.toString())
-                .body(response);
+        return createTokenCookieResponse(tokenPair, response);
     }
 
     @PostMapping("/find-account")
@@ -134,8 +114,7 @@ public class AuthController {
     // 새 토큰 쌍 발급
         TokenPairDto tokenPair = authService.refreshAccessToken(refreshToken);
 
-    //사용자 정보 조회 (새 Access Token에서 추출)
-        String email = jwtUtil.getEmailFromToken(refreshToken);
+    //사용자 정보 조회 (Refresh Token에서 추출)
         int userId = jwtUtil.getUserIdFromToken(refreshToken);
         Member member = authService.findMemberById(userId);
 
@@ -146,7 +125,26 @@ public class AuthController {
                 member
         );
 
-        //새 쿠키 설정
+        return createTokenCookieResponse(tokenPair, response);
+
+    }
+
+    // Refresh Token을 쿠키에서 추출하는 메서드
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+    // 토큰 쌍을 쿠키에 설정하고 응답을 반환하는 메서드
+    private ResponseEntity<LoginResponseDto> createTokenCookieResponse(TokenPairDto tokenPair, LoginResponseDto response) {
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenPair.accessToken())
                 .httpOnly(true)
                 .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
@@ -167,22 +165,7 @@ public class AuthController {
                 .header("Set-Cookie", accessCookie.toString())
                 .header("Set-Cookie", refreshCookie.toString())
                 .body(response);
-
     }
-
-    // Refresh Token을 쿠키에서 추출하는 메서드
-    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-
 
     private String getClientIpAddress(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
