@@ -9,26 +9,15 @@ interface Props {
 }
 
 export function CreateAssetModal({ open, onOpenChange, onSuccess }: Props) {
-  const [member, setMember] = useState(0);
   const [name, setName] = useState("");
   const [value, setValue] = useState(0);
   const [assetType, setAssetType] = useState("DEPOSIT");
 
-  useEffect (() => {
-    const fetchMemberInfo = async () => {
-      const memberRes = await apiFetch('/api/v1/members/me');
-      const memeberId = memberRes.id;
-      setMember(memeberId);
-    }
-    fetchMemberInfo();
-  }, [member]);
-
   const handleCreate = async () => {
     try {
-      const ResponseRes = await apiFetch('/api/v1/assets', {
+      const ResponseRes = await apiFetch('/api/v1/assets/member', {
         method: "POST",
         body: JSON.stringify({
-          memberId: member,
           name: name,
           assetType: assetType,
           assetValue: value
