@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  ArrowRight,
   LayoutDashboard,
   CreditCard,
   HandCoins,
@@ -38,13 +37,13 @@ export const SideBar: React.FC<SideBarProps> = ({ navigate, active }) => {
         <LayoutDashboard className="text-black-500" />대시 보드
       </section>
       <section
-        onClick={() => navigate("/goals")}
+        onClick={() => navigate("/mypage/goals")}
         className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "goals" ? "bg-gray-100" : ""}`}
       >
         <Target className="text-black-500" />나의 목표
       </section>
       <section
-        onClick={() => navigate("/accounts")}
+        onClick={() => navigate("/mypage/accounts")}
         className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "accounts" ? "bg-gray-100" : ""}`}
       >
         <CreditCard className="text-black-500" />계좌 목록

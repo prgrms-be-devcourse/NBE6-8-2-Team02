@@ -19,28 +19,6 @@ interface Goal {
   status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
 }
 
-// 예시 데이터 (백엔드 연동 전까지 사용)
-const exampleGoals: Goal[] = [
-  {
-    id: 1,
-    memberId: 4,
-    description: "비상금 모으기",
-    currentAmount: 500000,
-    targetAmount: 1000000,
-    deadline: "2024-12-31T23:59:59",
-    status: "IN_PROGRESS",
-  },
-  {
-    id: 2,
-    memberId: 4,
-    description: "노트북 구매",
-    currentAmount: 800000,
-    targetAmount: 1500000,
-    deadline: "2024-09-01T23:59:59",
-    status: "IN_PROGRESS",
-  },
-];
-
 const formatDate = (isoString: string) => {
   const date = new Date(isoString);
   return `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -78,14 +56,10 @@ const getStatusDisplay = (status: Goal["status"]) => {
 
 // 목표 API 함수들
 const goalAPI = {
-  // 목표 리스트 조회
+  // 목표 다건 조회
   async getGoals() {
     try {
-      console.log("목표 조회 API 호출 시작");
-      
       const data = await apiFetch('/api/v1/goals');
-      
-      console.log("API 응답 데이터:", data);
       return data;
     } catch (error) {
       console.error("목표 조회 API 에러:", error);
@@ -102,14 +76,10 @@ const goalAPI = {
     status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
   }) {
     try {
-      console.log("목표 수정 API 호출 시작", { id, goalData });
-      
       const data = await apiFetch(`/api/v1/goals/${id}`, {
         method: 'PUT',
         body: JSON.stringify(goalData)
       });
-      
-      console.log("목표 수정 API 응답:", data);
       return data;
     } catch (error) {
       console.error("목표 수정 API 에러:", error);
@@ -120,13 +90,9 @@ const goalAPI = {
   // 목표 삭제
   async deleteGoal(id: number) {
     try {
-      console.log("목표 삭제 API 호출 시작", { id });
-      
       const data = await apiFetch(`/api/v1/goals/${id}`, {
         method: 'DELETE'
       });
-      
-      console.log("목표 삭제 API 응답:", data);
       return data;
     } catch (error) {
       console.error("목표 삭제 API 에러:", error);
@@ -143,14 +109,10 @@ const goalAPI = {
     status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
   }) {
     try {
-      console.log("목표 생성 API 호출 시작", { goalData });
-      
       const data = await apiFetch('/api/v1/goals', {
         method: 'POST',
         body: JSON.stringify(goalData)
       });
-      
-      console.log("목표 생성 API 응답:", data);
       return data;
     } catch (error) {
       console.error("목표 생성 API 에러:", error);
@@ -225,8 +187,6 @@ export function GoalPage() {
   };
 
   const handleSave = async () => {
-    console.log("handleSave 호출됨", { editingId, editForm });
-    
     if (editingId && editForm) {
       // 유효성 검사
       if (!editForm.description || editForm.description.trim() === "") {
@@ -260,33 +220,26 @@ export function GoalPage() {
 
         // 임시 목표인지 확인 (음수 ID)
         if (editingId < 0) {
-          console.log("새 목표 생성 API 호출:", goalData);
-          
           // 생성 API 호출
           const createdGoal = await goalAPI.createGoal(goalData);
-          console.log("생성된 목표:", createdGoal);
-          
+
           // 백엔드에서 반환된 데이터 구조 확인 및 처리
           let newGoal = createdGoal.data;
           
           // ID를 숫자로 확실히 변환
           const newId = Number(newGoal.id || newGoal.goalId || Date.now());
-          console.log("새로 생성된 ID:", newId);
           
           // 임시 목표를 실제 목표로 교체
           setGoals(prevGoals =>
             prevGoals.map(goal =>
-              goal.id === editingId
+              Number(goal.id) === Number(editingId)
                 ? { ...newGoal, id: newId }
                 : goal
             )
           );
         } else {
-          console.log("목표 수정 API 호출:", { id: editingId, data: goalData });
-          
           // 수정 API 호출 (ID를 숫자로 변환)
           await goalAPI.updateGoal(Number(editingId), goalData);
-          console.log("수정 성공");
 
           // 성공 시 로컬 상태 업데이트
           setGoals(prevGoals =>
@@ -321,7 +274,7 @@ export function GoalPage() {
   const handleDelete = async (goalId: number) => {
     if (confirm("삭제하시겠습니까?")) {
       try {
-        // 백엔드 API 호출 (ID를 숫자로 변환)
+        // 백엔드 API 호출
         await goalAPI.deleteGoal(Number(goalId));
 
         // 성공 시 로컬 상태 업데이트
@@ -381,37 +334,42 @@ export function GoalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-        <div></div>
-        <motion.div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-lg">목표 목록을 불러오는 중...</div>
-          </div>
-        </motion.div>
-        <div></div>
-        <div></div>
-      </div>
+      <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
+      <SideBar navigate={navigate} active="goals" />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">목표 목록을 불러오는 중...</div>
+        </div>
+      </motion.div>
+    </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-        <div></div>
-        <motion.div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-r">
+      <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
+        <SideBar navigate={navigate} active="goals" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+        >
           <div className="flex items-center justify-center h-64">
             <div className="text-lg text-red-600">{error}</div>
           </div>
         </motion.div>
-        <div></div>
-        <div></div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-      <div></div>
       <SideBar navigate={navigate} active="goals" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -421,10 +379,10 @@ export function GoalPage() {
       >
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">자산 목표 관리</h1>
-          <Button className="h-10 px-6" onClick={handleAdd}>+ 목표 추가</Button>
+          <Button className="h-7 px-4" onClick={handleAdd}>+ 목표 추가</Button>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
           {goals.length === 0 && (
             <Card key="empty-state">
               <CardContent>등록된 목표가 없습니다.</CardContent>
@@ -455,11 +413,11 @@ export function GoalPage() {
                           <SelectTrigger className="w-32">
                             <SelectValue />
                           </SelectTrigger>
-                                                  <SelectContent>
-                          <SelectItem value="NOT_STARTED">시작 전</SelectItem>
-                          <SelectItem value="IN_PROGRESS">진행 중</SelectItem>
-                          <SelectItem value="ACHIEVED">달성</SelectItem>
-                        </SelectContent>
+                          <SelectContent>
+                            <SelectItem value="NOT_STARTED">시작 전</SelectItem>
+                            <SelectItem value="IN_PROGRESS">진행 중</SelectItem>
+                            <SelectItem value="ACHIEVED">달성</SelectItem>
+                          </SelectContent>
                         </Select>
                       ) : (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${getStatusStyle(goal.status)}`}>
@@ -546,8 +504,6 @@ export function GoalPage() {
           })}
         </div>
       </motion.div>
-      <div></div>
-      <div></div>
     </div>
   );
 }
