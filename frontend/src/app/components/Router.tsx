@@ -59,41 +59,59 @@ export function Router({ children, initialPath = "/" }: RouterProps) {
       const protectedPaths = ['/mypage', '/accounts', '/asset', '/goals'];
       const isProtectedPath = protectedPaths.some(path => actualPath.startsWith(path));
 
-      // 쿠키에서 자동 로그인 시도
-      // @ts-ignore
-      await authAPI.checkCookieAndAutoLogin();
+      try {
+        // 쿠키에서 자동 로그인 시도
+        // @ts-ignore
+        await authAPI.checkCookieAndAutoLogin();
 
-      // 인증 상태 확인
-      // @ts-ignore
-      const isAuth = authAPI.isAuthenticated();
+        // 인증 상태 확인
+        // @ts-ignore
+        const isAuth = authAPI.isAuthenticated();
 
-      if (isProtectedPath) {
-        if (!isAuth) {
-          navigate("/");
-          setIsLoading(false);
-          return;
-        }
-
-        // 토큰 유효성 검증
-        try {
-          // @ts-ignore
-          const isValid = await authAPI.validateToken();
-          if (!isValid) {
-            // @ts-ignore
-            authAPI.logout();
+        if (isProtectedPath) {
+          if (!isAuth) {
             navigate("/");
+            return;
           }
-        } catch (error) {
-          // 백엔드 API 미준비 시 무시
-        }
-      } else {
-        if (isAuth && actualPath === "/") {
-          navigate("/mypage");
-          return;
-        }
-      }
 
-      setIsLoading(false);
+          // 토큰 유효성 검증
+          try {
+            // @ts-ignore
+            const isValid = await authAPI.validateToken();
+            if (!isValid) {
+              console.log("토큰이 유효하지 않습니다. 토큰 갱신 시도");
+              // @ts-ignore
+              const newToken = await authAPI.getValidAccessToken();
+              if (!newToken) {
+                console.log("토큰 갱신 실패. 로그아웃 처리");
+                // @ts-ignore
+                await authAPI.logout();
+                navigate("/");
+                return;
+              }
+            }
+          } catch (error) {
+            console.error("토큰 검증 중 오류 발생:", error);
+            // 토큰 검증 실패 시 로그아웃 처리
+            // @ts-ignore
+            await authAPI.logout();
+            navigate("/");
+            return;
+          }
+        } else {
+          if (isAuth) {
+            navigate("/mypage");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("인증 확인 중 오류 발생:", error);
+        if (isProtectedPath) {
+          navigate("/");
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     checkAuthAndRedirect();

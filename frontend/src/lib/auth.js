@@ -2,6 +2,7 @@ export const authAPI = {
   async login(credentials) {
     try {
       console.log("로그인 요청 데이터:", credentials);
+      console.log("로그인 요청 데이터 (JSON):", JSON.stringify(credentials));
 
       const loginUrl = "http://localhost:8080/api/v1/auth/login";
       console.log("로그인 요청 URL:", loginUrl);
@@ -16,11 +17,32 @@ export const authAPI = {
       console.log("로그인 응답 상태:", response.status);
       const data = await response.json();
       console.log("로그인 응답 데이터:", data);
+      console.log(
+        "로그인 응답 헤더:",
+        Object.fromEntries(response.headers.entries())
+      );
 
       if (!response.ok) {
+        console.error("로그인 실패 상세:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
         throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
+          data.msg ||
+            data.message ||
+            data.error ||
+            data.detail ||
+            `HTTP error! status: ${response.status}`
         );
+      }
+
+      // 토큰 쌍 저장
+      if (data.accessToken && data.refreshToken) {
+        localStorage.setItem("authToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        console.log("토큰 쌍 저장 완료");
       }
 
       return data;
@@ -28,6 +50,83 @@ export const authAPI = {
       console.error("Login API error:", error);
       throw error;
     }
+  },
+
+  // Refresh Token으로 새로운 Access Token 발급
+  async refreshAccessToken() {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        throw new Error("Refresh token not found");
+      }
+
+      console.log("토큰 갱신 요청");
+
+      const response = await fetch(
+        "http://localhost:8080/api/v1/auth/refresh",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken }),
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.msg || data.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // 새로운 토큰 쌍 저장
+      if (data.accessToken && data.refreshToken) {
+        localStorage.setItem("authToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+        console.log("토큰 갱신 성공");
+        return data.accessToken;
+      }
+
+      throw new Error("Invalid token response");
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      // Refresh token도 만료된 경우 로그아웃 처리
+      await this.logout();
+      throw error;
+    }
+  },
+
+  // 토큰이 만료되었는지 확인 (JWT 디코딩)
+  isTokenExpired(token) {
+    if (!token) return true;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp < currentTime;
+    } catch (error) {
+      console.error("Token decode error:", error);
+      return true;
+    }
+  },
+
+  // 유효한 Access Token 가져오기 (자동 갱신 포함)
+  async getValidAccessToken() {
+    let accessToken = localStorage.getItem("authToken");
+
+    if (!accessToken || this.isTokenExpired(accessToken)) {
+      console.log("Access token expired, attempting refresh");
+      try {
+        accessToken = await this.refreshAccessToken();
+      } catch (error) {
+        console.error("Failed to refresh token:", error);
+        return null;
+      }
+    }
+
+    return accessToken;
   },
 
   async signup(userData) {
@@ -56,7 +155,10 @@ export const authAPI = {
       // 200 OK 또는 201 CREATED 모두 성공으로 처리
       if (!response.ok && response.status !== 201) {
         throw new Error(
-          data.message || data.error || `HTTP error! status: ${response.status}`
+          data.msg ||
+            data.message ||
+            data.error ||
+            `HTTP error! status: ${response.status}`
         );
       }
 
@@ -86,13 +188,23 @@ export const authAPI = {
     return null;
   },
 
-  // 페이지 로드 시 쿠키에서 토큰 확인 및 자동 로그인
+  // 페이지 로드 시 토큰 확인 및 자동 로그인
   async checkCookieAndAutoLogin() {
     if (typeof window === "undefined") return false;
 
     const localStorageToken = localStorage.getItem("authToken");
-    if (localStorageToken) {
+    if (localStorageToken && !this.isTokenExpired(localStorageToken)) {
       return true;
+    }
+
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
+      try {
+        await this.refreshAccessToken();
+        return true;
+      } catch (error) {
+        console.log("자동 토큰 갱신 실패:", error);
+      }
     }
 
     const cookieToken = this.getTokenFromCookie();
@@ -131,7 +243,12 @@ export const authAPI = {
     if (typeof window === "undefined") return false;
 
     const localStorageToken = localStorage.getItem("authToken");
-    if (localStorageToken) {
+    if (localStorageToken && !this.isTokenExpired(localStorageToken)) {
+      return true;
+    }
+
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (refreshToken) {
       return true;
     }
 
@@ -146,24 +263,14 @@ export const authAPI = {
   // 토큰 검증 (서버에 요청하여 유효성 확인)
   async validateToken() {
     try {
-      // localStorage에서 토큰 확인
-      let token = localStorage.getItem("authToken");
-
-      // localStorage에 없으면 쿠키에서 확인
-      if (!token) {
-        const cookies = document.cookie.split(";");
-        const accessTokenCookie = cookies.find((cookie) =>
-          cookie.trim().startsWith("accessToken=")
-        );
-
-        if (accessTokenCookie) {
-          token = accessTokenCookie.split("=")[1];
-        }
-      }
+      const token = localStorage.getItem("authToken");
 
       if (!token) {
+        console.log("토큰 검증 실패: 토큰이 없음");
         return false;
       }
+
+      console.log("토큰 검증 시도");
 
       const response = await fetch("http://localhost:8080/api/v1/members/me", {
         method: "GET",
@@ -174,7 +281,15 @@ export const authAPI = {
         credentials: "include",
       });
 
-      return response.ok;
+      console.log("토큰 검증 응답:", response.status, response.statusText);
+
+      if (response.ok) {
+        console.log("토큰 검증 성공");
+        return true;
+      } else {
+        console.log("토큰 검증 실패:", response.status);
+        return false;
+      }
     } catch (error) {
       console.error("Token validation error:", error);
       return false;
@@ -198,7 +313,7 @@ export const authAPI = {
 
       if (!response.ok) {
         throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
+          data.msg || data.message || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -226,7 +341,7 @@ export const authAPI = {
 
       if (!response.ok) {
         throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
+          data.msg || data.message || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -258,7 +373,7 @@ export const authAPI = {
 
       if (!response.ok) {
         throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
+          data.msg || data.message || `HTTP error! status: ${response.status}`
         );
       }
 
@@ -272,18 +387,7 @@ export const authAPI = {
   // 로그아웃
   async logout() {
     try {
-      let token = localStorage.getItem("authToken");
-
-      if (!token) {
-        const cookies = document.cookie.split(";");
-        const accessTokenCookie = cookies.find((cookie) =>
-          cookie.trim().startsWith("accessToken=")
-        );
-
-        if (accessTokenCookie) {
-          token = accessTokenCookie.split("=")[1];
-        }
-      }
+      const token = localStorage.getItem("authToken");
 
       if (token) {
         const response = await fetch(
@@ -303,6 +407,7 @@ export const authAPI = {
     } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("authToken");
+        localStorage.removeItem("refreshToken");
         localStorage.removeItem("userId");
         localStorage.removeItem("userEmail");
         document.cookie =

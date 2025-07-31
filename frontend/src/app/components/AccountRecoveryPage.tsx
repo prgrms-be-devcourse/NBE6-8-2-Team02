@@ -128,9 +128,9 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             return;
         }
 
-        // 비밀번호 길이 검증 (8-16자)
-        if (newPassword.length < 8 || newPassword.length > 16) {
-            setError("비밀번호는 8자 이상 16자 이하여야 합니다.");
+        // 비밀번호 길이 검증 (6-20자)
+        if (newPassword.length < 6 || newPassword.length > 20) {
+            setError("비밀번호는 6자 이상 20자 이하여야 합니다.");
             return;
         }
 
@@ -417,7 +417,7 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
                                                 <Input
                                                     id="new-password"
                                                     type={showNewPassword ? "text" : "password"}
-                                                    placeholder="새 비밀번호를 입력하세요 (8-16자)"
+                                                    placeholder="새 비밀번호를 입력하세요 (6-20자)"
                                                     value={newPassword}
                                                     onChange={(e) => {
                                                         setNewPassword(e.target.value);

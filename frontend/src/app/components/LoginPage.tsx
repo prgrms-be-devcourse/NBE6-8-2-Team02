@@ -37,6 +37,16 @@ export const LoginPage = memo(function LoginPage() {
       return;
     }
 
+    // 비밀번호 길이 검증 (6자~20자)
+    if (loginData.password.length < 6 || loginData.password.length > 20) {
+      setError("비밀번호는 6자~20자 사이여야 합니다.");
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+        passwordInputRef.current?.select();
+      }, 100);
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(loginData.email)) {
       setError("올바른 이메일 형식을 입력해주세요.");
@@ -57,6 +67,12 @@ export const LoginPage = memo(function LoginPage() {
         localStorage.setItem('authToken', response.accessToken);
         localStorage.setItem('userId', response.userId || response.memberId || response.id);
         localStorage.setItem('userEmail', response.email);
+
+        // Refresh token도 저장
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
+
         navigate("/mypage");
       } else {
         const cookies = document.cookie.split(';');
