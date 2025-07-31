@@ -71,4 +71,19 @@ public class AuthService {
 
         return password.toString();
     }
+
+    public Member authenticateUser(String email, String password) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException("존재하지 않는 이메일입니다."));
+
+        if (!member.isActive()) {
+            throw new AuthenticationException("비활성화된 계정입니다.");
+        }
+
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new AuthenticationException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return member;
+    }
 }
