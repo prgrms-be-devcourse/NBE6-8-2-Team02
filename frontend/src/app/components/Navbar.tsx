@@ -8,7 +8,7 @@ export default function Navbar() {
   const { navigate } = useRouter();
 
   const onLogout = async () => {
-    if(confirm("로그아웃 하시겠습니까?")) {
+    if (confirm("로그아웃 하시겠습니까?")) {
       try {
         await authAPI.logout();
         navigate("/");
@@ -18,7 +18,7 @@ export default function Navbar() {
       }
     }
   };
-  
+
   return (
     <nav
       className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center"
@@ -42,7 +42,7 @@ export default function Navbar() {
         <div className="h-6 w-px bg-gray-400 mx-2" />
         <button
           className="flex items-center gap-2 hover:underline bg-transparent border-none outline-none cursor-pointer text-white px-3 py-2 rounded transition-colors duration-150 hover:bg-gray-700"
-          onClick={() => navigate("/mypage")}
+          onClick={() => navigate("/mypage/profile")}
         >
           <User className="w-5 h-5 text-blue-300" />
           마이페이지
