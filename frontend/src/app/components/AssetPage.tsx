@@ -48,17 +48,8 @@ export function AssetPage() {
   useEffect(() => {
     const fetchAssetInfo = async () => {
       try {
-        const memberRes = await apiFetch('/api/v1/members/me');
-        const memberId = memberRes.id;
-
-        if(!memberId) throw new Error("잘못된 사용자 정보입니다.");
-
         const allAssetRes = await apiFetch('/api/v1/assets');
-        const myAssets: Asset[] = allAssetRes.data?.filter(
-          (asset: Asset) => asset.memberId === memberId
-        );
-
-        console.log(myAssets);
+        const myAssets: Asset[] = allAssetRes.data;
 
         const deposits = myAssets
           .filter((asset) => asset.assetType === "DEPOSIT")
@@ -104,14 +95,7 @@ export function AssetPage() {
         setDepositAssets(deposits);
         setEstateAssets(estates);
         setStockAssets(stocks);
-      
-        console.log("예금/적금 자산 정보", depositAssets);
-        console.log("부동산 자산 정보", estateAssets);
-        console.log("주식 자산 정보", stockAssets);
-
-        console.log(sumAll);
-
-
+    
       } catch (error) {
         console.log("유저 정보 조회 실패", error);
       }
