@@ -106,25 +106,42 @@ export function MyPage() {
         apiFetch('/api/v1/assets/member'),
       ]);
 
-      const myAccounts: Account[] = allAccountRes.data;
-      const myAssets: Asset[] = allAssetRes.data;
-      
+      const myAccounts: Account[] = allAccountRes.data || [];
+      const myAssets: Asset[] = allAssetRes.data || [];
+
       // 자산, 계좌 id 추출 
       const myAssetIds = myAssets.map((asset) => asset.id);
       const myAccountIds = myAccounts.map((account) => account.id);
 
-      const [accountBulkRes, assetBulkRes] = await Promise.all([
-        apiFetch(`/api/v1/transactions/account/search/bulk?ids=${myAccountIds.join(',')}`),
-        apiFetch(`/api/v1/transactions/asset/search/bulk?ids=${myAssetIds.join(',')}`),
-      ]);
+      // ID가 있는 경우에만 bulk 요청
+      let accountBulkRes = { data: {} };
+      let assetBulkRes = { data: {} };
+
+      if (myAccountIds.length > 0) {
+        try {
+          accountBulkRes = await apiFetch(`/api/v1/transactions/account/search/bulk?ids=${myAccountIds.join(',')}`);
+        } catch (error) {
+          console.error("계좌 거래 내역 조회 실패:", error);
+          accountBulkRes = { data: {} };
+        }
+      }
+
+      if (myAssetIds.length > 0) {
+        try {
+          assetBulkRes = await apiFetch(`/api/v1/transactions/asset/search/bulk?ids=${myAssetIds.join(',')}`);
+        } catch (error) {
+          console.error("자산 거래 내역 조회 실패:", error);
+          assetBulkRes = { data: {} };
+        }
+      }
 
       // 자산들의 거래 목록 일괄 조회
-      const assetBulkData = assetBulkRes.data as Record<string, Transaction[]>;
+      const assetBulkData = assetBulkRes.data as Record<string, Transaction[]> || {};
 
       const allAssetTransactions = Object.entries(assetBulkData).flatMap(([id, transactions]) => {
         const assetId = parseInt(id, 10);
         const asset = myAssets.find((a) => a.id === assetId);
-      
+
         return transactions.map((tx: any) => ({
           amount: tx.amount,
           type: tx.type,
@@ -135,12 +152,12 @@ export function MyPage() {
       });
 
       // 계좌들의 거래 목록 일괄 조회
-      const accountBulkData = accountBulkRes.data as Record<string, Transaction[]>;
+      const accountBulkData = accountBulkRes.data as Record<string, Transaction[]> || {};
 
       const allAccountTransactions = Object.entries(accountBulkData).flatMap(([id, transactions]) => {
         const accountId = parseInt(id, 10);
         const account = myAccounts.find((a) => a.id === accountId);
-      
+
         return transactions.map((tx: any) => ({
           amount: tx.amount,
           type: tx.type,
@@ -207,22 +224,45 @@ export function MyPage() {
       setTotalAsset(totalAssetSum);
 
       //스냅샷 등록
-      await apiFetch(`/api/v1/snapshot/save?totalAsset=${totalAssetSum}`,
-        {
-          method: "POST",
-        }
-      );
+      try {
+        console.log("스냅샷 저장 시도:", totalAssetSum);
+        await apiFetch(`/api/v1/snapshot/save?totalAsset=${totalAssetSum}`,
+          {
+            method: "POST",
+          }
+        );
+        console.log("스냅샷 저장 성공");
+      } catch (error) {
+        console.error("스냅샷 저장 실패:", error);
+        // 스냅샷 저장 실패는 치명적이지 않으므로 계속 진행
+      }
 
       //스냅샷 가져오기
-      const mySnapShotRes = await apiFetch(`/api/v1/snapshot`);
-      const mySnapShot = mySnapShotRes.data?.map((item: { month: number; totalAsset: number }) => ({
-        month: item.month,
-        total: item.totalAsset,
-      }));
-      setLinearChartData(mySnapShot);
+      try {
+        console.log("스냅샷 조회 시도");
+        const mySnapShotRes = await apiFetch(`/api/v1/snapshot`);
+        console.log("스냅샷 조회 응답:", mySnapShotRes);
+        const mySnapShot = mySnapShotRes.data?.map((item: { month: number; totalAsset: number }) => ({
+          month: item.month,
+          total: item.totalAsset,
+        })) || [];
+        setLinearChartData(mySnapShot);
+        console.log("스냅샷 조회 성공:", mySnapShot);
+      } catch (error) {
+        console.error("스냅샷 조회 실패:", error);
+        setLinearChartData([]);
+      }
 
     } catch (error) {
       console.log("유저 정보 조회 실패", error);
+      // 에러 발생 시 기본값 설정
+      setBarChartData([]);
+      setBarChartDataRaw([]);
+      setActivities([]);
+      setCurrentRevenue(0);
+      setCurrentExpense(0);
+      setTotalAsset(0);
+      setLinearChartData([]);
     }
   }
 
@@ -277,9 +317,9 @@ export function MyPage() {
 
         <section>
           {activities.length === 0 ? (
-          <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
+            <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
           ) : (
-          <Style.ActivityList activities={activities}/>)} 
+            <Style.ActivityList activities={activities} />)}
         </section>
       </div>
       <div>

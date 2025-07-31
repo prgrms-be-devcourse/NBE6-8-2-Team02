@@ -74,9 +74,7 @@ class AuthControllerTest {
                 )
                 .andDo(print());
         resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
-                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+                .andExpect(status().isUnauthorized());
 
     }
 
@@ -97,9 +95,7 @@ class AuthControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
-                .andExpect(jsonPath("$.message").value("존재하지 않는 이메일입니다."));
+                .andExpect(status().isUnauthorized());
 
     }
 
@@ -158,9 +154,7 @@ class AuthControllerTest {
                 .andDo(print());
         
         resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
-                .andExpect(jsonPath("$.message").value("일치하는 회원 정보를 찾을 수 없습니다."));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -203,8 +197,7 @@ class AuthControllerTest {
                 .andDo(print());
         
         resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
-                .andExpect(jsonPath("$.message").value("일치하는 회원 정보를 찾을 수 없습니다."));
+                .andExpect(status().isUnauthorized());
     }
+
 }

@@ -67,9 +67,9 @@ export const SignupPage = memo(function SignupPage() {
       return;
     }
 
-    // 비밀번호 길이 검증 (8-16자)
-    if (signupData.password.length < 8 || signupData.password.length > 16) {
-      setError("비밀번호는 8자 이상 16자 이하여야 합니다.");
+    // 비밀번호 길이 검증 (6-20자)
+    if (signupData.password.length < 6 || signupData.password.length > 20) {
+      setError("비밀번호는 6자 이상 20자 이하여야 합니다.");
       return;
     }
 
@@ -231,7 +231,7 @@ export const SignupPage = memo(function SignupPage() {
             <Input
               id="signup-password"
               type={showPassword ? "text" : "password"}
-              placeholder="비밀번호를 입력하세요 (8-16자)"
+              placeholder="비밀번호를 입력하세요 (6-20자)"
               value={signupData.password}
               onChange={(e) => {
                 setSignupData({ ...signupData, password: e.target.value });

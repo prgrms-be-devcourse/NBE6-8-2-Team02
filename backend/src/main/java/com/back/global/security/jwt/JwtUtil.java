@@ -77,4 +77,43 @@ public class JwtUtil {
         }
         return false;
     }
+
+    // 리프레시 토큰 생성
+    public String generateRefreshToken(String email, int userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtProperties.getRefreshTokenValidity());
+
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("tokenType", "refresh")
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    // 리프레시 토큰 여부 확인
+    public boolean isRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return "refresh".equals(claims.get("tokenType"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 토큰의 만료 날짜 추출
+    public Date getExpirationDateFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getExpiration();
+    }
 }

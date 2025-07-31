@@ -47,6 +47,7 @@ class AccountTransactionControllerTest {
 
     @Test
     @DisplayName("거래 등록")
+    @WithMockUser
     void createAccTransaction() throws Exception {
         Account account = accountRepository.findById(1).get();
 
@@ -68,6 +69,7 @@ class AccountTransactionControllerTest {
 
     @Test
     @DisplayName("거래 목록(다건) 조회")
+    @WithMockUser
     void findAccTransactionAll() throws Exception {
         var findAllResult = mvc.perform(get("/api/v1/transactions/account"))
                 .andExpect(status().isOk())
@@ -77,6 +79,7 @@ class AccountTransactionControllerTest {
 
     @Test
     @DisplayName("거래 단건 조회")
+    @WithMockUser
     void findAccTransaction() throws Exception {
         AccountTransaction accountTransaction = accountTransactionRepository.findById(1).get();
         Long testAmount = accountTransaction.getAmount();
@@ -89,6 +92,7 @@ class AccountTransactionControllerTest {
 
     @Test
     @DisplayName("거래 삭제")
+    @WithMockUser
     void deleteAccTransaction() throws Exception {
         AccountTransaction accountTransaction = accountTransactionRepository.findById(1).get();
         Long testAmount = accountTransaction.getAmount();
@@ -101,6 +105,7 @@ class AccountTransactionControllerTest {
 
     @Test
     @DisplayName("특정 계좌의 거래 목록 조회")
+    @WithMockUser
     void findAccTransactionById() throws Exception {
         var findSpecificResult = mvc.perform(get("/api/v1/transactions/account/search/1"))
                 .andExpect(status().isOk())

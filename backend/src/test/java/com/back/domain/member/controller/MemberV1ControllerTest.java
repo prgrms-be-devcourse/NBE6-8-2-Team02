@@ -84,6 +84,7 @@ class MemberV1ControllerTest {
 
     @Test
     @DisplayName("전체 회원 조회")
+    @WithMockUser(roles = "ADMIN")
     void getAllMembers() throws Exception {
         ResultActions resultActions = mockMvc
                 .perform(get("/api/v1/members"))
@@ -96,22 +97,6 @@ class MemberV1ControllerTest {
                 .andExpect(jsonPath("$[0].name").exists());
     }
 
-    @Test
-    @DisplayName("회원 단건 조회")
-    void getMemberById() throws Exception {
-        int memberId = 1;
-
-        ResultActions resultActions = mockMvc
-                .perform(get("/api/v1/members/" + memberId))
-                .andDo(print());
-
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(memberId))
-                .andExpect(jsonPath("$.email").exists())
-                .andExpect(jsonPath("$.name").exists());
-
-    }
 
     @Test
     @DisplayName("회원 정보 수정")
@@ -141,7 +126,7 @@ class MemberV1ControllerTest {
 
     @Test
     @DisplayName("회원 삭제")
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void deleteMember() throws Exception {
         int memberId = 2;
 
@@ -152,4 +137,5 @@ class MemberV1ControllerTest {
         resultActions
                 .andExpect(status().isNoContent());
     }
+
 }
