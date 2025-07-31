@@ -3,6 +3,7 @@ package com.back.global.globalExceptionHandler;
 import com.back.domain.auth.exception.AuthenticationException;
 import com.back.global.rsData.RsData;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -44,6 +45,24 @@ public class GlobalExceptionHandler {
                         e.getMessage()
                 ),
                 UNAUTHORIZED
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+            public ResponseEntity<RsData<Void>> handleValidationException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("입력값이 올바르지 않습니다.");
+
+        return new ResponseEntity<>(
+                new RsData<>(
+                        "400-2",
+                        errorMessage
+                ),
+                BAD_REQUEST
         );
     }
 
