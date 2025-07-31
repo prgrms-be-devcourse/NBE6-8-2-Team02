@@ -5,10 +5,12 @@ import com.back.domain.auth.dto.ResetPasswordResponseDto;
 import com.back.domain.auth.exception.AuthenticationException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.global.security.service.RateLimitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.security.SecureRandom;
 
@@ -19,13 +21,24 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RateLimitService rateLimitService;
 
 
-    public FindAccountResponseDto findAccount(String name, String phoneNumber) {
+    public FindAccountResponseDto findAccount(String name, String phoneNumber, String ipAddress) {
+        // Rate limit 체크
+        if (!rateLimitService.isAllowed(ipAddress)) {
+            rateLimitService.recordAttempt(ipAddress);
+            throw new AuthenticationException("잦은 시도로 일시적으로 차단되었습니다. 30분 후 다시 시도해주세요.");
+        }
+
         Member member = memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
-                .orElseThrow(() -> new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    rateLimitService.recordAttempt(ipAddress); //실패시 시도 기록
+                    return new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다.");
+                });
 
         if (!member.isActive()) {
+            rateLimitService.recordAttempt(ipAddress); // 실패시 시도 기록
             throw new AuthenticationException("비활성화된 계정입니다.");
         }
 
@@ -34,11 +47,22 @@ public class AuthService {
 
 
     @Transactional
-    public ResetPasswordResponseDto resetPassword(String email, String name, String phoneNumber) {
+    public ResetPasswordResponseDto resetPassword(String email, String name, String phoneNumber, String ipAddress) {
+        // Rate limit 체크
+        if (!rateLimitService.isAllowed(ipAddress)) {
+            rateLimitService.recordAttempt(ipAddress);
+            throw new AuthenticationException("잦은 시도로 일시적으로 차단되었습니다. 30분 후 다시 시도해주세요.");
+        }
+
+
         Member member = memberRepository.findByEmailAndNameAndPhoneNumber(email, name, phoneNumber)
-                .orElseThrow(() -> new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    rateLimitService.recordAttempt(ipAddress); // 실패시 시도 기록
+                    return new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다.");
+                });
 
         if (!member.isActive()) {
+            rateLimitService.recordAttempt(ipAddress); // 실패시 시도 기록
             throw new AuthenticationException("비활성화된 계정입니다.");
         }
 
@@ -57,9 +81,7 @@ public class AuthService {
         return ResetPasswordResponseDto.of(true);
     }
 
-    /**
-     * 임시 비밀번호 생성
-     */
+    // 임시 비밀번호 생성 메서드
     private String generateTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();

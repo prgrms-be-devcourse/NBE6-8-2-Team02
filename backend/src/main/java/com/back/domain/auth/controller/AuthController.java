@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@Slf4j
 @Tag(name = "Auth", description = "인증 관련 API")
 public class AuthController {
 
@@ -60,18 +62,25 @@ public class AuthController {
 
     @PostMapping("/find-account")
     @Operation(summary = "계정 찾기", description = "이름과 전화번호로 이메일을 찾습니다.")
-    public ResponseEntity<FindAccountResponseDto> findAccount(@Valid @RequestBody FindAccountRequestDto request) {
-        FindAccountResponseDto response = authService.findAccount(request.name(), request.phoneNumber());
+    public ResponseEntity<FindAccountResponseDto> findAccount(
+            @Valid @RequestBody FindAccountRequestDto request,
+            HttpServletRequest httpRequest) {
+        String ipAddress = getClientIpAddress(httpRequest);
+        FindAccountResponseDto response = authService.findAccount(request.name(), request.phoneNumber(), ipAddress);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reset-password")
     @Operation(summary = "비밀번호 재설정", description = "이메일, 이름, 전화번호 확인 후 비밀번호를 재설정합니다.")
-    public ResponseEntity<ResetPasswordResponseDto> resetPassword(@Valid @RequestBody ResetPasswordRequestDto request) {
+    public ResponseEntity<ResetPasswordResponseDto> resetPassword(
+            @Valid @RequestBody ResetPasswordRequestDto request,
+            HttpServletRequest httpRequest) {
+        String ipAddress = getClientIpAddress(httpRequest);
         ResetPasswordResponseDto response = authService.resetPassword(
                 request.email(),
                 request.name(),
-                request.phoneNumber()
+                request.phoneNumber(),
+                ipAddress
         );
         return ResponseEntity.ok(response);
     }
@@ -79,6 +88,10 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "JWT 토큰을 무효화하고 쿠키를 삭제합니다.")
     public ResponseEntity<LogoutResponseDto> logout(HttpServletRequest request) {
+        // IP 주소 추출 및 로깅
+        String ipAddress = getClientIpAddress(request);
+        log.info("로그아웃 요청 IP: {}", ipAddress);
+
         // 쿠키 삭제를 위한 빈 쿠키 생성
         ResponseCookie deleteCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
@@ -95,4 +108,17 @@ public class AuthController {
                 .body(response);
     }
 
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+
+        return request.getRemoteAddr(); // 기본적으로 요청의 원격 주소를 반환
+    }
 }
