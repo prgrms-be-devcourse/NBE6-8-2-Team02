@@ -41,12 +41,12 @@ export const routes: RouteConfig[] = [
     layout: "full"
   },
   {
-    path: "/mypage/assets",
-    component: AssetPage,
-    layout: "full"
+    path: "/mypage/goals",
+    component: GoalPage,
+    layout: "full",
   },
   {
-    path: "/accounts",
+    path: "/mypage/accounts",
     component: AccountsPage,
     layout: "full",
   },
@@ -59,10 +59,5 @@ export const routes: RouteConfig[] = [
     path: "/mypage/assets/:id",
     component: AssetDetailPage,
     layout: "full"
-  },
-  {
-    path: "/goals",
-    component: GoalPage,
-    layout: "full",
-  },
+  }
 ];

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from "./Router";
 import { Megaphone, User, LogOut } from "lucide-react";
 import { authAPI } from "../../lib/auth";
@@ -9,14 +8,17 @@ export default function Navbar() {
   const { navigate } = useRouter();
 
   const onLogout = async () => {
-    try {
-      await authAPI.logout();
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      navigate("/");
+    if(confirm("로그아웃 하시겠습니까?")) {
+      try {
+        await authAPI.logout();
+        navigate("/");
+      } catch (error) {
+        console.error("로그아웃 실패:", error);
+        navigate("/");
+      }
     }
   };
+  
   return (
     <nav
       className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center"
