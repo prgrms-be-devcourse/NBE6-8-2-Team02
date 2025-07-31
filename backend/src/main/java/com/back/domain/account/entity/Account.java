@@ -1,6 +1,7 @@
 package com.back.domain.account.entity;
 
 import com.back.domain.member.entity.Member;
+import com.back.domain.transactions.entity.TransactionType;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,4 +22,16 @@ public class Account extends BaseEntity {
     private String accountNumber;
     private Long balance;
     private String name;
+
+    public Account updateBalance(TransactionType  type, Long amount){
+        if(type==TransactionType.ADD){
+            this.setBalance(this.getBalance()+amount);
+        }else if(type==TransactionType.REMOVE){
+            if(getBalance()<amount){
+                throw new IllegalArgumentException("잔액이 부족합니다.");
+            }
+            this.setBalance(this.getBalance()-amount);
+        }
+        return this;
+    }
 }
