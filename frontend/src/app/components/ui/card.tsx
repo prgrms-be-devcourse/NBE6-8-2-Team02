@@ -52,7 +52,7 @@ interface CardDescriptionProps {
 
 export function CardDescription({ className, children }: CardDescriptionProps) {
   return (
-    <p className={clsx("text-sm text-muted-foreground", className)}>
+    <p className={clsx("text-sm text-gray-600", className)}>
       {children}
     </p>
   );

@@ -3,6 +3,7 @@ import { LoginPage } from "../components/LoginPage";
 import { SignupPage } from "../components/SignupPage";
 import { AccountRecoveryPage } from "../components/AccountRecoveryPage";
 import { MyPage } from "../components/MyPage";
+import { ProfilePage } from "../components/ProfilePage";
 import { AssetPage } from "../components/AssetPage";
 import { AssetDetailPage } from "../components/AssetDetailPage";
 import AccountsPage from "../accounts/page";
@@ -38,6 +39,11 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage",
     component: MyPage,
+    layout: "full"
+  },
+  {
+    path: "/mypage/profile",
+    component: ProfilePage,
     layout: "full"
   },
   {
