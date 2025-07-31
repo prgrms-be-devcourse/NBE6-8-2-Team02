@@ -2,6 +2,7 @@ package com.back.domain.asset.controller;
 
 import com.back.domain.asset.Dto.AssetDto;
 import com.back.domain.asset.Dto.CreateAssetRequestDto;
+import com.back.domain.asset.Dto.CreateWithoutMemberDto;
 import com.back.domain.asset.Dto.UpdateAssetRequestDto;
 import com.back.domain.asset.entity.Asset;
 import com.back.domain.asset.service.AssetService;
@@ -95,5 +96,18 @@ public class ApiV1AssetController {
                 "%d번 사용자의 자산 목록을 조회했습니다.".formatted(memberId),
                 assetDtos
         );
+    }
+
+    @PostMapping("/member")
+    @Operation(summary = "사용자 기반 자산 등록")
+    public RsData<AssetDto> createAssetByCurrentMember(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody CreateWithoutMemberDto createWithoutMemberDto
+    ) {
+        int memberId = userDetails.getMember().getId();
+
+        Asset asset = assetService.createAssetByMember(memberId, createWithoutMemberDto);
+        AssetDto assetDto = new AssetDto(asset);
+        return new RsData<>("200-1", "자산이 등록되었습니다.", assetDto);
     }
 }

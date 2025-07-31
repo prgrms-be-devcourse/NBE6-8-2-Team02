@@ -1,6 +1,7 @@
 package com.back.domain.asset.service;
 
 import com.back.domain.asset.Dto.CreateAssetRequestDto;
+import com.back.domain.asset.Dto.CreateWithoutMemberDto;
 import com.back.domain.asset.Dto.UpdateAssetRequestDto;
 import com.back.domain.asset.entity.Asset;
 import com.back.domain.asset.entity.AssetType;
@@ -32,6 +33,22 @@ public class AssetService {
                 .name(createAssetRequestDto.name())
                 .assetType(AssetType.valueOf(createAssetRequestDto.assetType()))
                 .assetValue(createAssetRequestDto.assetValue())
+                .build();
+
+        assetRepository.save(asset);
+        return asset;
+    }
+
+    @Transactional
+    public Asset createAssetByMember(int memberId, CreateWithoutMemberDto createWithoutMemberDto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        Asset asset = Asset.builder()
+                .member(member)
+                .name(createWithoutMemberDto.name())
+                .assetType(AssetType.valueOf(createWithoutMemberDto.assetType()))
+                .assetValue(createWithoutMemberDto.assetValue())
                 .build();
 
         assetRepository.save(asset);
