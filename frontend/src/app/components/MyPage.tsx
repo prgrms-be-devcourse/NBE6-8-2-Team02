@@ -41,6 +41,24 @@ type Account = {
   modifyDate: string;
 };
 
+interface activity {
+  amount: number;
+  type: string;
+  date: string;
+  content: string;
+  assetType: string;
+}
+
+interface linear {
+  month: number;
+  total: number;
+}
+
+interface total {
+  type: string;
+  value: number;
+}
+
 export function MyPage() {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -49,27 +67,24 @@ export function MyPage() {
   const [currentRevenue, setCurrentRevenue] = useState(0);
   const [currentExpense, setCurrentExpense] = useState(0);
   const [totalAsset, setTotalAsset] = useState(0);
-  const [linearChartData, setLinearChartData] = useState([
-    { month: 1, total: 100000 }
-  ]);
+  const [linearChartData, setLinearChartData] = useState<linear[]>([]);
+  const [activities, setActivities] = useState<activity[]>([]);
 
-  const [activities, setActivities] = useState([
-    { amount: 500000, type: "ADD", date: "2025-07-21", content: "삼성전자 주식 매수", assetType: "STOCK" },
-  ]);
-
-  const [barChartDataRaw, setBarChartData] = useState([
+  const [barChartDataRaw, setBarChartDataRaw] = useState([
     { type: "account", count: 0, value: 0 },
     { type: "deposit", count: 0, value: 0 },
     { type: "real_estate", count: 0, value: 0 },
     { type: "stock", count: 0, value: 0 },
   ]);
+  const [barChartData, setBarChartData] = useState<total[]>([]);
 
+  /*
   const total = barChartDataRaw.reduce((sum, item) => sum + item.value, 0);
-
   const barChartData = barChartDataRaw.map((item) => ({
     ...item,
     value: parseFloat(((item.value / total) * 100).toFixed(2)), // 비율 값
   }));
+  */
 
   const { navigate } = useRouter();
 
@@ -158,7 +173,7 @@ export function MyPage() {
         }
       })
 
-      const newBarChartData = [...barChartDataRaw];
+      const newBarChartData = barChartDataRaw.map(item => ({ ...item }));
       myAssets.forEach(asset => {
         const type = asset.assetType.toLowerCase(); // "DEPOSIT" -> "deposit"
         const target = newBarChartData.find(item => item.type === type);
@@ -173,12 +188,19 @@ export function MyPage() {
         const target = newBarChartData.find(item => item.type === type);
         if (target) {
           target.value += account.balance;
-          totalAssetSum += account.balance;
           target.count++;
+          totalAssetSum += account.balance;
         }
       });
 
-      setBarChartData(newBarChartData);
+      const total = newBarChartData.reduce((sum, item) => sum + item.value, 0);
+      const percentageData: total[] = newBarChartData.map((item) => ({
+        ...item,
+        value: parseFloat(((item.value / total) * 100).toFixed(2)), // 비율 값
+      }));
+
+      setBarChartData(percentageData);
+      setBarChartDataRaw(newBarChartData);
       setActivities(mergedTransactions);
       setCurrentRevenue(revenueSum);
       setCurrentExpense(expenseSum);
