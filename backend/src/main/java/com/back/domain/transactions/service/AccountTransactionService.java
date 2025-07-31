@@ -43,7 +43,7 @@ public class AccountTransactionService {
                 .build();
 
         accountTransactionRepository.save(accountTransaction);
-        accountService.updateBalance(account, TransactionType.valueOf(dto.type()), dto.amount());
+        account.updateBalance(TransactionType.valueOf(dto.type()), dto.amount());
 
         return accountTransaction;
     }
