@@ -23,8 +23,6 @@ export function CreateAssetModal({ open, onOpenChange, onSuccess }: Props) {
           assetValue: value
         }),
     });
-      console.log("자산 생성 성공!")
-
       const assetId = ResponseRes.data?.id;
       const now = new Date();
       const formattedDate = now.toISOString().slice(0, 23);

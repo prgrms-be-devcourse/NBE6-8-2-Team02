@@ -38,7 +38,6 @@ export function CreateTransactionModal({ open, onOpenChange, onSuccess, assetId 
             assetValue: assetValue,
           };
 
-        console.log(asset);
         setAssetInfo(asset);
     }
     fetchAssetInfo();

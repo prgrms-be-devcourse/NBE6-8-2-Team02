@@ -85,7 +85,6 @@ export function AssetDetailPage() {
             });
 
             setReloadFlag(prev => !prev);
-            console.log("삭제 완료!" + id)
         } catch (error) {
             console.log("삭제 에러")
         }
@@ -96,7 +95,6 @@ export function AssetDetailPage() {
             await apiFetch(`/api/v1/assets/${id}`, {
                 method: "DELETE",
             });
-            console.log("삭제 완료!" + id);
             navigate('/mypage/assets');
         } catch (error) {
             console.log("삭제 에러");
