@@ -131,7 +131,7 @@ export function ProfilePage() {
 
             const updateData = {
                 name: editForm.name,
-                phoneNumber: editForm.phoneNumber,
+                phoneNumber: editForm.phoneNumber ? editForm.phoneNumber.replace(/[^0-9]/g, '') : '',
                 birthDate: editForm.birthDate
             };
 
@@ -197,6 +197,10 @@ export function ProfilePage() {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
+
+
+
+
 
     if (isLoading) {
         return (
