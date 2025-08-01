@@ -26,10 +26,14 @@ public class ApiV1GoalController {
 
     @GetMapping
     @Operation(summary = "다건 조회")
-    public ResponseEntity<RsData<List<GoalDto>>> getGoals(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<RsData<List<GoalDto>>> getGoals(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
         int memberId = userDetails.getMember().getId();
 
-        List<Goal> goals = goalService.findByMemberId(memberId);
+        List<Goal> goals = goalService.findByMemberId(memberId, page, size);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

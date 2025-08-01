@@ -5,6 +5,8 @@ import com.back.domain.goal.entity.Goal;
 import com.back.domain.goal.repository.GoalRepository;
 import com.back.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +24,10 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public List<Goal> findByMemberId(int memberId) {
-        return goalRepository.findByMember_Id(memberId);
+    public List<Goal> findByMemberId(int memberId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return goalRepository.findByMember_Id(memberId, pageable).getContent();
     }
 
     @Transactional
