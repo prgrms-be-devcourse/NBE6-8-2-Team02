@@ -44,8 +44,8 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public List<Account> getAccountsByMemberId(int memberId) {
-        return accountRepository.findAllByMemberId(memberId);
+    public List<Account> getAccountsByMemberId(Member member) {
+        return accountRepository.findAllByMemberId(member.getId());
     }
 
     public Account getAccount(int accountId,Member member) {

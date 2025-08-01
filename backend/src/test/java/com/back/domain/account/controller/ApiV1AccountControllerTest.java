@@ -30,10 +30,6 @@ class ApiV1AccountControllerTest {
     @Autowired
     MockMvc mockMvc;
     @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    AccountService accountService;
-    @Autowired
     JwtUtil jwtutil;
 
     ObjectMapper objectMapper=new ObjectMapper();
@@ -46,7 +42,7 @@ class ApiV1AccountControllerTest {
 
     @Test
     @DisplayName("계좌 등록")
-    void t1() throws Exception {
+    void createAccount() throws Exception {
 
         String requestBody =
                 objectMapper.writeValueAsString(Map.of(
@@ -67,7 +63,7 @@ class ApiV1AccountControllerTest {
     }
     @Test
     @DisplayName("계좌 등록 실패 - 중복 계좌")
-    void t2() throws Exception {
+    void failToCreateAccount() throws Exception {
 
         String requestBody =
                 objectMapper.writeValueAsString(Map.of(
@@ -85,16 +81,16 @@ class ApiV1AccountControllerTest {
 
     @Test
     @DisplayName("계좌 다건 조회")
-    void t3() throws Exception{
+    void getAccounts() throws Exception{
         mockMvc.perform(get("/api/v1/accounts")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(accountRepository.findAllByMemberId(4).size()));
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
     @DisplayName("계좌 단건 조회")
-    void t4() throws Exception{
+    void getAccount() throws Exception{
         mockMvc.perform(get("/api/v1/accounts/1")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -104,16 +100,39 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.balance").value(10000L));
     }
 
+
+    @Test
+    @DisplayName("계좌 단건 조회 실패 - 권한 없음")
+    void failToGetAccountWithoutPermission() throws Exception{
+        mockMvc.perform(get("/api/v1/accounts/3")
+                        .header("Authorization"," Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     @DisplayName("계좌 수정")
-    void t5() throws Exception{
-        String updateBody=objectMapper.writeValueAsString(Map.of("accountNumber","1-333"));
+    void modifyAccount() throws Exception {
+
+        String updateBody = objectMapper.writeValueAsString(Map.of("accountNumber", "1-333"));
 
         mockMvc.perform(put("/api/v1/accounts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateBody)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("계좌 수정 실패 - 기존 계좌번호와 중복")
+    void failToModifyAccount() throws Exception {
+
+        String updateBody = objectMapper.writeValueAsString(Map.of("accountNumber", "1-111"));
+
+        mockMvc.perform(put("/api/v1/accounts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isConflict());
     }
 
     @Test
