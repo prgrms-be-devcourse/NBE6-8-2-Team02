@@ -31,14 +31,12 @@ public class ApiV1GoalController {
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        int memberId = userDetails.getMember().getId();
-
-        List<Goal> goals = goalService.findByMemberId(memberId, page, size);
+        List<Goal> goals = goalService.findByMember(userDetails.getMember(), page, size);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new RsData<>("200-1",
-                        "목표(memberId: %d)를 조회합니다.".formatted(memberId),
+                        "목표(memberId: %d)를 조회합니다.".formatted(userDetails.getMember().getId()),
                         goals
                             .stream()
                             .map(GoalDto::new)
