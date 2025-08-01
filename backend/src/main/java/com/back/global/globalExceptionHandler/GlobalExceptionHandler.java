@@ -125,51 +125,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountDuplicateException.class)
     public ResponseEntity<ErrorResponse> handleAccountDuplicateException(AccountDuplicateException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", ""));
-
-        try {
-            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
-            log.error("에러 발생: \n{}", json);
-        } catch (JsonProcessingException e) {
-            log.error("JSON 변환 오류: {}", errorResponse);
-        }
-        return new ResponseEntity<>(errorResponse, CONFLICT);
+        return buildErrorResponse(ex,request, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(AccountAccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccountAccessDeniedException(AccountAccessDeniedException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", ""));
-
-        try {
-            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
-            log.error("에러 발생: \n{}", json);
-        } catch (JsonProcessingException e) {
-            log.error("JSON 변환 오류: {}", errorResponse);
-        }
-        return new ResponseEntity<>(errorResponse,FORBIDDEN);
+            return buildErrorResponse(ex,request,HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AccountNumberUnchangedException.class)
-    public ResponseEntity<ErrorResponse> handleAccountNumberUnchangedException(AccountNumberUnchangedException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
+    public ResponseEntity<ErrorResponse> handleAccountNumberUnchangedException(AccountNumberUnchangedException ex,WebRequest request) {
+       return buildErrorResponse(ex,request, HttpStatus.CONFLICT);
+    }
 
+    private ResponseEntity<ErrorResponse> buildErrorResponse(Exception ex, WebRequest request, HttpStatus status) {
         ErrorResponse errorResponse = new ErrorResponse(
                 status.value(),
                 status.getReasonPhrase(),
                 ex.getMessage(),
-                request.getDescription(false).replace("uri=", ""));
+                request.getDescription(false).replace("uri=", "")
+        );
 
         try {
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
@@ -177,6 +152,8 @@ public class GlobalExceptionHandler {
         } catch (JsonProcessingException e) {
             log.error("JSON 변환 오류: {}", errorResponse);
         }
-        return new ResponseEntity<>(errorResponse,CONFLICT);
+
+        return new ResponseEntity<>(errorResponse, status);
     }
+
 }
