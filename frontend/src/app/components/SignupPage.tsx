@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
+import { validatePhoneNumber } from "@/lib/utils";
 
 export const SignupPage = memo(function SignupPage() {
   const [signupData, setSignupData] = useState({
@@ -53,10 +54,9 @@ export const SignupPage = memo(function SignupPage() {
       return;
     }
 
-    // 전화번호 형식 검증 (010-1234-5678 형식)
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
-    if (!phoneRegex.test(signupData.phoneNumber)) {
-      setError("올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)");
+    // 전화번호 형식 검증 (숫자만)
+    if (!validatePhoneNumber(signupData.phoneNumber)) {
+      setError("올바른 전화번호 형식을 입력해주세요. (예: 01012345678)");
       return;
     }
 
@@ -212,10 +212,12 @@ export const SignupPage = memo(function SignupPage() {
           <Input
             id="signup-phone"
             type="tel"
-            placeholder="전화번호를 입력하세요 (010-1234-5678)"
+            placeholder="전화번호를 입력하세요 (01012345678)"
             value={signupData.phoneNumber}
             onChange={(e) => {
-              setSignupData({ ...signupData, phoneNumber: e.target.value });
+              // 숫자만 입력 허용
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              setSignupData({ ...signupData, phoneNumber: value });
               setError(""); // 입력 시 에러 메시지 초기화
             }}
             onKeyPress={(e) => {

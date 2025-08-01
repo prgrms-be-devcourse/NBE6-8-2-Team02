@@ -66,6 +66,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<RsData<Void>> handleIllegalState(IllegalStateException e) {
+        return new ResponseEntity<>(
+                new RsData<>(
+                        "403-1",
+                        e.getMessage()
+                ),
+                FORBIDDEN
+        );
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RsData<Void>> handleGeneralException(Exception e) {

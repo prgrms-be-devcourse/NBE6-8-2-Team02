@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { User, Mail, Phone, Calendar, Edit, Save, X, Lock, Eye, EyeOff } from 'lucide-react';
+import { formatPhoneNumberForDisplay, formatPhoneNumberForInput } from "@/lib/utils";
 
 interface UserInfo {
     id: number;
@@ -130,7 +131,7 @@ export function ProfilePage() {
 
             const updateData = {
                 name: editForm.name,
-                phoneNumber: editForm.phoneNumber,
+                phoneNumber: editForm.phoneNumber ? editForm.phoneNumber.replace(/[^0-9]/g, '') : '',
                 birthDate: editForm.birthDate
             };
 
@@ -140,7 +141,7 @@ export function ProfilePage() {
             }
 
             const response = await fetch(`http://localhost:8080/api/v1/members/${userInfo.id}`, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -197,6 +198,10 @@ export function ProfilePage() {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
 
+
+
+
+
     if (isLoading) {
         return (
             <div className="min-h-screen pl-[240px] pt-[64px] flex items-center justify-center">
@@ -215,7 +220,7 @@ export function ProfilePage() {
 
     return (
         <div className="min-h-screen pl-[240px] pt-[64px]">
-            <SideBar navigate={navigate} active="profile" />
+            <SideBar navigate={navigate} active="mypage" />
 
             <div className="p-6 max-w-4xl mx-auto space-y-6">
                 <header className="flex items-center justify-between">
@@ -279,12 +284,16 @@ export function ProfilePage() {
                                         {isEditing ? (
                                             <Input
                                                 value={editForm.phoneNumber}
-                                                onChange={(e) => setEditForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                                                placeholder="전화번호를 입력하세요"
+                                                onChange={(e) => {
+                                                    // 숫자만 입력 허용
+                                                    const value = e.target.value.replace(/[^0-9]/g, '');
+                                                    setEditForm(prev => ({ ...prev, phoneNumber: value }));
+                                                }}
+                                                placeholder="전화번호를 입력하세요 (01012345678)"
                                             />
                                         ) : (
                                             <div className="p-3 bg-gray-50 rounded-md">
-                                                {userInfo.phoneNumber || '-'}
+                                                {userInfo.phoneNumber ? formatPhoneNumberForDisplay(userInfo.phoneNumber) : '-'}
                                             </div>
                                         )}
                                     </div>
