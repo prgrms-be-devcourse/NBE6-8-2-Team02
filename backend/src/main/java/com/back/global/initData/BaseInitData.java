@@ -115,15 +115,15 @@ public class BaseInitData {
         user = new Member[4];
 
         //유저
-        user[1] = new Member("user1@user.com", passwordEncoder.encode("1111"), "유저1", "01011111111", Member.MemberRole.USER);
-        user[2] = new Member("user2@user.com", passwordEncoder.encode("2222"), "유저2", "01022222222", Member.MemberRole.USER);
-        user[3] = new Member("user3@user.com", passwordEncoder.encode("3333"), "유저3", "01033333333", Member.MemberRole.USER);
+        user[1] = new Member("user1@user.com", passwordEncoder.encode("111111"), "유저1", "01011111111", Member.MemberRole.USER);
+        user[2] = new Member("user2@user.com", passwordEncoder.encode("222222"), "유저2", "01022222222", Member.MemberRole.USER);
+        user[3] = new Member("user3@user.com", passwordEncoder.encode("333333"), "유저3", "01033333333", Member.MemberRole.USER);
         memberRepository.save(user[1]);
         memberRepository.save(user[2]);
         memberRepository.save(user[3]);
 
         //관리자
-        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asdf"), "관리자", "01000000000", Member.MemberRole.ADMIN);
+        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asd123"), "관리자", "01000000000", Member.MemberRole.ADMIN);
         memberRepository.save(user[0]);
     }
 
