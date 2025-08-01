@@ -1,6 +1,8 @@
 package com.back.global.globalExceptionHandler;
 
 
+import com.back.domain.account.exception.AccountAccessDeniedException;
+import com.back.domain.account.exception.AccountDuplicateException;
 import com.back.domain.auth.exception.AuthenticationException;
 
 import com.back.domain.account.exception.AccountNotFoundException;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.security.auth.login.AccountException;
 import java.util.NoSuchElementException;
 
 import static org.springframework.http.HttpStatus.*;
@@ -116,8 +119,46 @@ public class GlobalExceptionHandler {
             String json=objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
             log.error("에러 발생: \n{}",json);
         }catch (JsonProcessingException e){
-            log.error("JSON 변환 오류: {}", errorResponse.toString());
+            log.error("JSON 변환 오류: {}", errorResponse);
         }
         return new ResponseEntity<>(errorResponse, NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccountDuplicateException.class)
+    public ResponseEntity<ErrorResponse> handleAccountDuplicateException(AccountDuplicateException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""));
+
+        try {
+            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
+            log.error("에러 발생: \n{}", json);
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 오류: {}", errorResponse);
+        }
+        return new ResponseEntity<>(errorResponse, CONFLICT);
+    }
+
+    @ExceptionHandler(AccountAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccountAccessDeniedException(AccountAccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""));
+
+        try {
+            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
+            log.error("에러 발생: \n{}", json);
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 오류: {}", errorResponse);
+        }
+        return new ResponseEntity<>(errorResponse,FORBIDDEN);
     }
 }
