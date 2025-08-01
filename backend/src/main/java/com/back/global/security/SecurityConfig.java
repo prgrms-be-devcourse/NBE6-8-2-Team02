@@ -47,7 +47,6 @@ public class SecurityConfig {
                         // ADMIN 전용 - 관리자만 접근 가능
                         .requestMatchers(HttpMethod.GET, "/api/v1/members").hasRole("ADMIN")           // 전체 회원 조회
                         .requestMatchers(HttpMethod.GET, "/api/v1/members/active").hasRole("ADMIN")    // 활성 회원 조회
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/members/{memberId}").hasRole("ADMIN")  // 회원 삭제
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/members/{memberId}/activate").hasRole("ADMIN")    // 회원 활성화
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/members/{memberId}/deactivate").hasRole("ADMIN")  // 회원 비활성화
 
@@ -55,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/members/me").authenticated()                         // 본인 정보 조회
                         .requestMatchers("/api/v1/members/search/**").authenticated()                  // 이메일/이름으로 조회
                         .requestMatchers(HttpMethod.PUT, "/api/v1/members/{memberId}").authenticated() // 본인 정보 수정
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/members/{memberId}").authenticated() // 본인 정보 삭제
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/members/{memberId}/password").authenticated() // 비밀번호 변경
 
                         // 자산관리 관련 API - 인증된 사용자만
