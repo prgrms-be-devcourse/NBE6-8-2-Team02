@@ -97,7 +97,7 @@ public class MemberV1Controller {
             throw new IllegalStateException("접근 권한이 없습니다.");
         }
         
-        memberService.deleteMember(memberId);
+        memberService.softDeleteMember(memberId);
         return ResponseEntity.noContent().build();
     }
 
