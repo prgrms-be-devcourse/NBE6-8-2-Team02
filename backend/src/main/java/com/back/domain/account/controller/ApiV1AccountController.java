@@ -71,11 +71,10 @@ public class ApiV1AccountController {
 
     @DeleteMapping("/{accountId}")
     @Operation(summary = "계좌 삭제", description = "계좌 삭제")
-    public ResponseEntity<AccountDto> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int accountId){
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int accountId){
         int memberId = userDetails.getMember().getId();
-        Account account = accountService.deleteAccount(accountId,memberId);
-        AccountDto accountDto=new AccountDto(account);
+        accountService.deleteAccount(accountId,memberId);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(accountDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

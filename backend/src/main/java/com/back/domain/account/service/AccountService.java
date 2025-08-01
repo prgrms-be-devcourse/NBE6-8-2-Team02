@@ -59,12 +59,11 @@ public class AccountService {
         return account;
     }
 
-    public Account deleteAccount(int accountId,int memberId) {
+    @Transactional
+    public void deleteAccount(int accountId,int memberId) {
 
         Account account = getAccount(accountId, memberId);
-        accountRepository.deleteById(accountId);
-
-        return account;
+        account.setDeleted(true);
     }
 
 }
