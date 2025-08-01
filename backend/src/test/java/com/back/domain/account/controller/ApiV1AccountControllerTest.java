@@ -111,7 +111,7 @@ class ApiV1AccountControllerTest {
     @Test
     @DisplayName("계좌 삭제 실패 - 존재하지 않는 계좌")
     void t6() throws Exception{
-        Long accountId = 999L;
+        int accountId = 99;
 
         mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId)
                         .header("Authorization", "Bearer " + token))

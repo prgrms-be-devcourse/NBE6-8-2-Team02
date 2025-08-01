@@ -1,11 +1,17 @@
 package com.back.global.globalExceptionHandler;
 
+
 import com.back.domain.auth.exception.AuthenticationException;
+
+import com.back.domain.account.exception.AccountNotFoundException;
+import com.back.global.dto.ErrorResponse;
 import com.back.global.rsData.RsData;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.NoSuchElementException;
 
@@ -87,5 +93,17 @@ public class GlobalExceptionHandler {
                 ),
                 INTERNAL_SERVER_ERROR
         );
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotFoundException(AccountNotFoundException ex, WebRequest request) {
+        HttpStatus status=HttpStatus.NOT_FOUND;
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=",""));
+        return new ResponseEntity<>(errorResponse, NOT_FOUND);
     }
 }
