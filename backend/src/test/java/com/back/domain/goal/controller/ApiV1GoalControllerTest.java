@@ -65,7 +65,7 @@ class ApiV1GoalControllerTest {
                 )
                 .andDo(print());
 
-        List<Goal> goalList = goalService.findByMemberId(testMember.getId(), 0, 10);
+        List<Goal> goalList = goalService.findByMember(testMember, 0, 10);
 
         resultActions
                 .andExpect(status().isOk())
