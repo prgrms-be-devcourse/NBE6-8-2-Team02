@@ -32,6 +32,21 @@ public class Goal extends BaseEntity {
     @Enumerated(EnumType.STRING)
     GoalStatus status;
 
+    public Goal(
+            Member member,
+            String description,
+            long currentAmount,
+            long targetAmount,
+            LocalDateTime deadline
+    ) {
+        this.member = member;
+        this.description = description;
+        this.currentAmount = currentAmount;
+        this.targetAmount = targetAmount;
+        this.deadline = deadline;
+        this.status = GoalStatus.NOT_STARTED;
+    }
+
     public int getMemberId() {
         return member.getId();
     }
