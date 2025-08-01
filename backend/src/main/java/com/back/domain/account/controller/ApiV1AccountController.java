@@ -5,6 +5,7 @@ import com.back.domain.account.dto.RqCreateAccountDto;
 import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.service.AccountService;
+import com.back.domain.member.entity.Member;
 import com.back.global.rsData.RsData;
 import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/accounts")
@@ -27,53 +30,51 @@ public class ApiV1AccountController {
 
     @PostMapping
     @Operation(summary = "계좌 등록" , description = "새로운 계좌 등록")
-    public RsData<AccountDto> createAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@RequestBody RqCreateAccountDto rqCreateAccountDto) {
-        int memberId = userDetails.getMember().getId();
+    public ResponseEntity<AccountDto> createAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@RequestBody RqCreateAccountDto rqCreateAccountDto) {
+        Member member = userDetails.getMember();
 
-        Account account = accountService.createAccount(rqCreateAccountDto,memberId);
+        Account account = accountService.createAccount(rqCreateAccountDto,member);
         AccountDto accountDto= new AccountDto(account);
 
-        return new RsData("200-1", "계좌가 등록되었습니다.",accountDto);
+        return ResponseEntity.status(CREATED).body(accountDto);
     }
 
     @GetMapping
     @Operation(summary = "계좌 다건 조회", description = "계좌 다건 조회")
-    public RsData<List<AccountDto>> getAccunts(@AuthenticationPrincipal CustomUserDetails userDetails){
-        int memberId=userDetails.getMember().getId();
+    public ResponseEntity<List<AccountDto>> getAccunts(@AuthenticationPrincipal CustomUserDetails userDetails){
+        Member member=userDetails.getMember();
 
-        List<Account> accounts=accountService.getAccountsByMemberId(memberId);
+        List<Account> accounts=accountService.getAccountsByMemberId(member.getId());
         List<AccountDto> accountDtos = accounts.stream().map(AccountDto::new).toList();
 
-        return new
-                RsData<>("200-1", "계좌 목록을 조회했습니다.", accountDtos);
+        return ResponseEntity.status(OK).body(accountDtos);
     }
 
     @GetMapping("/{accountId}")
     @Operation(summary = "계좌 단건 조회", description = "계좌 단건 조회")
-    public RsData<AccountDto> getAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){
-        int memberId = userDetails.getMember().getId();
-        Account account =accountService.getAccount(accountId, memberId);
+    public ResponseEntity<AccountDto> getAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){
+        Member member= userDetails.getMember();
+
+        Account account =accountService.getAccount(accountId, member);
         AccountDto accountDto = new AccountDto(account);
 
-        return new RsData<>("200-1", "%d번 계좌를 조회했습니다.".formatted(accountId), accountDto);
+        return ResponseEntity.status(OK).body(accountDto);
     }
 
     @PutMapping("/{accountId}")
     @Operation(summary = "계좌 수정", description = "계좌 수정")
-    public RsData<AccountDto> updateAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId,@RequestBody RqUpdateAccountDto rqUpdateAccountDto){
-        int memberId = userDetails.getMember().getId();
-        Account account = accountService.updateAccount(accountId, memberId
-                , rqUpdateAccountDto);
-        AccountDto accountDto = new AccountDto(account);
+    public ResponseEntity<Void> updateAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId,@RequestBody RqUpdateAccountDto rqUpdateAccountDto){
+        Member member = userDetails.getMember();
+        accountService.updateAccount(accountId, member,rqUpdateAccountDto);
 
-        return new RsData<>("200-1", "%d번 계좌가 수정되었습니다.".formatted(accountId), accountDto);
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 
     @DeleteMapping("/{accountId}")
     @Operation(summary = "계좌 삭제", description = "계좌 삭제")
     public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int accountId){
-        int memberId = userDetails.getMember().getId();
-        accountService.deleteAccount(accountId,memberId);
+        Member member = userDetails.getMember();
+        accountService.deleteAccount(accountId,member);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -49,7 +49,7 @@ class ApiV1AccountControllerTest {
     void t1() throws Exception {
 
         String requestBody =
-                objectMapper.writeValueAsString(Map.of("memberId", 1,
+                objectMapper.writeValueAsString(Map.of(
                         "name", "농협",
                         "accountNumber", "1234567890",
                         "balance", 1000));
@@ -65,10 +65,27 @@ class ApiV1AccountControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value("1234567890"))
                 .andExpect(jsonPath("$.balance").value(1000L));
     }
+    @Test
+    @DisplayName("계좌 등록 실패 - 중복 계좌")
+    void t2() throws Exception {
+
+        String requestBody =
+                objectMapper.writeValueAsString(Map.of(
+                        "name", "1-계좌1",
+                        "accountNumber", "1-111",
+                        "balance", 10000));
+
+        // 계좌 등록
+        mockMvc.perform(post("/api/v1/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(requestBody))
+                .andExpect(status().isConflict());
+    }
 
     @Test
     @DisplayName("계좌 다건 조회")
-    void t2() throws Exception{
+    void t3() throws Exception{
         mockMvc.perform(get("/api/v1/accounts")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -77,7 +94,7 @@ class ApiV1AccountControllerTest {
 
     @Test
     @DisplayName("계좌 단건 조회")
-    void t3() throws Exception{
+    void t4() throws Exception{
         mockMvc.perform(get("/api/v1/accounts/1")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -89,7 +106,7 @@ class ApiV1AccountControllerTest {
 
     @Test
     @DisplayName("계좌 수정")
-    void t4() throws Exception{
+    void t5() throws Exception{
         String updateBody=objectMapper.writeValueAsString(Map.of("accountNumber","1-333"));
 
         mockMvc.perform(put("/api/v1/accounts/1")
@@ -101,13 +118,13 @@ class ApiV1AccountControllerTest {
 
     @Test
     @DisplayName("계좌 삭제 성공")
-    void t5() throws Exception{
+    void t6() throws Exception{
         mockMvc.perform(delete("/api/v1/accounts/1").header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent()); // 요청은 성공 But, 응답 본문은 없음 -> 삭제 요청에 가장 자주 사용됨
     }
     @Test
     @DisplayName("계좌 삭제 실패 - 존재하지 않는 계좌")
-    void t6() throws Exception{
+    void t7() throws Exception{
         int accountId = 99;
 
         mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId)

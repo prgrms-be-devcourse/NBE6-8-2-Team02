@@ -3,7 +3,10 @@ package com.back.domain.account.service;
 import com.back.domain.account.dto.RqCreateAccountDto;
 import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
+import com.back.domain.account.exception.AccountAccessDeniedException;
+import com.back.domain.account.exception.AccountDuplicateException;
 import com.back.domain.account.exception.AccountNotFoundException;
+import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
@@ -22,16 +25,20 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final MemberRepository memberRepository;
 
-    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,int memberId) {
+    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,Member member) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        if(accountRepository.existsAccountByAccountNumberAndName(
+                rqCreateAccountDto.getAccountNumber(),
+                rqCreateAccountDto.getName()
+        )){
+            throw new AccountDuplicateException();
+        }
 
-        Account account= Account.builder()
-                .member(member)
-                .accountNumber(rqCreateAccountDto.getAccountNumber())
+        Account account = Account.builder()
                 .name(rqCreateAccountDto.getName())
+                .accountNumber(rqCreateAccountDto.getAccountNumber())
                 .balance(rqCreateAccountDto.getBalance())
+                .member(member)
                 .build();
 
         return accountRepository.save(account);
@@ -41,28 +48,31 @@ public class AccountService {
         return accountRepository.findAllByMemberId(memberId);
     }
 
-    public Account getAccount(int accountId,int memberId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
-
-        if (account.getMember().getId() != memberId) {
-            throw new AccessDeniedException("이 계좌에 접근할 권한이 없습니다.");
+    public Account getAccount(int accountId,Member member) {
+        Account account = accountRepository.findById(accountId).orElseThrow(()->{
+            throw new AccountNotFoundException();
+        });
+        if (account.getMember().getId() != member.getId()) {
+            throw new AccountAccessDeniedException();
         }
         return account;
     }
 
     @Transactional
-    public Account updateAccount(int accountId, int memberId,RqUpdateAccountDto rqUpdateAccountDto){
-        Account account = getAccount(accountId,memberId);
+    public void updateAccount(int accountId, Member member, RqUpdateAccountDto rqUpdateAccountDto) {
+        Account account = getAccount(accountId, member);
+
+        if(account.getAccountNumber().equals(rqUpdateAccountDto.getAccountNumber())){
+            throw new AccountNumberUnchangedException();
+        }
 
         account.setAccountNumber(rqUpdateAccountDto.getAccountNumber());
-
-        return account;
     }
 
     @Transactional
-    public void deleteAccount(int accountId,int memberId) {
+    public void deleteAccount(int accountId,Member member) {
+        Account account = getAccount(accountId, member);
 
-        Account account = getAccount(accountId, memberId);
         account.setDeleted(true);
     }
 
