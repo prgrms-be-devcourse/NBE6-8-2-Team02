@@ -6,14 +6,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@SoftDelete
 public class Goal extends BaseEntity {
     @ManyToOne
     private Member member;
@@ -25,21 +31,6 @@ public class Goal extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     GoalStatus status;
-
-    public Goal(
-            Member member,
-            String description,
-            long currentAmount,
-            long targetAmount,
-            LocalDateTime deadline
-    ) {
-        this.member = member;
-        this.description = description;
-        this.currentAmount = currentAmount;
-        this.targetAmount = targetAmount;
-        this.deadline = deadline;
-        this.status = GoalStatus.NOT_STARTED;
-    }
 
     public int getMemberId() {
         return member.getId();

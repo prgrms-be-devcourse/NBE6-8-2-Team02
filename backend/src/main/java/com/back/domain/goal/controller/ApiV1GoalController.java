@@ -58,24 +58,22 @@ public class ApiV1GoalController {
     @PutMapping("/{id}")
     @Operation(summary = "수정")
     public RsData<GoalDto> modify(@PathVariable int id, @Valid @RequestBody GoalRequestDto reqBody) {
-        Goal goal = goalService.modify(id, reqBody);
+        goalService.modify(id, reqBody);
 
         return new RsData<>(
                 "200-1",
-                "목표(id: %d)가 수정되었습니다.".formatted(goal.getId())
+                "목표(id: %d)가 수정되었습니다.".formatted(id)
         );
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "삭제")
     public RsData<GoalDto> delete(@PathVariable int id) {
-        Goal goal = goalService.findById(id);
-
-        goalService.delete(goal);
+        goalService.delete(id);
 
         return new RsData<>(
                 "200-1",
-                "목표(id: %d)가 삭제되었습니다.".formatted(goal.getId())
+                "목표(id: %d)가 삭제되었습니다.".formatted(id)
         );
     }
 }

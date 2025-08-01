@@ -17,7 +17,8 @@ public class GoalService {
 
     @Transactional(readOnly = true)
     public Goal findById(int id) {
-        return goalRepository.findById(id).orElseThrow();
+        return goalRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 목표입니다."));
     }
 
     @Transactional(readOnly = true)
@@ -27,13 +28,20 @@ public class GoalService {
 
     @Transactional
     public Goal create(Member member, GoalRequestDto reqBody) {
-        Goal goal = new Goal(member, reqBody.description(), reqBody.currentAmount(), reqBody.targetAmount(), reqBody.deadline());
+        Goal goal = Goal.builder()
+                .member(member)
+                .description(reqBody.description())
+                .currentAmount(reqBody.currentAmount())
+                .targetAmount(reqBody.targetAmount())
+                .deadline(reqBody.deadline())
+                .status(reqBody.status())
+                .build();
 
         return goalRepository.save(goal);
     }
 
     @Transactional
-    public Goal modify(int id, GoalRequestDto reqBody) {
+    public void modify(int id, GoalRequestDto reqBody) {
         Goal goal = this.findById(id);
 
         goal.modifyDescription(reqBody.description());
@@ -41,12 +49,10 @@ public class GoalService {
         goal.modifyTargetAmount(reqBody.targetAmount());
         goal.modifyDeadline(reqBody.deadline());
         goal.modifyGoalType(reqBody.status());
-
-        return goal;
     }
 
     @Transactional
-    public void delete(Goal post) {
-        goalRepository.delete(post);
+    public void delete(int id) {
+        goalRepository.deleteById(id);
     }
 }
