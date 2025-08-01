@@ -6,6 +6,7 @@ import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useRouter } from "./Router";
 import { authAPI } from "@/lib/auth";
+import { validatePhoneNumber } from "@/lib/utils";
 
 export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
     const [findAccountData, setFindAccountData] = useState({
@@ -40,10 +41,9 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             return;
         }
 
-        // 전화번호 형식 검증 (010-1234-5678 형식)
-        const phoneRegex = /^010-\d{4}-\d{4}$/;
-        if (!phoneRegex.test(findAccountData.phoneNumber)) {
-            setError("올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)");
+        // 전화번호 형식 검증 (숫자만)
+        if (!validatePhoneNumber(findAccountData.phoneNumber)) {
+            setError("올바른 전화번호 형식을 입력해주세요. (예: 01012345678)");
             return;
         }
 
@@ -89,10 +89,9 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             return;
         }
 
-        // 전화번호 형식 검증 (010-1234-5678 형식)
-        const phoneRegex = /^010-\d{4}-\d{4}$/;
-        if (!phoneRegex.test(resetPasswordData.phoneNumber)) {
-            setError("올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)");
+        // 전화번호 형식 검증 (숫자만)
+        if (!validatePhoneNumber(resetPasswordData.phoneNumber)) {
+            setError("올바른 전화번호 형식을 입력해주세요. (예: 01012345678)");
             return;
         }
 
@@ -268,10 +267,12 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
                                             <Input
                                                 id="find-phone"
                                                 type="tel"
-                                                placeholder="가입한 전화번호를 입력하세요 (010-1234-5678)"
+                                                placeholder="가입한 전화번호를 입력하세요 (01012345678)"
                                                 value={findAccountData.phoneNumber}
                                                 onChange={(e) => {
-                                                    setFindAccountData({ ...findAccountData, phoneNumber: e.target.value });
+                                                    // 숫자만 입력 허용
+                                                    const value = e.target.value.replace(/[^0-9]/g, '');
+                                                    setFindAccountData({ ...findAccountData, phoneNumber: value });
                                                     setError("");
                                                     setSuccess("");
                                                 }}
@@ -377,10 +378,12 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
                                             <Input
                                                 id="reset-phone"
                                                 type="tel"
-                                                placeholder="가입한 전화번호를 입력하세요 (010-1234-5678)"
+                                                placeholder="가입한 전화번호를 입력하세요 (01012345678)"
                                                 value={resetPasswordData.phoneNumber}
                                                 onChange={(e) => {
-                                                    setResetPasswordData({ ...resetPasswordData, phoneNumber: e.target.value });
+                                                    // 숫자만 입력 허용
+                                                    const value = e.target.value.replace(/[^0-9]/g, '');
+                                                    setResetPasswordData({ ...resetPasswordData, phoneNumber: value });
                                                     setError("");
                                                     setSuccess("");
                                                 }}
