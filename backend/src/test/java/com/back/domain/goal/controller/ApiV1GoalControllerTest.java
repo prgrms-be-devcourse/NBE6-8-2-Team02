@@ -65,11 +65,11 @@ class ApiV1GoalControllerTest {
                 )
                 .andDo(print());
 
-        List<Goal> goalList = goalService.findByMemberId(testMember.getId());
+        List<Goal> goalList = goalService.findByMemberId(testMember.getId(), 0, 10);
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(goalList.size()));
+                .andExpect(jsonPath("$.data.length()").value(goalList.size()));
     }
 
     @Test
@@ -86,13 +86,14 @@ class ApiV1GoalControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(goal.getId()))
-                .andExpect(jsonPath("$.memberId").value(goal.getMemberId()))
-                .andExpect(jsonPath("$.description").value(goal.getDescription()))
-                .andExpect(jsonPath("$.currentAmount").value(goal.getCurrentAmount()))
-                .andExpect(jsonPath("$.targetAmount").value(goal.getTargetAmount()))
-                .andExpect(jsonPath("$.deadline").value(goal.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).substring(0, 19)))
-                .andExpect(jsonPath("$.status").value(goal.getStatus().name()));
+                .andExpect(jsonPath("$.msg").value("목표(id: %d)를 조회합니다.".formatted(testGoal.getId())))
+                .andExpect(jsonPath("$.data.id").value(goal.getId()))
+                .andExpect(jsonPath("$.data.memberId").value(goal.getMemberId()))
+                .andExpect(jsonPath("$.data.description").value(goal.getDescription()))
+                .andExpect(jsonPath("$.data.currentAmount").value(goal.getCurrentAmount()))
+                .andExpect(jsonPath("$.data.targetAmount").value(goal.getTargetAmount()))
+                .andExpect(jsonPath("$.data.deadline").value(goal.getDeadline().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).substring(0, 19)))
+                .andExpect(jsonPath("$.data.status").value(goal.getStatus().name()));
     }
 
     @Test
