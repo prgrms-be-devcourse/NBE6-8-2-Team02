@@ -4,6 +4,8 @@ import com.back.global.jpa.entity.BaseEntity;
 import com.back.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -24,6 +26,9 @@ public class Asset extends BaseEntity {
     AssetType assetType; // 자산 유형
 
     Long assetValue; // 자산 가치
+
+    @Column(nullable = false)
+    Boolean status;
 
     // int id(PK) -> BaseEntity
     // LocalDateTime created_at -> BaseEntity

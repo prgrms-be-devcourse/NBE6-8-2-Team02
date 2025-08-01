@@ -89,7 +89,7 @@ public class ApiV1AssetController {
     public RsData<List<AssetDto>> getAssetsByCurrentMember(@AuthenticationPrincipal CustomUserDetails userDetails) {
         int memberId = userDetails.getMember().getId();
 
-        List<Asset> assets = assetService.getAssetsByMemberId(memberId);
+        List<Asset> assets = assetService.findAllByMemberId(memberId);
         List<AssetDto> assetDtos = assets.stream().map(AssetDto::new).toList();
         return new RsData<>(
                 "200-1",
