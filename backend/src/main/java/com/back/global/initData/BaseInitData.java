@@ -115,9 +115,9 @@ public class BaseInitData {
         user = new Member[4];
 
         //유저
-        user[1] = new Member("user1@user.com", passwordEncoder.encode("1111"), "유저1", "01011111111", Member.MemberRole.USER);
-        user[2] = new Member("user2@user.com", passwordEncoder.encode("2222"), "유저2", "01022222222", Member.MemberRole.USER);
-        user[3] = new Member("user3@user.com", passwordEncoder.encode("3333"), "유저3", "01033333333", Member.MemberRole.USER);
+        user[1] = new Member("user1@user.com", passwordEncoder.encode("111111"), "유저1", "01011111111", Member.MemberRole.USER);
+        user[2] = new Member("user2@user.com", passwordEncoder.encode("222222"), "유저2", "01022222222", Member.MemberRole.USER);
+        user[3] = new Member("user3@user.com", passwordEncoder.encode("333333"), "유저3", "01033333333", Member.MemberRole.USER);
         memberRepository.save(user[1]);
         memberRepository.save(user[2]);
         memberRepository.save(user[3]);
@@ -153,24 +153,24 @@ public class BaseInitData {
             return;
 
         //유저1
-        assetRepository.save(new Asset(user[1], "KB 적금", AssetType.DEPOSIT, 140000L));
-        assetRepository.save(new Asset(user[1], "KB 예금", AssetType.DEPOSIT, 70000L));
-        assetRepository.save(new Asset(user[1], "S-Oil", AssetType.STOCK, 622000L));
-        assetRepository.save(new Asset(user[1], "삼성전자", AssetType.STOCK, 704000L));
-        assetRepository.save(new Asset(user[1], "SK하이닉스", AssetType.STOCK, 2620000L));
-        assetRepository.save(new Asset(user[1], "압구정 현대 (int값 제한..)", AssetType.REAL_ESTATE, 115000000L));
-        assetRepository.save(new Asset(user[1], "한남더힐 (int값 제한..)", AssetType.REAL_ESTATE, 100000000L));
-        assetRepository.save(new Asset(user[1], "롯데 시그니엘 (int값 제한..)", AssetType.REAL_ESTATE, 70000000L));
+        assetRepository.save(new Asset(user[1], "KB 적금", AssetType.DEPOSIT, 140000L, true));
+        assetRepository.save(new Asset(user[1], "KB 예금", AssetType.DEPOSIT, 70000L, true));
+        assetRepository.save(new Asset(user[1], "S-Oil", AssetType.STOCK, 622000L, true));
+        assetRepository.save(new Asset(user[1], "삼성전자", AssetType.STOCK, 704000L, true));
+        assetRepository.save(new Asset(user[1], "SK하이닉스", AssetType.STOCK, 2620000L, true));
+        assetRepository.save(new Asset(user[1], "압구정 현대 (int값 제한..)", AssetType.REAL_ESTATE, 115000000L, true));
+        assetRepository.save(new Asset(user[1], "한남더힐 (int값 제한..)", AssetType.REAL_ESTATE, 100000000L, true));
+        assetRepository.save(new Asset(user[1], "롯데 시그니엘 (int값 제한..)", AssetType.REAL_ESTATE, 70000000L, true));
 
         //유저2
-        assetRepository.save(new Asset(user[2], "2-예금1", AssetType.DEPOSIT, 10000L));
-        assetRepository.save(new Asset(user[2], "2-주식1", AssetType.STOCK, 20000L));
-        assetRepository.save(new Asset(user[2], "2-부동산1", AssetType.REAL_ESTATE, 30000L));
+        assetRepository.save(new Asset(user[2], "2-예금1", AssetType.DEPOSIT, 10000L, true));
+        assetRepository.save(new Asset(user[2], "2-주식1", AssetType.STOCK, 20000L, true));
+        assetRepository.save(new Asset(user[2], "2-부동산1", AssetType.REAL_ESTATE, 30000L, true));
 
         //유저3
-        assetRepository.save(new Asset(user[3], "3-예금1", AssetType.DEPOSIT, 10000L));
-        assetRepository.save(new Asset(user[3], "3-주식1", AssetType.STOCK, 20000L));
-        assetRepository.save(new Asset(user[3], "3-부동산1", AssetType.REAL_ESTATE, 30000L));
+        assetRepository.save(new Asset(user[3], "3-예금1", AssetType.DEPOSIT, 10000L, true));
+        assetRepository.save(new Asset(user[3], "3-주식1", AssetType.STOCK, 20000L, true));
+        assetRepository.save(new Asset(user[3], "3-부동산1", AssetType.REAL_ESTATE, 30000L, true));
     }
 
     @Transactional

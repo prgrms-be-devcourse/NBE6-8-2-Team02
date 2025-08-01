@@ -1,6 +1,7 @@
 package com.back.domain.asset.controller;
 
 import com.back.domain.asset.repository.AssetRepository;
+import com.back.domain.asset.service.AssetService;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +40,9 @@ class ApiV1AssetControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private AssetService assetService;
+
     private Member member;
 
     @BeforeEach
@@ -68,7 +72,7 @@ class ApiV1AssetControllerTest {
         var createResult = mvc.perform(post("/api/v1/assets")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.name").value("카카오뱅크"))
                 .andReturn();
 
@@ -101,19 +105,16 @@ class ApiV1AssetControllerTest {
         //4. 자산 전체 조회
         mvc.perform(get("/api/v1/assets"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(assetRepository.count()));
+                .andExpect(jsonPath("$.data.length()").value(assetService.count()));
 
         //5. 자산 삭제
         mvc.perform(delete("/api/v1/assets/" + assetId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.msg").value(assetId + "번 자산을 삭제했습니다."));
 
         //6. 삭제 후 전체 조회
         mvc.perform(get("/api/v1/assets"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(assetRepository.count()));
+                .andExpect(jsonPath("$.data.length()").value(assetService.count()));
     }
-
-    @Autowired
-    private AssetRepository assetRepository;
 }
