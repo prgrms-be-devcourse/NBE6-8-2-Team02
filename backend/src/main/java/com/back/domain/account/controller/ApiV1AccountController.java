@@ -10,6 +10,8 @@ import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,11 +71,10 @@ public class ApiV1AccountController {
 
     @DeleteMapping("/{accountId}")
     @Operation(summary = "계좌 삭제", description = "계좌 삭제")
-    public RsData<AccountDto> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable int accountId){
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int accountId){
         int memberId = userDetails.getMember().getId();
-        Account account = accountService.deleteAccount(accountId,memberId);
-        AccountDto accountDto=new AccountDto(account);
+        accountService.deleteAccount(accountId,memberId);
 
-        return new RsData<>("200-1","%d번 계좌가 삭제되었습니다.".formatted(accountId), accountDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

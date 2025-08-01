@@ -3,6 +3,7 @@ package com.back.domain.account.service;
 import com.back.domain.account.dto.RqCreateAccountDto;
 import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
+import com.back.domain.account.exception.AccountNotFoundException;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
@@ -41,7 +42,7 @@ public class AccountService {
     }
 
     public Account getAccount(int accountId,int memberId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new IllegalArgumentException("해당 계좌가 존재하지 않습니다."));
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
 
         if (account.getMember().getId() != memberId) {
             throw new AccessDeniedException("이 계좌에 접근할 권한이 없습니다.");
@@ -58,12 +59,11 @@ public class AccountService {
         return account;
     }
 
-    public Account deleteAccount(int accountId,int memberId) {
-        Account account = getAccount(accountId,memberId);
+    @Transactional
+    public void deleteAccount(int accountId,int memberId) {
 
-        accountRepository.deleteById(accountId);
-
-        return account;
+        Account account = getAccount(accountId, memberId);
+        account.setDeleted(true);
     }
 
 }

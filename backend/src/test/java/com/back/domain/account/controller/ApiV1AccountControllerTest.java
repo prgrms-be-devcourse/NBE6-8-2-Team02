@@ -1,12 +1,10 @@
 package com.back.domain.account.controller;
 
+import com.back.domain.account.exception.AccountNotFoundException;
 import com.back.domain.account.repository.AccountRepository;
-import com.back.domain.member.entity.Member;
-import com.back.domain.member.repository.MemberRepository;
-import com.back.global.config.JwtProperties;
+import com.back.domain.account.service.AccountService;
 import com.back.global.security.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +32,8 @@ class ApiV1AccountControllerTest {
     MockMvc mockMvc;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    AccountService accountService;
     @Autowired
     JwtUtil jwtutil;
 
@@ -103,15 +103,18 @@ class ApiV1AccountControllerTest {
     }
 
     @Test
-    @DisplayName("계좌 삭제")
+    @DisplayName("계좌 삭제 성공")
     void t5() throws Exception{
         mockMvc.perform(delete("/api/v1/accounts/1").header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("1번 계좌가 삭제되었습니다."));
+                .andExpect(status().isNoContent()); // 요청은 성공 But, 응답 본문은 없음 -> 삭제 요청에 가장 자주 사용됨
+    }
+    @Test
+    @DisplayName("계좌 삭제 실패 - 존재하지 않는 계좌")
+    void t6() throws Exception{
+        int accountId = 99;
 
-        mockMvc.perform(get("/api/v1/accounts")
+        mockMvc.perform(delete("/api/v1/accounts/{accountId}", accountId)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.length()").value(accountRepository.findAllByMemberId(4).size()));
+                .andExpect(status().isNotFound());
     }
 }

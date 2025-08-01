@@ -22,6 +22,7 @@ public class Account extends BaseEntity {
     private String accountNumber;
     private Long balance;
     private String name;
+    private boolean isDeleted; // 계좌 삭제 여부
 
     public Account updateBalance(TransactionType  type, Long amount){
         if(type==TransactionType.ADD){
@@ -33,5 +34,13 @@ public class Account extends BaseEntity {
             this.setBalance(this.getBalance()-amount);
         }
         return this;
+    }
+
+    public Account(Member member, String accountNumber, Long balance, String name) {
+        this.member = member;
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.name = name;
+        this.isDeleted = false; // 기본값은 false로 설정
     }
 }
