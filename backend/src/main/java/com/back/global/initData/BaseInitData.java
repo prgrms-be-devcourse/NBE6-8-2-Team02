@@ -123,7 +123,7 @@ public class BaseInitData {
         memberRepository.save(user[3]);
 
         //관리자
-        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asdf"), "관리자", "01000000000", Member.MemberRole.ADMIN);
+        user[0] = new Member("admin@admin.com", passwordEncoder.encode("asd123"), "관리자", "01000000000", Member.MemberRole.ADMIN);
         memberRepository.save(user[0]);
     }
 
