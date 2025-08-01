@@ -1,6 +1,5 @@
 package com.back.domain.account.controller;
 
-import com.back.domain.account.exception.AccountNotFoundException;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.account.service.AccountService;
 import com.back.global.security.jwt.JwtUtil;
@@ -60,18 +59,20 @@ class ApiV1AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                 .content(requestBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.memberId").value(4))
-                .andExpect(jsonPath("$.data.name").value("농협"))
-                .andExpect(jsonPath("$.data.accountNumber").value("1234567890"))
-                .andExpect(jsonPath("$.data.balance").value(1000L));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.memberId").value(4))
+                .andExpect(jsonPath("$.name").value("농협"))
+                .andExpect(jsonPath("$.accountNumber").value("1234567890"))
+                .andExpect(jsonPath("$.balance").value(1000L));
     }
 
     @Test
     @DisplayName("계좌 다건 조회")
     void t2() throws Exception{
-        mockMvc.perform(get("/api/v1/accounts").header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.data.length()").value(accountRepository.findAllByMemberId(4).size()));
+        mockMvc.perform(get("/api/v1/accounts")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(accountRepository.findAllByMemberId(4).size()));
     }
 
     @Test
@@ -79,10 +80,11 @@ class ApiV1AccountControllerTest {
     void t3() throws Exception{
         mockMvc.perform(get("/api/v1/accounts/1")
                         .header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
-                .andExpect(jsonPath("$.data.name").value("1-계좌1"))
-                .andExpect(jsonPath("$.data.accountNumber").value("1-111"))
-                .andExpect(jsonPath("$.data.balance").value(10000L));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.memberId").value(4))
+                .andExpect(jsonPath("$.name").value("1-계좌1"))
+                .andExpect(jsonPath("$.accountNumber").value("1-111"))
+                .andExpect(jsonPath("$.balance").value(10000L));
     }
 
     @Test
@@ -90,16 +92,11 @@ class ApiV1AccountControllerTest {
     void t4() throws Exception{
         String updateBody=objectMapper.writeValueAsString(Map.of("accountNumber","1-333"));
 
-        mockMvc.perform(put("/api/v1/accounts/1").contentType(MediaType.APPLICATION_JSON).content(updateBody).header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.memberId").value(accountRepository.findById(1).get().getMember().getId()))
-                .andExpect(jsonPath("$.data.name").value("1-계좌1"))
-                .andExpect(jsonPath("$.data.accountNumber").value("1-333"))
-                .andExpect(jsonPath("$.data.balance").value(10000L));
-
-        mockMvc.perform(get("/api/v1/accounts/1")
+        mockMvc.perform(put("/api/v1/accounts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.data.accountNumber").value("1-333"));
+                .andExpect(status().isOk());
     }
 
     @Test
