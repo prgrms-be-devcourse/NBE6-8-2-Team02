@@ -64,6 +64,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/goals/**").authenticated()         // 목표 관리
                         .requestMatchers("/api/v1/snapshot/**").authenticated()      // 스냅샷 관리
 
+                        // 공지사항 관련 API - 조회는 모두 허용, 생성/수정/삭제는 관리자만
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notices/**").permitAll()           // 공지사항 조회 (모든 사용자)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/notices/**").hasRole("ADMIN")     // 공지사항 생성 (관리자만)
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/notices/**").hasRole("ADMIN")      // 공지사항 수정 (관리자만)
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/notices/**").hasRole("ADMIN")   // 공지사항 삭제 (관리자만)
+
                         .anyRequest().denyAll() // 나머지는 모두 차단
                 )
                 .headers(headers -> headers
