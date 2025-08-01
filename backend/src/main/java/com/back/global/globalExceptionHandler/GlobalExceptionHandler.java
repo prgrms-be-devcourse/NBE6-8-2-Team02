@@ -6,6 +6,12 @@ import com.back.domain.auth.exception.AuthenticationException;
 import com.back.domain.account.exception.AccountNotFoundException;
 import com.back.global.dto.ErrorResponse;
 import com.back.global.rsData.RsData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,9 +24,10 @@ import java.util.NoSuchElementException;
 import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
+@Slf4j //Logger 선언
 public class GlobalExceptionHandler {
-
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<RsData<Void>> handleNoSuchElement(NoSuchElementException e) {
         return new ResponseEntity<>(
@@ -104,6 +111,13 @@ public class GlobalExceptionHandler {
                 status.getReasonPhrase(),
                 ex.getMessage(),
                 request.getDescription(false).replace("uri=",""));
+
+        try {
+            String json=objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errorResponse);
+            log.error("에러 발생: \n{}",json);
+        }catch (JsonProcessingException e){
+            log.error("JSON 변환 오류: {}", errorResponse.toString());
+        }
         return new ResponseEntity<>(errorResponse, NOT_FOUND);
     }
 }
