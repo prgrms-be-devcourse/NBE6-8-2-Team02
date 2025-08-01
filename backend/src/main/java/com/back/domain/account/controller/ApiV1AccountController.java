@@ -44,7 +44,7 @@ public class ApiV1AccountController {
     public ResponseEntity<List<AccountDto>> getAccunts(@AuthenticationPrincipal CustomUserDetails userDetails){
         Member member=userDetails.getMember();
 
-        List<Account> accounts=accountService.getAccountsByMemberId(member.getId());
+        List<Account> accounts=accountService.getAccountsByMemberId(member);
         List<AccountDto> accountDtos = accounts.stream().map(AccountDto::new).toList();
 
         return ResponseEntity.status(OK).body(accountDtos);
