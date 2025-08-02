@@ -6,7 +6,6 @@ import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.service.AccountService;
 import com.back.domain.member.entity.Member;
-import com.back.global.rsData.RsData;
 import com.back.global.security.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,13 +40,13 @@ public class ApiV1AccountController {
 
     @GetMapping
     @Operation(summary = "계좌 다건 조회", description = "계좌 다건 조회")
-    public ResponseEntity<List<AccountDto>> getAccunts(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<List<AccountDto>> getAccounts(@AuthenticationPrincipal CustomUserDetails userDetails){
         Member member=userDetails.getMember();
 
         List<Account> accounts=accountService.getAccountsByMemberId(member);
-        List<AccountDto> accountDtos = accounts.stream().map(AccountDto::new).toList();
+        List<AccountDto> accountDto = accounts.stream().map(AccountDto::new).toList();
 
-        return ResponseEntity.status(OK).body(accountDtos);
+        return ResponseEntity.status(OK).body(accountDto);
     }
 
     @GetMapping("/{accountId}")
