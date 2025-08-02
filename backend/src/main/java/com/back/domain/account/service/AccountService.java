@@ -23,7 +23,6 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final MemberRepository memberRepository;
 
     public Account createAccount(RqCreateAccountDto rqCreateAccountDto,Member member) {
 

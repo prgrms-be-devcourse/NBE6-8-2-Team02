@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.security.auth.login.AccountException;
 import java.util.NoSuchElementException;
 
 import static org.springframework.http.HttpStatus.*;
