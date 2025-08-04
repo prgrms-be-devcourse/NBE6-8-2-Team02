@@ -1,5 +1,6 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.dto.RqCreateAccountDto;
 import com.back.domain.account.exception.AccountAccessDeniedException;
 import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
@@ -33,6 +34,15 @@ public class Account extends BaseEntity {
         this.balance = balance;
         this.name = name;
         this.isDeleted = false; // 기본값은 false로 설정
+    }
+
+    public static Account create(RqCreateAccountDto rqCreateAccountDto,Member member){
+        return Account.builder()
+                .name(rqCreateAccountDto.getName())
+                .accountNumber(rqCreateAccountDto.getAccountNumber())
+                .balance(rqCreateAccountDto.getBalance())
+                .member(member)
+                .build();
     }
 
     public Account updateBalance(TransactionType  type, Long amount){

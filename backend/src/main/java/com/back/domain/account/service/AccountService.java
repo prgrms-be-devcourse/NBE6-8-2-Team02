@@ -28,12 +28,7 @@ public class AccountService {
             throw new AccountDuplicateException();
         }
 
-        Account account = Account.builder()
-                .name(rqCreateAccountDto.getName())
-                .accountNumber(rqCreateAccountDto.getAccountNumber())
-                .balance(rqCreateAccountDto.getBalance())
-                .member(member)
-                .build();
+        Account account = Account.create(rqCreateAccountDto,member);
 
         return accountRepository.save(account);
     }
