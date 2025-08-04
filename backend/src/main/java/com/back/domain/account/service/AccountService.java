@@ -51,7 +51,7 @@ public class AccountService {
         Account account = accountRepository.findById(accountId).orElseThrow(()->{
             throw new AccountNotFoundException();
         });
-        if (account.getMember().getId() != member.getId()) {
+        if (!account.equals(member)) {
             throw new AccountAccessDeniedException();
         }
         return account;
