@@ -1,14 +1,14 @@
 'use client';
 
-import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut, Target } from 'lucide-react';
-import { useEffect, useState, ReactNode } from "react";
+import { useRouter } from "@/app/components/Router";
+import { BarChart2, Coins, House } from 'lucide-react';
+import { useEffect, useState } from "react";
 import * as React from "react"
-import { apiFetch } from '../lib/backend/client';
+import { apiFetch } from '@/lib/backend/client';
 import { authAPI } from '@/lib/auth';
 import { Asset } from 'next/font/google';
-import * as Style from './ui/styles';
-import { SideBar } from "./SideBar";
+import * as Style from '@/app/components/ui/styles';
+import { SideBar } from "@/app/components/SideBar";
 
 type Asset = {
   id: number;

@@ -1,15 +1,14 @@
 'use client';
 
-import { useRouter } from "./Router";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon, Target} from 'lucide-react';
-import { useEffect, useState, ReactNode } from "react";
-import { CreateAssetModal } from "./CreateAssetModal";
+import { useRouter } from "@/app/components/Router";
+import { BarChart2, Coins, House, SquarePlusIcon } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { CreateAssetModal } from "@/app/mypage/assets/CreateAssetModal";
 import * as React from "react"
-import { apiFetch } from '../lib/backend/client';
+import { apiFetch } from "@/lib/backend/client";
 import { Asset } from 'next/font/google';
-import * as Style from './ui/styles'
-import { SideBar } from "./SideBar";
-import { authAPI } from "@/lib/auth";
+import * as Style from "@/app/components/ui/styles"
+import { SideBar } from "@/app/components/SideBar";
 
 type Asset = {
   id: number;
@@ -204,3 +203,5 @@ export function AssetPage() {
     </>
   );
 }
+
+export default AssetPage;

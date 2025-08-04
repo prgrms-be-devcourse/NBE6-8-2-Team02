@@ -1,23 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useAccountContext } from "@/context/AccountContext";
+import { useAccountContext } from "@/app/mypage/accounts/AccountContext";
 import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/app/components/ui/input";
+import { Button } from "@/app/components/ui/button";
+import { Card } from "@/app/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useRouter } from "../components/Router";
-import { SideBar } from "../components/SideBar";
-import { authAPI } from "@/lib/auth";
+} from "@/app/components/ui/select";
+import { useRouter } from "@/app/components/Router";
+import { SideBar } from "@/app/components/SideBar";
 
-export default function AccountsPage() {
+export function AccountsPage() {
   const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
     useAccountContext();
 
@@ -210,3 +209,5 @@ export default function AccountsPage() {
     </div>
   );
 }
+
+export default AccountsPage;

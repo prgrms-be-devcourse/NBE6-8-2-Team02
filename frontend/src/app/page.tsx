@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 import { AnimatePresence } from "framer-motion";
-import { Router, Route, useRouter } from "./components/Router";
-import { routes } from "./config/routes";
-import Navbar from "./components/Navbar";
+import { Router, useRouter } from "@/app/components/Router";
+import { routes } from "@/app/config/routes";
+import Navbar from "@/app/components/Navbar";
 
 function matchPath(pattern: string, pathname: string): boolean {
   const patternParts = pattern.split("/").filter(Boolean);
@@ -49,6 +49,7 @@ function AppContent() {
     </div>
   );
 }
+
 export default function App() {
   return (
     <Router initialPath="/">

@@ -1,14 +1,13 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useRouter } from "./Router";
+import { useRouter } from "@/app/components/Router";
 import { useParams } from "@/lib/useParams";
-import { useEffect, useState, ReactNode } from "react";
-import { apiFetch } from "../lib/backend/client";
-import { CreateTransactionModal } from "./CreateTransactionModal";
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, Section, SquarePlusIcon, Target} from 'lucide-react';
-import * as Style from './ui/styles'
-import { SideBar } from "./SideBar";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/backend/client";
+import { CreateTransactionModal } from "@/app/mypage/assets/CreateTransactionModal";
+import { SquarePlusIcon } from 'lucide-react';
+import * as Style from "@/app/components/ui/styles"
+import { SideBar } from "@/app/components/SideBar";
 
 type Asset = {
     id: number;
@@ -22,16 +21,6 @@ type Asset = {
 
 export function AssetDetailPage() {
     const { navigate } = useRouter();
-    const onLogout = async () => {
-        try {
-          // @ts-ignore
-          await authAPI.logout();
-          navigate("/");
-        } catch (error) {
-          console.error("로그아웃 실패:", error);
-          navigate("/");
-        }
-      };
 
     const [reloadFlag, setReloadFlag] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -197,3 +186,5 @@ export function AssetDetailPage() {
         </>
     );
 }
+
+export default AssetDetailPage;

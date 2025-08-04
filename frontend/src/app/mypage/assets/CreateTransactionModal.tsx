@@ -1,5 +1,5 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { apiFetch } from "../lib/backend/client";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/app/components/ui/dialog";
+import { apiFetch } from "@/lib/backend/client";
 import { useEffect, useState } from "react";
 
 interface Props {
