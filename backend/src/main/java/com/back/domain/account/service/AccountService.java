@@ -19,15 +19,23 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,Member member) {
-
+    private void checkAccountDuplicate (RqCreateAccountDto rqCreateAccountDto){
         if(accountRepository.existsAccountByAccountNumberAndName(
                 rqCreateAccountDto.getAccountNumber(),
                 rqCreateAccountDto.getName()
         )){
             throw new AccountDuplicateException();
         }
+    }
 
+    private Account findByAccount(int accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() -> {
+            throw new AccountNotFoundException();
+        });
+    }
+
+    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,Member member) {
+        checkAccountDuplicate(rqCreateAccountDto);
         Account account = Account.create(rqCreateAccountDto,member);
 
         return accountRepository.save(account);
@@ -38,11 +46,9 @@ public class AccountService {
     }
 
     public Account getAccount(int accountId,Member member) {
-        Account account = accountRepository.findById(accountId).orElseThrow(()->{
-            throw new AccountNotFoundException();
-        });
-
+        Account account = findByAccount(accountId);
         account.validateOwner(member);
+
         return account;
     }
 
