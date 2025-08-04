@@ -1,5 +1,6 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.exception.AccountAccessDeniedException;
 import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.entity.TransactionType;
@@ -46,8 +47,10 @@ public class Account extends BaseEntity {
         return this;
     }
 
-    public boolean isOwner(Member member) {
-        return this.member.equals(member);
+    public void validateOwner(Member member) {
+        if(!this.member.equals(member)){
+            throw new AccountAccessDeniedException();
+        }
     }
 
     public void updateAccountNumber(String newAccountNumber) {
