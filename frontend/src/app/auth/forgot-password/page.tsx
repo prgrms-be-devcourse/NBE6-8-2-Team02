@@ -1,14 +1,16 @@
+'use client'
+
 import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { useRouter } from "./Router";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { useRouter } from "@/app/components/Router";
 import { authAPI } from "@/lib/auth";
 import { validatePhoneNumber } from "@/lib/utils";
 
-export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
+export function ForgotPasswordPage() {
     const [findAccountData, setFindAccountData] = useState({
         name: "",
         phoneNumber: ""
@@ -153,7 +155,7 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             setIsLoading(false);
             // 2초 후 로그인 페이지로 이동
             setTimeout(() => {
-                navigate("/login");
+                navigate("/auth/login");
             }, 2000);
         } catch (error) {
             console.error("비밀번호 재설정 실패:", error);
@@ -163,7 +165,7 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
     }, [newPassword, confirmPassword, navigate]);
 
     const handleBackToLogin = useCallback(() => {
-        navigate("/login");
+        navigate("/auth/login");
     }, [navigate]);
 
     const handleResetForm = useCallback(() => {
@@ -544,4 +546,6 @@ export const AccountRecoveryPage = memo(function AccountRecoveryPage() {
             </div>
         </motion.div>
     );
-}); 
+}; 
+
+export default ForgotPasswordPage;

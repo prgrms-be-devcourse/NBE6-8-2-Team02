@@ -1,3 +1,5 @@
+'use client'
+
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { useRouter } from "./Router";
@@ -6,7 +8,7 @@ export function WelcomePage() {
   const { navigate } = useRouter();
 
   const handleStart = () => {
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   return (

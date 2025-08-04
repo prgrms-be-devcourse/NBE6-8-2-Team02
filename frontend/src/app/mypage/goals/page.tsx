@@ -1,13 +1,15 @@
+'use client';
+
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardHeader, CardTitle, CardContent } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { authAPI } from "@/lib/auth";
 import { motion } from 'framer-motion';
-import { useRouter } from "./Router";
-import { apiFetch } from '../lib/backend/client';
-import { SideBar } from "./SideBar";
+import { useRouter } from "../../components/Router";
+import { apiFetch } from '../../../lib/backend/client';
+import { SideBar } from "../../components/SideBar";
 
 interface Goal {
   id: number;
@@ -441,7 +443,7 @@ export function GoalPage() {
                         <Button size="sm" variant="outline" onClick={() => handleEdit(goal)}>
                           편집
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleDelete(goal.id)}>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(goal.id)}>
                           삭제
                         </Button>
                       </>
@@ -507,3 +509,5 @@ export function GoalPage() {
     </div>
   );
 }
+
+export default GoalPage;

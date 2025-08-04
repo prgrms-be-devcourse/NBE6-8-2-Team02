@@ -1,15 +1,15 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useAccountContext } from "@/context/AccountContext";
+import { useAccountContext } from "@/app/mypage/accounts/AccountContext";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Card } from "@/app/components/ui/card";
+import { Label } from "@/app/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
-export default function AccountDetailPage() {
+export function AccountDetailPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = Number(params.accountId);
@@ -116,7 +116,7 @@ export default function AccountDetailPage() {
 
         if (response.resultCode === "200-1") {
           console.log(response.msg);
-          router.push("/accounts");
+          router.push("/mypage/accounts");
           alert("계좌 연결 해제에 성공 했습니다.");
         } else {
           console.log(response.msg);
@@ -247,3 +247,5 @@ export default function AccountDetailPage() {
     </div>
   );
 }
+
+export default AccountDetailPage;

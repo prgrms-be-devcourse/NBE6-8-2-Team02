@@ -1,13 +1,15 @@
+'use client';
+
 import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useRouter } from "./Router";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { useRouter } from "@/app/components/Router";
 import { authAPI } from "@/lib/auth";
 import { validatePhoneNumber } from "@/lib/utils";
 
-export const SignupPage = memo(function SignupPage() {
+export function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
@@ -90,7 +92,7 @@ export const SignupPage = memo(function SignupPage() {
       // API 응답 검증 - 201 CREATED 상태 코드 확인
       if (response && (response.id || response.email || response.userId)) {
         console.log("회원가입 성공:", response);
-        navigate("/login");
+        navigate("/auth/login");
       } else {
         // 서버에서 에러 응답이 온 경우
         setError(response.message || response.error || "회원가입에 실패했습니다. 다시 시도해주세요.");
@@ -104,7 +106,7 @@ export const SignupPage = memo(function SignupPage() {
   }, [signupData, confirmPassword, navigate]);
 
   const handleBackToLogin = useCallback(() => {
-    navigate("/login");
+    navigate("/auth/login");
   }, [navigate]);
 
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,4 +329,6 @@ export const SignupPage = memo(function SignupPage() {
       </div>
     </motion.div>
   );
-});
+};
+
+export default SignupPage;

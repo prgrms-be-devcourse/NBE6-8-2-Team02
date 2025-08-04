@@ -1,12 +1,14 @@
+'use client';
+
 import { useState, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useRouter } from "./Router";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { useRouter } from "@/app/components/Router";
 import { authAPI } from "@/lib/auth";
 
-export const LoginPage = memo(function LoginPage() {
+export function LoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -154,11 +156,11 @@ export const LoginPage = memo(function LoginPage() {
   }, [loginData, navigate]);
 
   const handleSignupClick = useCallback(() => {
-    navigate("/signup");
+    navigate("/auth/signup");
   }, [navigate]);
 
   const handleForgotPasswordClick = useCallback(() => {
-    navigate("/forgot-password");
+    navigate("/auth/forgot-password");
   }, [navigate]);
 
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -293,4 +295,6 @@ export const LoginPage = memo(function LoginPage() {
       </div>
     </motion.div>
   );
-});
+};
+
+export default LoginPage;

@@ -1,16 +1,15 @@
 'use client';
 
-import { useRouter } from "./Router";
+import { useRouter } from "@/app/components/Router";
 import { useState, useEffect } from "react";
-import { apiFetch } from '../lib/backend/client';
 import { authAPI } from '@/lib/auth';
-import { SideBar } from "./SideBar";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { SideBar } from "@/app/components/SideBar";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { User, Mail, Phone, Calendar, Edit, Save, X, Lock, Eye, EyeOff } from 'lucide-react';
-import { formatPhoneNumberForDisplay, formatPhoneNumberForInput } from "@/lib/utils";
+import { formatPhoneNumberForDisplay } from "@/lib/utils";
 
 interface UserInfo {
     id: number;
@@ -468,4 +467,6 @@ export function ProfilePage() {
             </div>
         </div>
     );
-} 
+}
+
+export default ProfilePage;

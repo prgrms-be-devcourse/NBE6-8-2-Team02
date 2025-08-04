@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { apiFetch } from "../lib/backend/client";
-import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/app/components/ui/dialog";
+import { apiFetch } from "@/lib/backend/client";
+import { useState } from "react";
 
 interface Props {
   open: boolean;
