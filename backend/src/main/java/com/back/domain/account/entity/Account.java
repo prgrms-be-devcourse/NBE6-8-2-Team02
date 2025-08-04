@@ -34,15 +34,6 @@ public class Account extends BaseEntity {
         this.isDeleted = false; // 기본값은 false로 설정
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Member)) return false;
-        Member member = (Member) o;
-        return Objects.equals(this.getId(), member.getId());
-    }
-
-
     public Account updateBalance(TransactionType  type, Long amount){
         if(type==TransactionType.ADD){
             this.setBalance(this.getBalance()+amount);

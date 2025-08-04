@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -65,5 +67,15 @@ public class Member extends BaseEntity {
     public enum MemberRole {
         ADMIN, // 관리자
         USER   // 일반 사용자
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof Member)) return false;
+
+        Member member = (Member) o;
+        return Objects.equals(this.getId(),member.getId());
+
     }
 }
