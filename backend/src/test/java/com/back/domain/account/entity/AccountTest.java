@@ -57,4 +57,12 @@ public class AccountTest {
             account.updateAccountNumber("222");
         });
     }
+
+    @Test
+    @DisplayName("계좌 삭제")
+    void deleteAccount() {
+        // 계좌 삭제
+        account.deleteAccount();
+        assertThat(account.isDeleted()).isTrue();
+    }
 }
