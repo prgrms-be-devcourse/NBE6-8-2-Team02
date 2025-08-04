@@ -17,7 +17,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Getter
-@Setter
 public class Account extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
@@ -37,12 +36,12 @@ public class Account extends BaseEntity {
 
     public Account updateBalance(TransactionType  type, Long amount){
         if(type==TransactionType.ADD){
-            this.setBalance(this.getBalance()+amount);
+            this.balance = (this.balance + amount);
         }else if(type==TransactionType.REMOVE){
             if(getBalance()<amount){
                 throw new IllegalArgumentException("잔액이 부족합니다.");
             }
-            this.setBalance(this.getBalance()-amount);
+            this.balance = this.getBalance() - amount;
         }
         return this;
     }
@@ -56,5 +55,9 @@ public class Account extends BaseEntity {
             throw new AccountNumberUnchangedException();
         }
         this.accountNumber=newAccountNumber;
+    }
+
+    public void deleteAccount() {
+        this.isDeleted = true; // 계좌 삭제 상태로 변경
     }
 }

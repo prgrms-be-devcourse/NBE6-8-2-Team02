@@ -66,8 +66,7 @@ public class AccountService {
     @Transactional
     public void deleteAccount(int accountId,Member member) {
         Account account = getAccount(accountId, member);
-
-        account.setDeleted(true);
+        account.deleteAccount();
     }
 
 }
