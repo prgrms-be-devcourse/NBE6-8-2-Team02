@@ -1,5 +1,6 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.entity.TransactionType;
 import com.back.global.jpa.entity.BaseEntity;
@@ -48,5 +49,12 @@ public class Account extends BaseEntity {
 
     public boolean isOwner(Member member) {
         return this.member.equals(member);
+    }
+
+    public void updateAccountNumber(String newAccountNumber) {
+        if (this.accountNumber.equals(newAccountNumber)) {
+            throw new AccountNumberUnchangedException();
+        }
+        this.accountNumber=newAccountNumber;
     }
 }
