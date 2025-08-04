@@ -1,5 +1,6 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.exception.AccountAccessDeniedException;
 import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.entity.TransactionType;
@@ -37,12 +38,13 @@ public class AccountTest {
     }
 
     @Test
-    @DisplayName("계좌 소유자 확인")
-    void isOwner() {
-        assertThat(account.isOwner(member)).isTrue();
+    @DisplayName("계좌 소유자가 아닌 경우 예외 발생")
+    void validateOwner() {
+        Member notOwner = new Member("test99@example.com", "999", "김우리", "01099999999", Member.MemberRole.USER);
 
-        Object member2=(Object) member;
-        assertThat(account.isOwner((Member) member2)).isTrue();
+        assertThrows(AccountAccessDeniedException.class,()->{
+            account.validateOwner(notOwner);
+        });
     }
 
     @Test
