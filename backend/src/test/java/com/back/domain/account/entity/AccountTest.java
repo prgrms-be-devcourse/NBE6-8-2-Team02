@@ -1,5 +1,6 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
@@ -42,5 +43,18 @@ public class AccountTest {
 
         Object member2=(Object) member;
         assertThat(account.isOwner((Member) member2)).isTrue();
+    }
+
+    @Test
+    @DisplayName("계좌 번호 업데이트")
+    void updateAccountNumber() {
+        // 계좌 번호 변경
+        account.updateAccountNumber("222");
+        assertThat(account.getAccountNumber()).isEqualTo("222");
+
+        // 동일한 계좌 번호로 변경 시 예외 발생
+        assertThrows(AccountNumberUnchangedException.class, () -> {
+            account.updateAccountNumber("222");
+        });
     }
 }

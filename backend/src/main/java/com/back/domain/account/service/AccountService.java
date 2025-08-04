@@ -51,7 +51,7 @@ public class AccountService {
         Account account = accountRepository.findById(accountId).orElseThrow(()->{
             throw new AccountNotFoundException();
         });
-        if (!account.equals(member)) {
+        if (!account.isOwner(member)) {
             throw new AccountAccessDeniedException();
         }
         return account;
@@ -60,12 +60,7 @@ public class AccountService {
     @Transactional
     public void updateAccount(int accountId, Member member, RqUpdateAccountDto rqUpdateAccountDto) {
         Account account = getAccount(accountId, member);
-
-        if(account.getAccountNumber().equals(rqUpdateAccountDto.getAccountNumber())){
-            throw new AccountNumberUnchangedException();
-        }
-
-        account.setAccountNumber(rqUpdateAccountDto.getAccountNumber());
+        account.updateAccountNumber(rqUpdateAccountDto.getAccountNumber());
     }
 
     @Transactional

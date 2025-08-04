@@ -82,7 +82,6 @@ public class Member extends BaseEntity {
         if(!(o instanceof Member)) return false;
 
         Member member = (Member) o;
-        return Objects.equals(this.getId(),member.getId());
-
+        return this.getId()==member.getId();
     }
 }
