@@ -42,7 +42,7 @@ public class AccountService {
     }
 
     public List<Account> getAccountsByMemberId(Member member) {
-        return accountRepository.findAllByMemberId(member.getId());
+        return accountRepository.findAllByMemberIdAndIsDeletedFalse(member.getId());
     }
 
     public Account getAccount(int accountId,Member member) {
