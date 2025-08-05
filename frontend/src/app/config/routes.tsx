@@ -10,6 +10,8 @@ import { AssetPage } from "@/app/mypage/assets/page";
 import { AssetDetailPage } from "@/app/mypage/assets/AssetDetailPage";
 import { AccountsPage }  from "@/app/mypage/accounts/page";
 import { GoalPage } from "@/app/mypage/goals/page";
+import { NoticePage } from "@/app/components/notice/NoticePage";
+import { NoticeDetailPage } from "@/app/components/notice/NoticeDetailPage";
 
 export interface RouteConfig {  
   path: string;
@@ -66,6 +68,16 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage/assets/:id",
     component: AssetDetailPage,
+    layout: "full"
+  },
+  {
+    path: "/mypage/notices",
+    component: NoticePage,
+    layout: "full"
+  },
+  {
+    path: "/mypage/notices/:id",
+    component: NoticeDetailPage,
     layout: "full"
   }
 ];
