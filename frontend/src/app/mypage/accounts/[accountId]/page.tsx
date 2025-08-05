@@ -118,7 +118,7 @@ export function AccountDetailPage() {
         );
 
         if (response.status == 204) {
-          router.push("/mypage/accounts");
+          router.back();
           alert("계좌 연결 해제에 성공 했습니다.");
         } else {
           const result = response.json();
