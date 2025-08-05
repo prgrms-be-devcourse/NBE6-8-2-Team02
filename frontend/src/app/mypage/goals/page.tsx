@@ -7,7 +7,7 @@ import { Input } from "@/app/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { authAPI } from "@/lib/auth";
 import { motion } from 'framer-motion';
-import { useRouter } from "../../components/Router";
+import { useRouter } from "next/navigation";
 import { apiFetch } from '../../../lib/backend/client';
 import { SideBar } from "../../components/SideBar";
 
@@ -129,14 +129,14 @@ export function GoalPage() {
   const [editForm, setEditForm] = useState<Partial<Goal>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   // 인증 상태 확인 및 목표 리스트 조회
   useEffect(() => {
     const checkAuthAndFetchGoals = async () => {
       const isAuth = authAPI.isAuthenticated();
       if (!isAuth) {
-        navigate("/");
+        router.push("/");
         return;
       }
 
@@ -145,24 +145,24 @@ export function GoalPage() {
         setError(null);
 
         const goalsData = await goalAPI.getGoals();
-        
+
         // 목표 데이터의 ID를 숫자로 변환하여 설정
-        const processedGoals = Array.isArray(goalsData) 
+        const processedGoals = Array.isArray(goalsData)
           ? goalsData.map((goal: any) => ({
+            ...goal,
+            id: Number(goal.id)
+          }))
+          : Array.isArray(goalsData.data)
+            ? goalsData.data.map((goal: any) => ({
               ...goal,
               id: Number(goal.id)
             }))
-          : Array.isArray(goalsData.data) 
-            ? goalsData.data.map((goal: any) => ({
-                ...goal,
-                id: Number(goal.id)
-              }))
             : [];
-            
+
         setGoals(processedGoals);
       } catch (error) {
         console.error("목표 조회 실패:", error);
-        
+
         // 500 에러인 경우 서버 문제로 간주하고 예시 데이터 사용
         if (error instanceof Error && error.message.includes("500")) {
           setError("서버에 일시적인 문제가 있습니다.");
@@ -173,9 +173,9 @@ export function GoalPage() {
         setLoading(false);
       }
     };
-    
+
     checkAuthAndFetchGoals();
-  }, [navigate]);
+  }, [router]);
 
   const handleEdit = (goal: Goal) => {
     setEditingId(goal.id);
@@ -195,12 +195,12 @@ export function GoalPage() {
         alert("목표 제목을 입력해주세요.");
         return;
       }
-      
+
       if (editForm.currentAmount === undefined || editForm.currentAmount < 0) {
         alert("현재 금액은 0 이상이어야 합니다.");
         return;
       }
-      
+
       if (editForm.targetAmount === undefined || editForm.targetAmount <= 0) {
         alert("목표 금액은 0보다 커야 합니다.");
         return;
@@ -227,10 +227,10 @@ export function GoalPage() {
 
           // 백엔드에서 반환된 데이터 구조 확인 및 처리
           let newGoal = createdGoal.data;
-          
+
           // ID를 숫자로 확실히 변환
           const newId = Number(newGoal.id || newGoal.goalId || Date.now());
-          
+
           // 임시 목표를 실제 목표로 교체
           setGoals(prevGoals =>
             prevGoals.map(goal =>
@@ -252,7 +252,7 @@ export function GoalPage() {
             )
           );
         }
-        
+
         setEditingId(null);
         setEditForm({});
       } catch (error) {
@@ -298,10 +298,10 @@ export function GoalPage() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowISO = tomorrow.toISOString();
-    
+
     // 임시 ID 생성 (음수로 하여 실제 ID와 구분)
     const tempId = -Date.now();
-    
+
     // 임시 목표 객체 생성
     const tempGoal: Goal = {
       id: tempId,
@@ -312,10 +312,10 @@ export function GoalPage() {
       deadline: tomorrowISO,
       status: "NOT_STARTED",
     };
-    
+
     // 목표 목록에 임시 목표 추가
     setGoals(prevGoals => [...prevGoals, tempGoal]);
-    
+
     // 편집 모드로 설정
     setEditingId(tempId);
     setEditForm({
@@ -337,25 +337,25 @@ export function GoalPage() {
   if (loading) {
     return (
       <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-      <SideBar navigate={navigate} active="goals" />
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">목표 목록을 불러오는 중...</div>
-        </div>
-      </motion.div>
-    </div>
+        <SideBar navigate={router.push} active="goals" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+        >
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg">목표 목록을 불러오는 중...</div>
+          </div>
+        </motion.div>
+      </div>
     );
   }
 
   if (error) {
     return (
       <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-        <SideBar navigate={navigate} active="goals" />
+        <SideBar navigate={router.push} active="goals" />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -372,7 +372,7 @@ export function GoalPage() {
 
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-      <SideBar navigate={navigate} active="goals" />
+      <SideBar navigate={router.push} active="goals" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -392,7 +392,7 @@ export function GoalPage() {
           )}
           {goals.map((goal, index) => {
             const isEditing = editingId !== null && Number(editingId) === Number(goal.id);
-            
+
             return (
               <Card key={goal.id || `goal-${index}`} className={`flex flex-col min-w-80 ${isEditing ? 'min-h-64' : 'h-64'}`}>
                 <CardHeader className="flex flex-row items-start justify-between pb-2 flex-shrink-0">
@@ -451,7 +451,7 @@ export function GoalPage() {
                   </div>
                 </CardHeader>
                 <CardContent className={`space-y-2 ${isEditing ? 'flex-1' : 'flex-1 flex flex-col justify-center'}`}>
-                <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-500">현재 금액</span>
                     {isEditing ? (
                       <Input
@@ -509,5 +509,3 @@ export function GoalPage() {
     </div>
   );
 }
-
-export default GoalPage;

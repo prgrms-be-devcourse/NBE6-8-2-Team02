@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
 import { validatePhoneNumber } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ export function ForgotPasswordPage() {
     const [isPasswordResetMode, setIsPasswordResetMode] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { navigate } = useRouter();
+    const router = useRouter();
 
     const handleFindAccount = useCallback(async () => {
         if (!findAccountData.name.trim()) {
@@ -155,18 +155,18 @@ export function ForgotPasswordPage() {
             setIsLoading(false);
             // 2초 후 로그인 페이지로 이동
             setTimeout(() => {
-                navigate("/auth/login");
+                router.push("/auth/login");
             }, 2000);
         } catch (error) {
             console.error("비밀번호 재설정 실패:", error);
             setError(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.");
             setIsLoading(false);
         }
-    }, [newPassword, confirmPassword, navigate]);
+    }, [newPassword, confirmPassword, router]);
 
     const handleBackToLogin = useCallback(() => {
-        navigate("/auth/login");
-    }, [navigate]);
+        router.push("/auth/login");
+    }, [router]);
 
     const handleResetForm = useCallback(() => {
         setFoundAccount(null);
@@ -546,6 +546,4 @@ export function ForgotPasswordPage() {
             </div>
         </motion.div>
     );
-}; 
-
-export default ForgotPasswordPage;
+}

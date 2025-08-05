@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { authAPI } from '@/lib/auth';
 import { SideBar } from "@/app/components/SideBar";
@@ -8,7 +8,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { User, Mail, Phone, Calendar, Edit, Save, X, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Edit, Save, X, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { formatPhoneNumberForDisplay } from "@/lib/utils";
 
 interface UserInfo {
@@ -21,8 +21,8 @@ interface UserInfo {
     modifyDate: string;
 }
 
-export function ProfilePage() {
-    const { navigate } = useRouter();
+export default function ProfilePage() {
+    const router = useRouter();
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +51,7 @@ export function ProfilePage() {
     useEffect(() => {
         const isAuth = authAPI.isAuthenticated();
         if (!isAuth) {
-            navigate("/");
+            router.push("/");
             return;
         }
 
@@ -197,10 +197,6 @@ export function ProfilePage() {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
 
-
-
-
-
     if (isLoading) {
         return (
             <div className="min-h-screen pl-[240px] pt-[64px] flex items-center justify-center">
@@ -219,7 +215,7 @@ export function ProfilePage() {
 
     return (
         <div className="min-h-screen pl-[240px] pt-[64px]">
-            <SideBar navigate={navigate} active="mypage" />
+            <SideBar navigate={router.push} active="mypage" />
 
             <div className="p-6 max-w-4xl mx-auto space-y-6">
                 <header className="flex items-center justify-between">
@@ -359,7 +355,7 @@ export function ProfilePage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-4">
+                                <div className="pt-4 flex justify-between items-center">
                                     <Button
                                         onClick={() => setIsChangingPassword(!isChangingPassword)}
                                         variant="outline"
@@ -367,6 +363,14 @@ export function ProfilePage() {
                                     >
                                         <Lock className="w-4 h-4" />
                                         비밀번호 변경
+                                    </Button>
+                                    <Button
+                                        onClick={() => router.push("/mypage/withdraw")}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-gray-500 hover:text-red-600 hover:bg-red-50"
+                                    >
+                                        회원 탈퇴
                                     </Button>
                                 </div>
 
@@ -462,11 +466,11 @@ export function ProfilePage() {
                                 )}
                             </CardContent>
                         </Card>
+
+
                     </div>
                 )}
             </div>
         </div>
     );
 }
-
-export default ProfilePage;

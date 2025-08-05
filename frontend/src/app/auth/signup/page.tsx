@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
 import { validatePhoneNumber } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   const handleSignup = useCallback(async () => {
     // 입력값 검증
@@ -92,7 +92,7 @@ export function SignupPage() {
       // API 응답 검증 - 201 CREATED 상태 코드 확인
       if (response && (response.id || response.email || response.userId)) {
         console.log("회원가입 성공:", response);
-        navigate("/auth/login");
+        router.push("/auth/login");
       } else {
         // 서버에서 에러 응답이 온 경우
         setError(response.message || response.error || "회원가입에 실패했습니다. 다시 시도해주세요.");
@@ -103,11 +103,11 @@ export function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [signupData, confirmPassword, navigate]);
+  }, [signupData, confirmPassword, router]);
 
   const handleBackToLogin = useCallback(() => {
-    navigate("/auth/login");
-  }, [navigate]);
+    router.push("/auth/login");
+  }, [router]);
 
   const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSignupData(prev => ({ ...prev, email: e.target.value }));
@@ -329,6 +329,4 @@ export function SignupPage() {
       </div>
     </motion.div>
   );
-};
-
-export default SignupPage;
+}

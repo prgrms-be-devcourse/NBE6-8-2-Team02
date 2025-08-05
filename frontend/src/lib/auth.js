@@ -440,9 +440,98 @@ export const authAPI = {
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("userId");
         localStorage.removeItem("userEmail");
+        localStorage.removeItem("userRole");
         document.cookie =
           "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       }
+    }
+  },
+
+  // 회원 탈퇴
+  async withdrawAccount(memberId) {
+    try {
+      const token = await this.getValidAccessToken();
+      if (!token) {
+        throw new Error("유효한 토큰이 없습니다.");
+      }
+
+      const response = await fetch(
+        `http://localhost:8080/api/v1/members/${memberId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.msg || data.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // 회원 탈퇴 성공 시 로그아웃 처리
+      await this.logout();
+
+      return data;
+    } catch (error) {
+      console.error("회원 탈퇴 API 에러:", error);
+      throw error;
+    }
+  },
+
+  // 인증 상태를 더 안정적으로 확인하는 함수
+  checkAuthStatus() {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      const userRole = localStorage.getItem("userRole");
+      const userId = localStorage.getItem("userId");
+
+      return {
+        isAuthenticated: !!(authToken && userRole && userId),
+        authToken,
+        userRole,
+        userId,
+      };
+    } catch (error) {
+      console.error("Auth status check failed:", error);
+      return {
+        isAuthenticated: false,
+        authToken: null,
+        userRole: null,
+        userId: null,
+      };
+    }
+  },
+
+  // 로그인 상태를 강제로 설정하는 함수
+  setAuthStatus(authData) {
+    try {
+      if (authData.authToken) {
+        localStorage.setItem("authToken", authData.authToken);
+      }
+      if (authData.userRole) {
+        localStorage.setItem("userRole", authData.userRole);
+      }
+      if (authData.userId) {
+        localStorage.setItem("userId", authData.userId);
+      }
+      if (authData.userEmail) {
+        localStorage.setItem("userEmail", authData.userEmail);
+      }
+      if (authData.refreshToken) {
+        localStorage.setItem("refreshToken", authData.refreshToken);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Failed to set auth status:", error);
+      return false;
     }
   },
 };

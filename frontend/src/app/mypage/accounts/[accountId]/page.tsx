@@ -232,9 +232,8 @@ export function AccountDetailPage() {
                   </div>
                 </div>
                 <div
-                  className={`font-bold ${
-                    tx.type === "ADD" ? "text-green-600" : "text-red-500"
-                  }`}
+                  className={`font-bold ${tx.type === "ADD" ? "text-green-600" : "text-red-500"
+                    }`}
                 >
                   {tx.type === "ADD" ? "+" : "-"}
                   {tx.amount.toLocaleString()}원
@@ -247,5 +246,3 @@ export function AccountDetailPage() {
     </div>
   );
 }
-
-export default AccountDetailPage;

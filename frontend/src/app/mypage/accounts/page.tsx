@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { SideBar } from "@/app/components/SideBar";
 
 export function AccountsPage() {
@@ -22,7 +22,7 @@ export function AccountsPage() {
 
   // 메뉴 네비게이션
 
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -77,7 +77,7 @@ export function AccountsPage() {
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div></div>
-      <SideBar navigate={navigate} active="accounts" />
+      <SideBar navigate={router.push} active="accounts" />
       <div className="max-w-2xl mx-auto py-10 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">내 계좌 목록</h1>
@@ -209,5 +209,3 @@ export function AccountsPage() {
     </div>
   );
 }
-
-export default AccountsPage;

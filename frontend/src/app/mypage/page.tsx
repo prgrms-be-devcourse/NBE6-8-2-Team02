@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { BarChart2, Coins, House } from 'lucide-react';
 import { useEffect, useState } from "react";
 import * as React from "react"
@@ -59,7 +59,7 @@ interface total {
   value: number;
 }
 
-export function MyPage() {
+export default function MyPage() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
@@ -86,16 +86,34 @@ export function MyPage() {
   }));
   */
 
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
-    const isAuth = authAPI.isAuthenticated();
-    if (!isAuth) {
-      navigate("/");
-      return;
-    }
+    const checkAuthAndFetch = async () => {
+      console.log('MyPage: Starting auth check...');
+      const authStatus = authAPI.checkAuthStatus();
 
-    fetchUserInfo();
+      console.log('MyPage auth check result:', authStatus);
+      console.log('MyPage: isAuthenticated =', authStatus.isAuthenticated);
+      console.log('MyPage: userRole =', authStatus.userRole);
+
+      if (!authStatus.isAuthenticated) {
+        window.location.replace("/");
+        return;
+      }
+
+      // 관리자가 아닌 경우에만 mypage 접근 허용
+      if (authStatus.userRole === 'ADMIN') {
+        window.location.replace("/admin");
+        return;
+      }
+
+      console.log('MyPage: User authenticated, proceeding to fetch user info');
+      await fetchUserInfo();
+    };
+
+    // 즉시 인증 확인
+    checkAuthAndFetch();
   }, []);
   const fetchUserInfo = async () => {
     try {
@@ -269,7 +287,7 @@ export function MyPage() {
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div></div>
-      <SideBar navigate={navigate} active="mypage" />
+      <SideBar navigate={router.push} active="mypage" />
       <div
         className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
       >
@@ -301,9 +319,9 @@ export function MyPage() {
             value={Style.formatValue(barChartDataRaw.find((d) => d.type === "account")?.value ?? 0)}
             description={Style.formatCount(barChartDataRaw.find((d) => d.type === "account")?.count ?? 0)}
           />
-          <Style.Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
-          <Style.Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "real_estate")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
-          <Style.Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "stock")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0)} onClick={() => navigate('/mypage/assets')} />
+          <Style.Card icon={<Coins className="w-6 h-6 text-blue-500" />} title="예금/적금" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "deposit")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0)} onClick={() => router.push('/mypage/assets')} />
+          <Style.Card icon={<House className="w-6 h-6 text-orange-500" />} title="부동산" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "real_estate")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0)} onClick={() => router.push('/mypage/assets')} />
+          <Style.Card icon={<BarChart2 className="w-6 h-6 text-purple-500" />} title="주식" value={Style.formatValue(barChartDataRaw.find((d) => d.type === "stock")?.value ?? 0)} description={Style.formatCount(barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0)} onClick={() => router.push('/mypage/assets')} />
         </section>
 
         <section>
