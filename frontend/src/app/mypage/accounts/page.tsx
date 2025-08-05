@@ -31,12 +31,12 @@ export function AccountsPage() {
           method: "GET",
           credentials: "include",
         });
-        const result = await response.json();
 
-        if (result.resultCode === "200-1") {
-          setAccounts(result.data);
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
         } else {
-          console.error("계좌 조회 실패", result.msg);
+          console.error("계좌 조회 실패");
         }
       } catch (error) {
         console.error("계좌 데이터를 가져오는 중 오류 발생", error);
@@ -125,7 +125,7 @@ export function AccountsPage() {
         <div className="w-[600px] space-y-4">
           {accounts.map((account) => (
             <Card key={account.id} className="p-4">
-              <Link href={`/accounts/${account.id}`}>
+              <Link href={`/mypage/accounts/${account.id}`}>
                 <div className="text-xl font-semibold">{account.name}</div>
                 <div className="text-gray-600 font-medium">
                   {account.accountNumber}
@@ -209,3 +209,5 @@ export function AccountsPage() {
     </div>
   );
 }
+
+//export default AccountsPage;

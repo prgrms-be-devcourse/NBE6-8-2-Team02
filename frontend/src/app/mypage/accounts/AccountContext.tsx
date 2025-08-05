@@ -56,12 +56,12 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
         });
         const result = await response.json();
 
-        if (result.resultCode === "200-1") {
+        if (response.status === 201) {
           console.log("계좌가 생성되었습니다.");
           setAccounts((prev) => [result.data, ...prev]);
           alert("계좌가 생성되었습니다.");
         } else {
-          console.log("계좌 생성에 실패하였습니다.");
+          console.log(result.message);
         }
       } catch (error) {
         console.error("계좌 생성 요청에 실패했습니다.");
@@ -85,16 +85,16 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
         );
         const result = await response.json();
 
-        if (result.resultCode === "200-1") {
+        if (response.status == 200) {
           alert("계좌번호가 변경되었습니다.");
           setAccounts((prev) =>
             prev.map((acc) =>
               acc.id === id ? { ...acc, accountNumber: newNumber } : acc
             )
           );
-        } else {
+        } else if (response.status == 409) {
           console.log("계좌번호 변경 실패");
-          alert("계좌번호 변경에 실패했습니다.");
+          alert(result.message);
         }
       } catch (error) {
         console.error("계좌번호 변경 요청 실패.", error);
@@ -116,10 +116,8 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             credentials: "include",
           }
         );
-        const result = await response.json();
 
-        if (result.resultCode === "200-1") {
-          console.log(result.msg);
+        if (response.status == 204) {
           setAccounts((prev) => prev.filter((acc) => acc.id !== id));
           // 관련 거래들도 삭제
           setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));
