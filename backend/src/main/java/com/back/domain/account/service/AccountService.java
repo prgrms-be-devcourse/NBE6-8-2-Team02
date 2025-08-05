@@ -3,13 +3,11 @@ package com.back.domain.account.service;
 import com.back.domain.account.dto.RqCreateAccountDto;
 import com.back.domain.account.dto.RqUpdateAccountDto;
 import com.back.domain.account.entity.Account;
+import com.back.domain.account.exception.AccountDuplicateException;
 import com.back.domain.account.exception.AccountNotFoundException;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.entity.Member;
-import com.back.domain.member.repository.MemberRepository;
-import com.back.domain.transactions.entity.TransactionType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,50 +18,50 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final MemberRepository memberRepository;
 
-    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,int memberId) {
+    private void checkAccountDuplicate (RqCreateAccountDto rqCreateAccountDto){
+        if(accountRepository.existsAccountByAccountNumberAndName(
+                rqCreateAccountDto.getAccountNumber(),
+                rqCreateAccountDto.getName()
+        )){
+            throw new AccountDuplicateException();
+        }
+    }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    private Account findByAccount(int accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() -> {
+            throw new AccountNotFoundException();
+        });
+    }
 
-        Account account= Account.builder()
-                .member(member)
-                .accountNumber(rqCreateAccountDto.getAccountNumber())
-                .name(rqCreateAccountDto.getName())
-                .balance(rqCreateAccountDto.getBalance())
-                .build();
+    public Account createAccount(RqCreateAccountDto rqCreateAccountDto,Member member) {
+        checkAccountDuplicate(rqCreateAccountDto);
+        Account account = Account.create(rqCreateAccountDto,member);
 
         return accountRepository.save(account);
     }
 
-    public List<Account> getAccountsByMemberId(int memberId) {
-        return accountRepository.findAllByMemberId(memberId);
+    public List<Account> getAccountsByMemberId(Member member) {
+        return accountRepository.findAllByMemberIdAndIsDeletedFalse(member.getId());
     }
 
-    public Account getAccount(int accountId,int memberId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
-
-        if (account.getMember().getId() != memberId) {
-            throw new AccessDeniedException("이 계좌에 접근할 권한이 없습니다.");
-        }
-        return account;
-    }
-
-    @Transactional
-    public Account updateAccount(int accountId, int memberId,RqUpdateAccountDto rqUpdateAccountDto){
-        Account account = getAccount(accountId,memberId);
-
-        account.setAccountNumber(rqUpdateAccountDto.getAccountNumber());
+    public Account getAccount(int accountId,Member member) {
+        Account account = findByAccount(accountId);
+        account.validateOwner(member);
 
         return account;
     }
 
     @Transactional
-    public void deleteAccount(int accountId,int memberId) {
+    public void updateAccount(int accountId, Member member, RqUpdateAccountDto rqUpdateAccountDto) {
+        Account account = getAccount(accountId, member);
+        account.updateAccountNumber(rqUpdateAccountDto.getAccountNumber());
+    }
 
-        Account account = getAccount(accountId, memberId);
-        account.setDeleted(true);
+    @Transactional
+    public void deleteAccount(int accountId,Member member) {
+        Account account = getAccount(accountId, member);
+        account.deleteAccount();
     }
 
 }

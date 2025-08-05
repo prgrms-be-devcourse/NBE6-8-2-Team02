@@ -16,7 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { SideBar } from "@/app/components/SideBar";
 
-export function AccountsPage() {
+export default function AccountsPage() {
   const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
     useAccountContext();
 
@@ -31,12 +31,12 @@ export function AccountsPage() {
           method: "GET",
           credentials: "include",
         });
-        const result = await response.json();
 
-        if (result.resultCode === "200-1") {
-          setAccounts(result.data);
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
         } else {
-          console.error("계좌 조회 실패", result.msg);
+          console.error("계좌 조회 실패");
         }
       } catch (error) {
         console.error("계좌 데이터를 가져오는 중 오류 발생", error);
@@ -123,89 +123,94 @@ export function AccountsPage() {
         )}
 
         <div className="w-[600px] space-y-4">
-          {accounts.map((account) => (
-            <Card key={account.id} className="p-4">
-              <Link href={`/accounts/${account.id}`}>
-                <div className="text-xl font-semibold">{account.name}</div>
-                <div className="text-gray-600 font-medium">
-                  {account.accountNumber}
-                </div>
-                <div className="mt-2">
-                  잔액: {account.balance.toLocaleString()}원
-                </div>
-              </Link>
+          {accounts
+            .slice()
+            .reverse()
+            .map((account) => (
+              <Card key={account.id} className="p-4">
+                <Link href={`/mypage/accounts/${account.id}`}>
+                  <div className="text-xl font-semibold">{account.name}</div>
+                  <div className="text-gray-600 font-medium">
+                    {account.accountNumber}
+                  </div>
+                  <div className="mt-2">
+                    잔액: {account.balance.toLocaleString()}원
+                  </div>
+                </Link>
 
-              {editId === account.id ? (
-                <div className="mt-2 flex gap-2">
-                  <Input
-                    value={newAccountNumber}
-                    onChange={(e) =>
-                      setNewAccountNumber(
-                        e.target.value.replace(/[^0-9-]/g, "")
-                      )
-                    }
-                  />
-                  <Button
-                    onClick={() => {
-                      updateAccount(account.id, newAccountNumber);
-                      setEditId(null);
-                    }}
-                  >
-                    저장
-                  </Button>
-                </div>
-              ) : (
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setEditId(account.id);
-                      setNewAccountNumber(account.accountNumber);
-                    }}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setShowConfirm(true)}
-                  >
-                    삭제
-                  </Button>
-                  {showConfirm && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                      <div className="bg-white rounded-xl shadow-xl p-6 w-[300px] text-center">
-                        <h2 className="text-lg font-semibold mb-4">
-                          정말 삭제하시겠습니까?
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-6">
-                          이 작업은 되돌릴 수 없습니다.
-                        </p>
-                        <div className="flex justify-between">
-                          <button
-                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-4 rounded"
-                            onClick={() => setShowConfirm(false)}
-                          >
-                            취소
-                          </button>
-                          <button
-                            className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
-                            onClick={() => {
-                              setShowConfirm(false);
-                              deleteAccount(account.id);
-                            }}
-                          >
-                            삭제
-                          </button>
+                {editId === account.id ? (
+                  <div className="mt-2 flex gap-2">
+                    <Input
+                      value={newAccountNumber}
+                      onChange={(e) =>
+                        setNewAccountNumber(
+                          e.target.value.replace(/[^0-9-]/g, "")
+                        )
+                      }
+                    />
+                    <Button
+                      onClick={() => {
+                        updateAccount(account.id, newAccountNumber);
+                        setEditId(null);
+                      }}
+                    >
+                      저장
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEditId(account.id);
+                        setNewAccountNumber(account.accountNumber);
+                      }}
+                    >
+                      수정
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowConfirm(true)}
+                    >
+                      삭제
+                    </Button>
+                    {showConfirm && (
+                      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-xl shadow-xl p-6 w-[300px] text-center">
+                          <h2 className="text-lg font-semibold mb-4">
+                            정말 삭제하시겠습니까?
+                          </h2>
+                          <p className="text-sm text-gray-600 mb-6">
+                            이 작업은 되돌릴 수 없습니다.
+                          </p>
+                          <div className="flex justify-between">
+                            <button
+                              className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-4 rounded"
+                              onClick={() => setShowConfirm(false)}
+                            >
+                              취소
+                            </button>
+                            <button
+                              className="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded"
+                              onClick={() => {
+                                setShowConfirm(false);
+                                deleteAccount(account.id);
+                              }}
+                            >
+                              삭제
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
-          ))}
+                    )}
+                  </div>
+                )}
+              </Card>
+            ))}
         </div>
       </div>
     </div>
   );
 }
+
+//export default AccountsPage;

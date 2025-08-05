@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -73,4 +75,23 @@ public class Member extends BaseEntity {
         ADMIN, // 관리자
         USER   // 일반 사용자
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof Member)) return false;
+
+        Member member = (Member) o;
+        if (this.getId() != 0 && member.getId() != 0) {
+            return this.getId() == (member.getId());
+        }
+        return this.email.equals(member.email)&&
+               this.phoneNumber.equals(member.getPhoneNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
 }

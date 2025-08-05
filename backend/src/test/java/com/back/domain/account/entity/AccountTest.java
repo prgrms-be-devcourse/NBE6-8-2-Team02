@@ -1,5 +1,7 @@
 package com.back.domain.account.entity;
 
+import com.back.domain.account.exception.AccountAccessDeniedException;
+import com.back.domain.account.exception.AccountNumberUnchangedException;
 import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.entity.TransactionType;
 import org.junit.jupiter.api.DisplayName;
@@ -9,17 +11,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AccountTest {
+    Member member = new Member("test@example.com","111","test1","01012345678", Member.MemberRole.USER);
+    Account account=Account.builder()
+            .accountNumber("111")
+            .member(member)
+            .balance(10000L)
+            .name("농협")
+            .build();
 
     @Test
     @DisplayName("계좌 잔액 업데이트")
     void createAccountTransaction() {
-        Member member = new Member("test@example.com","111","test1","01012345678", Member.MemberRole.USER);
-        Account account=Account.builder()
-                .accountNumber("111")
-                .member(member)
-                .balance(10000L)
-                .name("농협")
-                .build();
 
         //입금
         Long balance1 = account.updateBalance(TransactionType.ADD, 5000L).getBalance();
@@ -33,5 +35,36 @@ public class AccountTest {
         assertThrows(IllegalArgumentException.class, () -> {
             account.updateBalance(TransactionType.REMOVE, 20000L);
         });
+    }
+
+    @Test
+    @DisplayName("계좌 소유자가 아닌 경우 예외 발생")
+    void validateOwner() {
+        Member notOwner = new Member("test99@example.com", "999", "김우리", "01099999999", Member.MemberRole.USER);
+
+        assertThrows(AccountAccessDeniedException.class,()->{
+            account.validateOwner(notOwner);
+        });
+    }
+
+    @Test
+    @DisplayName("계좌 번호 업데이트")
+    void updateAccountNumber() {
+        // 계좌 번호 변경
+        account.updateAccountNumber("222");
+        assertThat(account.getAccountNumber()).isEqualTo("222");
+
+        // 동일한 계좌 번호로 변경 시 예외 발생
+        assertThrows(AccountNumberUnchangedException.class, () -> {
+            account.updateAccountNumber("222");
+        });
+    }
+
+    @Test
+    @DisplayName("계좌 삭제")
+    void deleteAccount() {
+        // 계좌 삭제
+        account.deleteAccount();
+        assertThat(account.isDeleted()).isTrue();
     }
 }

@@ -1,14 +1,25 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/app/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 import { authAPI } from "@/lib/auth";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { apiFetch } from '../../../lib/backend/client';
+import { apiFetch } from "../../../lib/backend/client";
 import { SideBar } from "../../components/SideBar";
 
 interface Goal {
@@ -61,7 +72,7 @@ const goalAPI = {
   // 목표 다건 조회
   async getGoals() {
     try {
-      const data = await apiFetch('/api/v1/goals');
+      const data = await apiFetch("/api/v1/goals");
       return data;
     } catch (error) {
       console.error("목표 조회 API 에러:", error);
@@ -70,17 +81,20 @@ const goalAPI = {
   },
 
   // 목표 수정
-  async updateGoal(id: number, goalData: {
-    description: string;
-    currentAmount: number;
-    targetAmount: number;
-    deadline: string;
-    status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
-  }) {
+  async updateGoal(
+    id: number,
+    goalData: {
+      description: string;
+      currentAmount: number;
+      targetAmount: number;
+      deadline: string;
+      status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
+    }
+  ) {
     try {
       const data = await apiFetch(`/api/v1/goals/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(goalData)
+        method: "PUT",
+        body: JSON.stringify(goalData),
       });
       return data;
     } catch (error) {
@@ -93,7 +107,7 @@ const goalAPI = {
   async deleteGoal(id: number) {
     try {
       const data = await apiFetch(`/api/v1/goals/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
       return data;
     } catch (error) {
@@ -111,9 +125,9 @@ const goalAPI = {
     status: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED";
   }) {
     try {
-      const data = await apiFetch('/api/v1/goals', {
-        method: 'POST',
-        body: JSON.stringify(goalData)
+      const data = await apiFetch("/api/v1/goals", {
+        method: "POST",
+        body: JSON.stringify(goalData),
       });
       return data;
     } catch (error) {
@@ -123,7 +137,7 @@ const goalAPI = {
   },
 };
 
-export function GoalPage() {
+export default function GoalPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Goal>>({});
@@ -149,15 +163,15 @@ export function GoalPage() {
         // 목표 데이터의 ID를 숫자로 변환하여 설정
         const processedGoals = Array.isArray(goalsData)
           ? goalsData.map((goal: any) => ({
-            ...goal,
-            id: Number(goal.id)
-          }))
-          : Array.isArray(goalsData.data)
-            ? goalsData.data.map((goal: any) => ({
               ...goal,
-              id: Number(goal.id)
+              id: Number(goal.id),
             }))
-            : [];
+          : Array.isArray(goalsData.data)
+          ? goalsData.data.map((goal: any) => ({
+              ...goal,
+              id: Number(goal.id),
+            }))
+          : [];
 
         setGoals(processedGoals);
       } catch (error) {
@@ -232,8 +246,8 @@ export function GoalPage() {
           const newId = Number(newGoal.id || newGoal.goalId || Date.now());
 
           // 임시 목표를 실제 목표로 교체
-          setGoals(prevGoals =>
-            prevGoals.map(goal =>
+          setGoals((prevGoals) =>
+            prevGoals.map((goal) =>
               Number(goal.id) === Number(editingId)
                 ? { ...newGoal, id: newId }
                 : goal
@@ -244,8 +258,8 @@ export function GoalPage() {
           await goalAPI.updateGoal(Number(editingId), goalData);
 
           // 성공 시 로컬 상태 업데이트
-          setGoals(prevGoals =>
-            prevGoals.map(goal =>
+          setGoals((prevGoals) =>
+            prevGoals.map((goal) =>
               Number(goal.id) === Number(editingId)
                 ? { ...goal, ...editForm }
                 : goal
@@ -267,7 +281,9 @@ export function GoalPage() {
   const handleCancel = () => {
     // 임시 목표인 경우 목록에서 제거
     if (editingId && editingId < 0) {
-      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== editingId));
+      setGoals((prevGoals) =>
+        prevGoals.filter((goal) => goal.id !== editingId)
+      );
     }
     setEditingId(null);
     setEditForm({});
@@ -280,7 +296,9 @@ export function GoalPage() {
         await goalAPI.deleteGoal(Number(goalId));
 
         // 성공 시 로컬 상태 업데이트
-        setGoals(prevGoals => prevGoals.filter(goal => Number(goal.id) !== Number(goalId)));
+        setGoals((prevGoals) =>
+          prevGoals.filter((goal) => Number(goal.id) !== Number(goalId))
+        );
         // 만약 삭제 중인 목표가 편집 중이었다면 편집 모드 종료
         if (editingId && Number(editingId) === Number(goalId)) {
           setEditingId(null);
@@ -314,7 +332,7 @@ export function GoalPage() {
     };
 
     // 목표 목록에 임시 목표 추가
-    setGoals(prevGoals => [...prevGoals, tempGoal]);
+    setGoals((prevGoals) => [...prevGoals, tempGoal]);
 
     // 편집 모드로 설정
     setEditingId(tempId);
@@ -328,7 +346,7 @@ export function GoalPage() {
   };
 
   const handleInputChange = (field: keyof Goal, value: string | number) => {
-    setEditForm(prev => ({
+    setEditForm((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -381,7 +399,9 @@ export function GoalPage() {
       >
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">자산 목표 관리</h1>
-          <Button className="h-7 px-4" onClick={handleAdd}>+ 목표 추가</Button>
+          <Button className="h-7 px-4" onClick={handleAdd}>
+            + 목표 추가
+          </Button>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-6">
@@ -391,26 +411,38 @@ export function GoalPage() {
             </Card>
           )}
           {goals.map((goal, index) => {
-            const isEditing = editingId !== null && Number(editingId) === Number(goal.id);
+            const isEditing =
+              editingId !== null && Number(editingId) === Number(goal.id);
 
             return (
-              <Card key={goal.id || `goal-${index}`} className={`flex flex-col min-w-80 ${isEditing ? 'min-h-64' : 'h-64'}`}>
+              <Card
+                key={goal.id || `goal-${index}`}
+                className={`flex flex-col min-w-80 ${
+                  isEditing ? "min-h-64" : "h-64"
+                }`}
+              >
                 <CardHeader className="flex flex-row items-start justify-between pb-2 flex-shrink-0">
                   <div className="flex-1 min-w-0 mr-4">
                     {isEditing ? (
                       <Input
                         value={editForm.description || ""}
-                        onChange={(e) => handleInputChange("description", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("description", e.target.value)
+                        }
                         className="text-lg font-semibold mb-2"
                       />
                     ) : (
-                      <CardTitle className="truncate">{goal.description}</CardTitle>
+                      <CardTitle className="truncate">
+                        {goal.description}
+                      </CardTitle>
                     )}
                     <div className="mt-2">
                       {isEditing ? (
                         <Select
                           value={editForm.status || ""}
-                          onValueChange={(value: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED") => handleInputChange("status", value)}
+                          onValueChange={(
+                            value: "NOT_STARTED" | "IN_PROGRESS" | "ACHIEVED"
+                          ) => handleInputChange("status", value)}
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
@@ -422,7 +454,11 @@ export function GoalPage() {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${getStatusStyle(goal.status)}`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${getStatusStyle(
+                            goal.status
+                          )}`}
+                        >
                           {getStatusDisplay(goal.status)}
                         </span>
                       )}
@@ -431,37 +467,64 @@ export function GoalPage() {
                   <div className="flex gap-2 flex-shrink-0">
                     {isEditing ? (
                       <>
-                        <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700">
+                        <Button
+                          size="sm"
+                          onClick={handleSave}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
                           완료
                         </Button>
-                        <Button size="sm" variant="outline" onClick={handleCancel}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancel}
+                        >
                           취소
                         </Button>
                       </>
                     ) : (
                       <>
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(goal)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(goal)}
+                        >
                           편집
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(goal.id)}>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(goal.id)}
+                        >
                           삭제
                         </Button>
                       </>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className={`space-y-2 ${isEditing ? 'flex-1' : 'flex-1 flex flex-col justify-center'}`}>
+                <CardContent
+                  className={`space-y-2 ${
+                    isEditing ? "flex-1" : "flex-1 flex flex-col justify-center"
+                  }`}
+                >
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">현재 금액</span>
                     {isEditing ? (
                       <Input
                         type="number"
                         value={editForm.currentAmount || ""}
-                        onChange={(e) => handleInputChange("currentAmount", parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "currentAmount",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-32 text-right"
                       />
                     ) : (
-                      <span className="font-semibold text-lg">{(goal.currentAmount || 0).toLocaleString()}원</span>
+                      <span className="font-semibold text-lg">
+                        {(goal.currentAmount || 0).toLocaleString()}원
+                      </span>
                     )}
                   </div>
                   <div className="flex justify-between items-center text-sm">
@@ -470,11 +533,18 @@ export function GoalPage() {
                       <Input
                         type="number"
                         value={editForm.targetAmount || ""}
-                        onChange={(e) => handleInputChange("targetAmount", parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "targetAmount",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
                         className="w-32 text-right"
                       />
                     ) : (
-                      <span className="font-semibold text-lg">{(goal.targetAmount || 0).toLocaleString()}원</span>
+                      <span className="font-semibold text-lg">
+                        {(goal.targetAmount || 0).toLocaleString()}원
+                      </span>
                     )}
                   </div>
                   <div className="flex justify-between items-center text-sm">
@@ -482,7 +552,9 @@ export function GoalPage() {
                     {isEditing ? (
                       <Input
                         type="date"
-                        value={editForm.deadline ? formatDate(editForm.deadline) : ""}
+                        value={
+                          editForm.deadline ? formatDate(editForm.deadline) : ""
+                        }
                         onChange={(e) => {
                           const date = new Date(e.target.value);
                           const isoString = date.toISOString();
@@ -491,13 +563,25 @@ export function GoalPage() {
                         className="w-36"
                       />
                     ) : (
-                      <span className="font-medium">{formatDate(goal.deadline)}</span>
+                      <span className="font-medium">
+                        {formatDate(goal.deadline)}
+                      </span>
                     )}
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">달성률</span>
-                    <span className={(goal.currentAmount || 0) >= (goal.targetAmount || 1) ? "text-green-600 font-bold text-lg" : "font-semibold text-lg"}>
-                      {(((goal.currentAmount || 0) / (goal.targetAmount || 1)) * 100).toFixed(1)}%
+                    <span
+                      className={
+                        (goal.currentAmount || 0) >= (goal.targetAmount || 1)
+                          ? "text-green-600 font-bold text-lg"
+                          : "font-semibold text-lg"
+                      }
+                    >
+                      {(
+                        ((goal.currentAmount || 0) / (goal.targetAmount || 1)) *
+                        100
+                      ).toFixed(1)}
+                      %
                     </span>
                   </div>
                 </CardContent>

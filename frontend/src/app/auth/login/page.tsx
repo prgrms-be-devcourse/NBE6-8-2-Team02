@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
@@ -71,15 +71,18 @@ export default function LoginPage() {
           authToken: response.accessToken,
           userId: response.userId || response.memberId || response.id,
           userEmail: response.email,
-          userRole: response.role === 'ADMIN' || response.isAdmin === true ? 'ADMIN' : 'USER',
-          refreshToken: response.refreshToken
+          userRole:
+            response.role === "ADMIN" || response.isAdmin === true
+              ? "ADMIN"
+              : "USER",
+          refreshToken: response.refreshToken,
         };
 
         const success = authAPI.setAuthStatus(authData);
 
         if (success) {
           // 즉시 리다이렉트
-          if (authData.userRole === 'ADMIN') {
+          if (authData.userRole === "ADMIN") {
             window.location.replace("/admin");
           } else {
             window.location.replace("/mypage");
@@ -88,27 +91,30 @@ export default function LoginPage() {
           setError("로그인 상태 저장에 실패했습니다.");
         }
       } else {
-        const cookies = document.cookie.split(';');
-        const accessTokenCookie = cookies.find(cookie =>
-          cookie.trim().startsWith('accessToken=')
+        const cookies = document.cookie.split(";");
+        const accessTokenCookie = cookies.find((cookie) =>
+          cookie.trim().startsWith("accessToken=")
         );
 
         if (accessTokenCookie) {
-          const token = accessTokenCookie.split('=')[1];
+          const token = accessTokenCookie.split("=")[1];
 
           // 새로운 함수를 사용하여 인증 상태 설정
           const authData = {
             authToken: token,
             userId: response.userId || response.memberId || response.id,
             userEmail: response.email,
-            userRole: response.role === 'ADMIN' || response.isAdmin === true ? 'ADMIN' : 'USER'
+            userRole:
+              response.role === "ADMIN" || response.isAdmin === true
+                ? "ADMIN"
+                : "USER",
           };
 
           const success = authAPI.setAuthStatus(authData);
 
           if (success) {
             // 즉시 리다이렉트
-            if (authData.userRole === 'ADMIN') {
+            if (authData.userRole === "ADMIN") {
               window.location.replace("/admin");
             } else {
               window.location.replace("/mypage");
@@ -117,7 +123,11 @@ export default function LoginPage() {
             setError("로그인 상태 저장에 실패했습니다.");
           }
         } else {
-          setError(response.message || response.error || "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+          setError(
+            response.message ||
+              response.error ||
+              "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요."
+          );
         }
       }
     } catch (error) {
@@ -126,14 +136,21 @@ export default function LoginPage() {
       // 에러 타입별 세분화된 처리
       if (error instanceof Error) {
         // 네트워크 에러 체크
-        if (error.message.includes('fetch') || error.message.includes('network')) {
-          setError("네트워크 연결을 확인해주세요. 인터넷 연결 상태를 점검해주세요.");
+        if (
+          error.message.includes("fetch") ||
+          error.message.includes("network")
+        ) {
+          setError(
+            "네트워크 연결을 확인해주세요. 인터넷 연결 상태를 점검해주세요."
+          );
           return;
         }
 
         // HTTP 상태 코드별 에러 처리
-        if (error.message.includes('401')) {
-          setError("아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.");
+        if (error.message.includes("401")) {
+          setError(
+            "아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요."
+          );
           setTimeout(() => {
             passwordInputRef.current?.focus();
             passwordInputRef.current?.select();
@@ -141,12 +158,12 @@ export default function LoginPage() {
           return;
         }
 
-        if (error.message.includes('403')) {
+        if (error.message.includes("403")) {
           setError("계정이 잠겨있습니다. 관리자에게 문의해주세요.");
           return;
         }
 
-        if (error.message.includes('404')) {
+        if (error.message.includes("404")) {
           setError("존재하지 않는 계정입니다. 회원가입을 먼저 진행해주세요.");
           setTimeout(() => {
             emailInputRef.current?.focus();
@@ -155,12 +172,12 @@ export default function LoginPage() {
           return;
         }
 
-        if (error.message.includes('429')) {
+        if (error.message.includes("429")) {
           setError("로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.");
           return;
         }
 
-        if (error.message.includes('500')) {
+        if (error.message.includes("500")) {
           setError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
           return;
         }
@@ -191,30 +208,42 @@ export default function LoginPage() {
     router.push("/auth/forgot-password");
   }, [router]);
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData(prev => ({ ...prev, email: e.target.value }));
-    setError(""); // 입력 시 에러 메시지 초기화
-  }, []);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLoginData((prev) => ({ ...prev, email: e.target.value }));
+      setError(""); // 입력 시 에러 메시지 초기화
+    },
+    []
+  );
 
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData(prev => ({ ...prev, password: e.target.value }));
-    setError(""); // 입력 시 에러 메시지 초기화
-  }, []);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLoginData((prev) => ({ ...prev, password: e.target.value }));
+      setError(""); // 입력 시 에러 메시지 초기화
+    },
+    []
+  );
 
-  const handleEmailKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleLogin();
-    }
-  }, [handleLogin]);
+  const handleEmailKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    },
+    [handleLogin]
+  );
 
-  const handlePasswordKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleLogin();
-    }
-  }, [handleLogin]);
+  const handlePasswordKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    },
+    [handleLogin]
+  );
 
   const handlePasswordToggle = useCallback(() => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   }, []);
 
   return (
@@ -242,9 +271,7 @@ export default function LoginPage() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl tracking-tight text-gray-900">
-            로그인
-          </h2>
+          <h2 className="text-2xl tracking-tight text-gray-900">로그인</h2>
         </div>
 
         <div className="space-y-4">
@@ -278,13 +305,38 @@ export default function LoginPage() {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
               >
                 {showPassword ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
                   </svg>
                 )}
               </button>

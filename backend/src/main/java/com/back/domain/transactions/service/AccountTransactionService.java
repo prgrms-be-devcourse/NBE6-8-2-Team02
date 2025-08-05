@@ -3,6 +3,7 @@ package com.back.domain.transactions.service;
 import com.back.domain.account.entity.Account;
 import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.account.service.AccountService;
+import com.back.domain.member.entity.Member;
 import com.back.domain.transactions.dto.AccountTransactionDto;
 import com.back.domain.transactions.dto.CreateAccTracRequestDto;
 import com.back.domain.transactions.dto.TransactionDto;
@@ -30,28 +31,19 @@ public class AccountTransactionService {
 
     // 거래 생성
     @Transactional
-    public AccountTransaction createAccountTransaction(CreateAccTracRequestDto dto) {
-        Account account = accountRepository.findById(dto.accountId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 자산입니다."));
+    public AccountTransaction createAccountTransaction(CreateAccTracRequestDto dto, Member member) {
+        Account account = accountService.getAccount(dto.accountId(),member);
+        AccountTransaction accTrans = AccountTransaction.create(dto, account);
 
-        AccountTransaction accountTransaction = AccountTransaction.builder()
-                .account(account)
-                .type(TransactionType.valueOf(dto.type()))
-                .amount(dto.amount())
-                .content(dto.content())
-                .date(LocalDateTime.parse(dto.date()))
-                .build();
-
-        accountTransactionRepository.save(accountTransaction);
+        accountTransactionRepository.save(accTrans);
         account.updateBalance(TransactionType.valueOf(dto.type()), dto.amount());
 
-        return accountTransaction;
+        return accTrans;
     }
 
-    public List<AccountTransaction> findByAccountId(int accountId) {
+    public List<AccountTransaction> findByAccountId(int accountId,Member member) {
         // 자산이 존재하는지 확인
-        accountRepository.findById(accountId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 자산입니다. id: " + accountId));
+        Account account = accountService.getAccount(accountId,member);
 
         return accountTransactionRepository.findByAccount_Id(accountId);
     }
