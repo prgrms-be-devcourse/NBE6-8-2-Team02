@@ -90,7 +90,7 @@ class MemberV1ControllerTest {
     @WithMockUser(roles = "ADMIN")
     void getAllMembers() throws Exception {
         ResultActions resultActions = mockMvc
-                .perform(get("/api/v1/members"))
+                .perform(get("/api/v1/admin/members"))
                 .andDo(print());
 
         resultActions
