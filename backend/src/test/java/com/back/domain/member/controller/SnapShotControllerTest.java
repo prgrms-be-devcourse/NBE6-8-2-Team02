@@ -41,7 +41,7 @@ class SnapShotControllerTest {
 
     @BeforeEach
     void setUp() {
-        token = jwtutil.generateToken("user1@user.com", 4);
+        token = jwtutil.generateToken("user1@user.com", 4, "USER");
     }
 
     @Test

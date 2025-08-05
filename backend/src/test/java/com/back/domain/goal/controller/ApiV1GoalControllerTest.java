@@ -51,7 +51,7 @@ class ApiV1GoalControllerTest {
     @BeforeEach
     void setUp() {
         testMember = memberRepository.findByEmail("user1@user.com").orElseThrow();
-        jwtToken = jwtutil.generateToken(testMember.getEmail(), testMember.getId());
+        jwtToken = jwtutil.generateToken(testMember.getEmail(), testMember.getId(), "USER");
         testGoal = goalService.findById(1);
     }
 

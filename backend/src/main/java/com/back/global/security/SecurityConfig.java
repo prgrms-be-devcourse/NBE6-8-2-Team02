@@ -45,10 +45,10 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // ADMIN 전용 - 관리자만 접근 가능
-                        .requestMatchers(HttpMethod.GET, "/api/v1/members").hasRole("ADMIN")           // 전체 회원 조회
-                        .requestMatchers(HttpMethod.GET, "/api/v1/members/active").hasRole("ADMIN")    // 활성 회원 조회
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/members/{memberId}/activate").hasRole("ADMIN")    // 회원 활성화
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/members/{memberId}/deactivate").hasRole("ADMIN")  // 회원 비활성화
+                        .requestMatchers(HttpMethod.GET, "/api/v1/admin/members").hasRole("ADMIN")           // 전체 회원 조회
+                        .requestMatchers(HttpMethod.GET, "/api/v1/admin/members/active").hasRole("ADMIN")    // 활성 회원 조회
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/admin/members/{memberId}/activate").hasRole("ADMIN")    // 회원 활성화
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/admin/members/{memberId}/deactivate").hasRole("ADMIN")  // 회원 비활성화
 
                         // USER - 인증된 사용자 (본인 데이터만)
                         .requestMatchers("/api/v1/members/me").authenticated()                         // 본인 정보 조회

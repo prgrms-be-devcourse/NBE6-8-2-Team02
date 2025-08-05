@@ -23,13 +23,14 @@ public class JwtUtil {
     }
 
     // JWT 토큰 생성
-    public String generateToken(String email, int userId) {
+    public String generateToken(String email, int userId, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getAccessTokenValidity());
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey())
@@ -79,13 +80,14 @@ public class JwtUtil {
     }
 
     // 리프레시 토큰 생성
-    public String generateRefreshToken(String email, int userId) {
+    public String generateRefreshToken(String email, int userId, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getRefreshTokenValidity());
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
+                .claim("role", role)
                 .claim("tokenType", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -105,6 +107,16 @@ public class JwtUtil {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // 토큰에서 역할(role) 추출
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("role", String.class);
     }
 
     // 토큰의 만료 날짜 추출

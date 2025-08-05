@@ -63,7 +63,7 @@ class ApiV1NoticeControllerTest {
         }
 
         // JWT 토큰 생성 - 실제 사용자 ID 사용
-        token = jwtUtil.generateToken(adminMember.getEmail(), adminMember.getId());
+        token = jwtUtil.generateToken(adminMember.getEmail(), adminMember.getId(), "ADMIN");
 
         // 테스트 공지사항 생성
         testNotice = Notice.builder()

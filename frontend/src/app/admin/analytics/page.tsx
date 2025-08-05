@@ -1,275 +1,235 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import {
-    BarChart3,
-    TrendingUp,
-    Users,
-    Database,
-    Activity,
-    Calendar,
-    DollarSign,
-    PieChart
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { AdminApiService } from "@/lib/backend/adminApi";
 
-export function AdminAnalyticsPage() {
-    const router = useRouter();
-    const [stats, setStats] = useState({
-        totalUsers: 1250,
-        activeUsers: 890,
-        newUsersThisMonth: 45,
-        totalAssets: 3450,
-        totalValue: 125000000,
-        averageAssetsPerUser: 2.76,
-        growthRate: 12.5
+interface AnalyticsData {
+    totalMembers: number;
+    activeMembers: number;
+    inactiveMembers: number;
+    activeRate: number;
+    inactiveRate: number;
+}
+
+export default function AnalyticsPage() {
+    const [analytics, setAnalytics] = useState<AnalyticsData>({
+        totalMembers: 0,
+        activeMembers: 0,
+        inactiveMembers: 0,
+        activeRate: 0,
+        inactiveRate: 0,
     });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // 관리자 권한 확인
-        const userRole = localStorage.getItem('userRole');
-        if (userRole !== 'ADMIN') {
-            alert('관리자 권한이 필요합니다.');
-            router.push('/auth/login');
-            return;
-        }
-    }, [router]);
+        loadAnalytics();
+    }, []);
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-        }).format(amount);
+    const loadAnalytics = async () => {
+        try {
+            setLoading(true);
+            const stats = await AdminApiService.getDashboardStats();
+
+            const activeRate = stats.totalMembers > 0 ? (stats.activeMembers / stats.totalMembers) * 100 : 0;
+            const inactiveRate = stats.totalMembers > 0 ? (stats.inactiveMembers / stats.totalMembers) * 100 : 0;
+
+            setAnalytics({
+                ...stats,
+                activeRate: Math.round(activeRate * 100) / 100,
+                inactiveRate: Math.round(inactiveRate * 100) / 100,
+            });
+        } catch (error) {
+            setError("분석 데이터를 불러오는 중 오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const monthlyData = [
-        { month: '1월', users: 120, assets: 280, value: 85000000 },
-        { month: '2월', users: 150, assets: 320, value: 92000000 },
-        { month: '3월', users: 180, assets: 380, value: 98000000 },
-        { month: '4월', users: 220, assets: 450, value: 105000000 },
-        { month: '5월', users: 280, assets: 520, value: 115000000 },
-        { month: '6월', users: 350, assets: 600, value: 125000000 },
-    ];
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg">로딩 중...</div>
+            </div>
+        );
+    }
 
-    const assetTypes = [
-        { type: '주식', count: 1200, percentage: 35 },
-        { type: '부동산', count: 800, percentage: 23 },
-        { type: '예금/적금', count: 600, percentage: 17 },
-        { type: '펀드', count: 450, percentage: 13 },
-        { type: '기타', count: 400, percentage: 12 },
-    ];
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-red-500 text-lg">{error}</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-8"
+        <div className="container mx-auto p-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">분석 대시보드</h1>
+                <button
+                    onClick={loadAnalytics}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">통계 및 분석</h1>
-                    <p className="text-gray-600">서비스 사용 통계 및 분석 데이터</p>
-                </motion.div>
-
-                {/* 주요 통계 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">총 사용자</CardTitle>
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-                            <p className="text-xs text-muted-foreground">
-                                +{stats.newUsersThisMonth} 이번 달
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">활성 사용자</CardTitle>
-                            <Activity className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.activeUsers.toLocaleString()}</div>
-                            <p className="text-xs text-muted-foreground">
-                                {((stats.activeUsers / stats.totalUsers) * 100).toFixed(1)}% 활성률
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">총 자산</CardTitle>
-                            <Database className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalAssets.toLocaleString()}</div>
-                            <p className="text-xs text-muted-foreground">
-                                평균 {stats.averageAssetsPerUser}개/사용자
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">총 가치</CardTitle>
-                            <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</div>
-                            <p className="text-xs text-muted-foreground">
-                                +{stats.growthRate}% 성장률
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* 차트 섹션 */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* 월별 성장 차트 */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>월별 성장 추이</CardTitle>
-                            <CardDescription>사용자 및 자산 증가 추이</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {monthlyData.map((data, index) => (
-                                    <div key={data.month} className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">{data.month}</span>
-                                        <div className="flex items-center space-x-4">
-                                            <div className="text-right">
-                                                <div className="text-sm font-medium">{data.users}명</div>
-                                                <div className="text-xs text-gray-500">사용자</div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-sm font-medium">{data.assets}개</div>
-                                                <div className="text-xs text-gray-500">자산</div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-sm font-medium">{formatCurrency(data.value)}</div>
-                                                <div className="text-xs text-gray-500">총 가치</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* 자산 유형 분포 */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>자산 유형 분포</CardTitle>
-                            <CardDescription>등록된 자산의 유형별 분포</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {assetTypes.map((asset) => (
-                                    <div key={asset.type} className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                                            <span className="text-sm font-medium">{asset.type}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <div className="w-24 bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-blue-500 h-2 rounded-full"
-                                                    style={{ width: `${asset.percentage}%` }}
-                                                ></div>
-                                            </div>
-                                            <span className="text-sm text-gray-600">{asset.count}개</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* 상세 통계 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="w-5 h-5 text-green-600" />
-                                성장 지표
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span className="text-sm">사용자 증가율</span>
-                                    <span className="text-sm font-medium text-green-600">+{stats.growthRate}%</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">자산 증가율</span>
-                                    <span className="text-sm font-medium text-green-600">+18.2%</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">가치 증가율</span>
-                                    <span className="text-sm font-medium text-green-600">+15.7%</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-blue-600" />
-                                이번 달 현황
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span className="text-sm">신규 가입</span>
-                                    <span className="text-sm font-medium">{stats.newUsersThisMonth}명</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">신규 자산</span>
-                                    <span className="text-sm font-medium">156개</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">평균 로그인</span>
-                                    <span className="text-sm font-medium">3.2회/주</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <PieChart className="w-5 h-5 text-purple-600" />
-                                사용자 활동
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span className="text-sm">활성 사용자</span>
-                                    <span className="text-sm font-medium">{(stats.activeUsers / stats.totalUsers * 100).toFixed(1)}%</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">자산 등록률</span>
-                                    <span className="text-sm font-medium">78.5%</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">목표 설정률</span>
-                                    <span className="text-sm font-medium">45.2%</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                    새로고침
+                </button>
             </div>
+
+            {/* 주요 지표 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">전체 회원</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{analytics.totalMembers}</div>
+                        <p className="text-xs text-muted-foreground">
+                            전체 등록된 회원 수
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">활성 회원</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">{analytics.activeMembers}</div>
+                        <p className="text-xs text-muted-foreground">
+                            활성 회원 비율: {analytics.activeRate}%
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">비활성 회원</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-red-600">{analytics.inactiveMembers}</div>
+                        <p className="text-xs text-muted-foreground">
+                            비활성 회원 비율: {analytics.inactiveRate}%
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">활성화율</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">{analytics.activeRate}%</div>
+                        <p className="text-xs text-muted-foreground">
+                            전체 대비 활성 회원 비율
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* 상세 분석 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>회원 상태 분포</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">활성 회원</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                                        <div
+                                            className="bg-green-500 h-2 rounded-full"
+                                            style={{ width: `${analytics.activeRate}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="text-sm text-gray-600">{analytics.activeMembers}명</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">비활성 회원</span>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                                        <div
+                                            className="bg-red-500 h-2 rounded-full"
+                                            style={{ width: `${analytics.inactiveRate}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="text-sm text-gray-600">{analytics.inactiveMembers}명</span>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>요약 정보</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">전체 회원 수</span>
+                                <span className="font-medium">{analytics.totalMembers}명</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">활성 회원 수</span>
+                                <span className="font-medium text-green-600">{analytics.activeMembers}명</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">비활성 회원 수</span>
+                                <span className="font-medium text-red-600">{analytics.inactiveMembers}명</span>
+                            </div>
+                            <hr />
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">활성화율</span>
+                                <span className="font-medium text-blue-600">{analytics.activeRate}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600">비활성화율</span>
+                                <span className="font-medium text-orange-600">{analytics.inactiveRate}%</span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* 권장사항 */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>관리 권장사항</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {analytics.inactiveRate > 50 && (
+                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <h4 className="font-medium text-yellow-800 mb-2">⚠️ 주의 필요</h4>
+                                <p className="text-sm text-yellow-700">
+                                    비활성 회원 비율이 50%를 초과합니다. 회원 활성화 전략을 검토해보세요.
+                                </p>
+                            </div>
+                        )}
+
+                        {analytics.activeRate > 80 && (
+                            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <h4 className="font-medium text-green-800 mb-2">✅ 양호한 상태</h4>
+                                <p className="text-sm text-green-700">
+                                    활성 회원 비율이 80% 이상으로 양호한 상태입니다.
+                                </p>
+                            </div>
+                        )}
+
+                        {analytics.totalMembers === 0 && (
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <h4 className="font-medium text-blue-800 mb-2">📊 데이터 없음</h4>
+                                <p className="text-sm text-blue-700">
+                                    아직 등록된 회원이 없습니다. 첫 번째 회원이 가입하면 분석 데이터가 표시됩니다.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 } 
