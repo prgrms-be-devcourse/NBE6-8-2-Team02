@@ -81,6 +81,21 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "JWT 토큰을 무효화하고 쿠키를 삭제합니다.")
     public ResponseEntity<LogoutResponseDto> logout(HttpServletRequest request) {
+
+        // 쿠키에서 Refresh Token 추출
+        String refreshToken = extractRefreshTokenFromCookie(request);
+
+        //DB에서 Refresh Token 무효화
+        if (refreshToken != null) {
+            try {
+                authService.invalidateRefreshToken(refreshToken);
+                log.info("로그아웃 성공: Refresh Token 무효화됨");
+            } catch (Exception e) {
+                log.warn("로그아웃 실패: Refresh Token 무효화 중 오류 발생 - {}", e.getMessage());
+                // 예외 발생 시에도 로그아웃 성공으로 처리
+            }
+        }
+
         // IP 주소 추출 및 로깅
         String ipAddress = getClientIpAddress(request);
         log.info("로그아웃 요청 IP: {}", ipAddress);
@@ -94,10 +109,19 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
 
+        ResponseCookie deleteRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) // 즉시 만료
+                .sameSite("Lax")
+                .build();
+
         LogoutResponseDto response = LogoutResponseDto.of(true);
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", deleteCookie.toString())
+                .header("Set-Cookie", deleteRefreshCookie.toString())
                 .body(response);
     }
 
