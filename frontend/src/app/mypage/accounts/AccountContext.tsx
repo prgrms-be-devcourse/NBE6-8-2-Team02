@@ -58,7 +58,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.status === 201) {
           console.log("계좌가 생성되었습니다.");
-          setAccounts((prev) => [result.data, ...prev]);
+          setAccounts((prev) => [result, ...prev]);
           alert("계좌가 생성되었습니다.");
         } else {
           console.log(result.message);
