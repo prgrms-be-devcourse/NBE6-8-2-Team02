@@ -9,7 +9,7 @@ import { Card } from "@/app/components/ui/card";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
-export function AccountDetailPage() {
+export default function AccountDetailPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = Number(params.accountId);

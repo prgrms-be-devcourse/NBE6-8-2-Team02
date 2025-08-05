@@ -1,15 +1,15 @@
 "use client";
 
 import { WelcomePage } from "@/app/components/WelcomePage";
-import { LoginPage } from "@/app/auth/login/page";
-import { SignupPage } from "@/app/auth/signup/page";
+import LoginPage from "@/app/auth/login/page";
+import SignupPage from "@/app/auth/signup/page";
 import { ForgotPasswordPage } from "@/app/auth/forgot-password/page";
-import { MyPage } from "@/app/mypage/page";
+import MyPage from "@/app/mypage/page";
 import { ProfilePage } from "@/app/mypage/profile/page";
-import { AssetPage } from "@/app/mypage/assets/page";
+import AssetPage from "@/app/mypage/assets/page";
 import { AssetDetailPage } from "@/app/mypage/assets/AssetDetailPage";
-import { AccountsPage } from "@/app/mypage/accounts/page";
-import { GoalPage } from "@/app/mypage/goals/page";
+import AccountsPage from "@/app/mypage/accounts/page";
+import GoalPage from "@/app/mypage/goals/page";
 import { NoticePage } from "@/app/components/notice/NoticePage";
 import { NoticeDetailPage } from "@/app/components/notice/NoticeDetailPage";
 

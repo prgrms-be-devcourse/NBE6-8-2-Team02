@@ -16,7 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { SideBar } from "@/app/components/SideBar";
 
-export function AccountsPage() {
+export default function AccountsPage() {
   const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
     useAccountContext();
 

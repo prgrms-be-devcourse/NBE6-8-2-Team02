@@ -59,7 +59,7 @@ interface total {
   value: number;
 }
 
-export function MyPage() {
+export default function MyPage() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;

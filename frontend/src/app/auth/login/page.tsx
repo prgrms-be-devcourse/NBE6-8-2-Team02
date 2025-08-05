@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
 
-export function LoginPage() {
+export default function LoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
