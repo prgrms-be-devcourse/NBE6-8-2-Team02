@@ -17,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
@@ -33,22 +31,6 @@ public class MemberV1Controller {
     public ResponseEntity<MemberResponseDto> signUp(@Valid @RequestBody MemberRequestDto requestDto) {
         MemberResponseDto memberResponseDto = memberService.signUp(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(memberResponseDto);
-    }
-
-    // 2. 회원 ID 조회
-    @GetMapping("/{memberId}")
-    @Operation(summary = "회원ID 조회", description = "회원 ID로 회원 정보를 조회합니다.")
-    public ResponseEntity<MemberResponseDto> getmember(@PathVariable int memberId) {
-        MemberResponseDto memberResponseDto = memberService.getMemberById(memberId);
-        return ResponseEntity.ok(memberResponseDto);
-    }
-
-    // 3. 전체 회원 조회
-    @GetMapping
-    @Operation(summary = "전체회원 조회", description = "전체 회원 정보를 조회합니다.")
-    public ResponseEntity<List<MemberResponseDto>> getAllMembers() {
-        List<MemberResponseDto> response = memberService.getAllMembers();
-        return ResponseEntity.ok(response);
     }
 
     // 4. 회원 정보 수정
@@ -101,21 +83,7 @@ public class MemberV1Controller {
         return ResponseEntity.noContent().build();
     }
 
-    // 6. 회원 비활성화
-    @PatchMapping("/{memberId}/deactivate")
-    @Operation(summary = "회원 비활성화", description = "회원의 활성 상태를 비활성으로 변경합니다.")
-    public ResponseEntity<MemberResponseDto> deactivateMember(@PathVariable int memberId) {
-        MemberResponseDto response = memberService.deactivateMember(memberId);
-        return ResponseEntity.ok(response);
-    }
 
-    // 7. 회원 활성화
-    @PatchMapping("/{memberId}/activate")
-    @Operation(summary = "회원 활성화", description = "회원의 활성 상태를 활성으로 변경합니다.")
-    public ResponseEntity<MemberResponseDto> activateMember(@PathVariable int memberId) {
-        MemberResponseDto response = memberService.activateMember(memberId);
-        return ResponseEntity.ok(response);
-    }
 
     // 8 . 비밀번호 변경
     @PatchMapping("/{memberId}/password")
@@ -155,23 +123,7 @@ public class MemberV1Controller {
         return ResponseEntity.ok(isDuplicate);
     }
 
-    // 10. 활성화된 회원 목록 조회
-    @GetMapping("/active")
-    @Operation(summary = "활성화된 회원 조회", description = "활성화된 회원 목록을 조회합니다.")
-    public ResponseEntity<List<MemberResponseDto>> getActiveMembers() {
-        List<MemberResponseDto> response = memberService.getActiveMembers();
-        return ResponseEntity.ok(response);
-    }
 
-    // 11. 이메일과 이름으로 회원 조회
-    @GetMapping("/search/{email}/{name}")
-    @Operation(summary = "이메일과 이름으로 회원 조회", description = "이메일과 이름으로 회원을 조회합니다.")
-    public ResponseEntity<MemberResponseDto> getMemberByEmailAndNamePath(
-            @PathVariable String email,
-            @PathVariable String name) {
-        MemberResponseDto response = memberService.getMemberByEmailAndName(email, name);
-        return ResponseEntity.ok(response);
-    }
 
     // 12. 현재 로그인된 사용자 정보 조회
     @GetMapping("/me")

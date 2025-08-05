@@ -25,8 +25,8 @@ public class TokenService {
     @Transactional
     public TokenPairDto generateAndSaveTokenPair(Member member) {
         // 토큰 쌍 생성
-        String accessToken = jwtUtil.generateToken(member.getEmail(), member.getId());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail(), member.getId());
+        String accessToken = jwtUtil.generateToken(member.getEmail(), member.getId(), member.getRole().name());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail(), member.getId(), member.getRole().name());
 
         // RefreshToken DB에 저장
         saveRefreshTokenToDatabase(refreshToken, member);
