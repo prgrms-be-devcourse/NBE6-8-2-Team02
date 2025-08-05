@@ -58,7 +58,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.status === 201) {
           console.log("계좌가 생성되었습니다.");
-          setAccounts((prev) => [result, ...prev]);
+          setAccounts((prev) => [...prev, result]);
           alert("계좌가 생성되었습니다.");
         } else {
           console.log(result.message);
@@ -83,9 +83,8 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             credentials: "include",
           }
         );
-        const result = await response.json();
 
-        if (response.status == 200) {
+        if (response.status == 204) {
           alert("계좌번호가 변경되었습니다.");
           setAccounts((prev) =>
             prev.map((acc) =>
@@ -93,6 +92,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             )
           );
         } else if (response.status == 409) {
+          const result = await response.json();
           console.log("계좌번호 변경 실패");
           alert(result.message);
         }
@@ -106,6 +106,7 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
 
   // 계좌 삭제
   const deleteAccount = (id: number) => {
+    console.log("삭제 요청 시작");
     const fetchDeleteAccount = async () => {
       try {
         const response = await fetch(
@@ -116,8 +117,10 @@ export const AccountProvider = ({ children }: { children: ReactNode }) => {
             credentials: "include",
           }
         );
+        console.log("응답 수신", response.status);
 
         if (response.status == 204) {
+          console.log("성공");
           setAccounts((prev) => prev.filter((acc) => acc.id !== id));
           // 관련 거래들도 삭제
           setTransactions((prev) => prev.filter((tx) => tx.accountId !== id));

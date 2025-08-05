@@ -1,6 +1,8 @@
 package com.back.domain.transactions.entity;
 
 import com.back.domain.account.entity.Account;
+import com.back.domain.transactions.dto.AccountTransactionDto;
+import com.back.domain.transactions.dto.CreateAccTracRequestDto;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,4 +29,14 @@ public class AccountTransaction extends BaseEntity {
     private Long amount; // 거래량
     private String content; // 필요 시 메모
     private LocalDateTime date; // 체결일
+
+    public static AccountTransaction create(CreateAccTracRequestDto dto,Account account) {
+        return AccountTransaction.builder()
+                .account(account)
+                .type(TransactionType.valueOf(dto.type()))
+                .amount(dto.amount())
+                .content(dto.content())
+                .date(LocalDateTime.parse(dto.date()))
+                .build();
+    }
 }
