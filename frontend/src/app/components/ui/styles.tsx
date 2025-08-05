@@ -1,14 +1,10 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Wallet, BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, TrendingUp, Bitcoin, LayoutDashboard, CreditCard, HandCoins, LogOut, SquareXIcon, SquarePen, SquarePlusIcon} from 'lucide-react';
-import { useEffect, useState, ReactNode } from "react";
+import { BarChart2, Coins, House, ArrowUpRight, ArrowDownLeft, SquareXIcon} from 'lucide-react';
+import { ReactNode } from "react";
 import * as React from "react"
-import { Card as UICard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList, Cell } from "recharts";
-import { authAPI } from '@/lib/auth';
-import { Asset } from 'next/font/google';
-import { error } from 'console';
-import { totalmem } from 'os';
+import { Card as UICard, CardContent, CardDescription, CardHeader, CardTitle, } from "@/app/components/ui/card";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart"
+import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell } from "recharts";
 
 interface CardProps {
     icon: ReactNode;

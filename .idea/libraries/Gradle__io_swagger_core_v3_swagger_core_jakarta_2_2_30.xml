@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: io.swagger.core.v3:swagger-core-jakarta:2.2.30" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="io.swagger.core.v3" artifactId="swagger-core-jakarta" version="2.2.30" baseVersion="2.2.30" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-core-jakarta/2.2.30/b55ef7df3f564d571106dcef586d935bb8989981/swagger-core-jakarta-2.2.30.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-core-jakarta/2.2.30/e81e2c3b977c992ad5bc0721f3123d91e840984d/swagger-core-jakarta-2.2.30-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.swagger.core.v3/swagger-core-jakarta/2.2.30/19aec3f496f5997ff2018ab5b2e126cce4221b34/swagger-core-jakarta-2.2.30-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

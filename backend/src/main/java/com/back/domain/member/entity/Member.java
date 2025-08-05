@@ -36,6 +36,9 @@ public class Member extends BaseEntity {
     @Column
     private boolean isActive = true; // 활성화 상태
 
+    @Column
+    private boolean isDeleted = false; // 소프트 삭제 상태
+
     @Builder
     public Member(String email, String password, String name, String phoneNumber, MemberRole role) {
         this.email = email;
@@ -60,6 +63,10 @@ public class Member extends BaseEntity {
 
     public void activate() {
         this.isActive = true;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 
     public enum MemberRole {

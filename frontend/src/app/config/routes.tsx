@@ -1,15 +1,17 @@
-import { WelcomePage } from "../components/WelcomePage";
-import { LoginPage } from "../components/LoginPage";
-import { SignupPage } from "../components/SignupPage";
-import { AccountRecoveryPage } from "../components/AccountRecoveryPage";
-import { MyPage } from "../components/MyPage";
-import { ProfilePage } from "../components/ProfilePage";
-import { AssetPage } from "../components/AssetPage";
-import { AssetDetailPage } from "../components/AssetDetailPage";
-import AccountsPage from "../accounts/page";
-import { GoalPage } from "../components/GoalPage";
+'use client';
 
-export interface RouteConfig {
+import { WelcomePage } from "@/app/components/WelcomePage";
+import { LoginPage } from "@/app/auth/login/page";
+import { SignupPage } from "@/app/auth/signup/page";
+import { ForgotPasswordPage } from "@/app/auth/forgot-password/page";
+import { MyPage } from "@/app/mypage/page";
+import { ProfilePage } from "@/app/mypage/profile/page";
+import { AssetPage } from "@/app/mypage/assets/page";
+import { AssetDetailPage } from "@/app/mypage/assets/AssetDetailPage";
+import { AccountsPage }  from "@/app/mypage/accounts/page";
+import { GoalPage } from "@/app/mypage/goals/page";
+
+export interface RouteConfig {  
   path: string;
   component: React.ComponentType;
   layout?: "auth" | "full";
@@ -22,18 +24,18 @@ export const routes: RouteConfig[] = [
     layout: "auth",
   },
   {
-    path: "/login",
+    path: "/auth/login",
     component: LoginPage,
     layout: "auth",
   },
   {
-    path: "/signup",
+    path: "/auth/signup",
     component: SignupPage,
     layout: "auth",
   },
   {
-    path: "/forgot-password",
-    component: AccountRecoveryPage,
+    path: "/auth/forgot-password",
+    component: ForgotPasswordPage,
     layout: "auth",
   },
   {

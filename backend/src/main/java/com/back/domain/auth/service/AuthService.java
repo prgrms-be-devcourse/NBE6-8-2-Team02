@@ -38,7 +38,7 @@ public class AuthService {
             throw new AuthenticationException("잦은 시도로 일시적으로 차단되었습니다. 30분 후 다시 시도해주세요.");
         }
 
-        Member member = memberRepository.findByNameAndPhoneNumber(name, phoneNumber)
+        Member member = memberRepository.findByNameAndPhoneNumberAndNotDeleted(name, phoneNumber)
                 .orElseThrow(() -> {
                     rateLimitService.recordAttempt(ipAddress); //실패시 시도 기록
                     return new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다.");
@@ -62,7 +62,7 @@ public class AuthService {
         }
 
 
-        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(email, name, phoneNumber)
+        Member member = memberRepository.findByEmailAndNameAndPhoneNumberAndNotDeleted(email, name, phoneNumber)
                 .orElseThrow(() -> {
                     rateLimitService.recordAttempt(ipAddress); // 실패시 시도 기록
                     return new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다.");
@@ -102,7 +102,7 @@ public class AuthService {
     }
 
     public Member authenticateUser(String email, String password) {
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByEmailAndNotDeleted(email)
                 .orElseThrow(() -> new AuthenticationException("존재하지 않는 이메일입니다."));
 
         if (!member.isActive()) {
@@ -178,7 +178,7 @@ public class AuthService {
 
     // 사용자 ID로 회원 조회
     public Member findMemberById(int userId) {
-        return memberRepository.findById(userId)
+        return memberRepository.findByIdAndNotDeleted(userId)
                 .orElseThrow(() -> new AuthenticationException("존재하지 않는 사용자입니다."));
     }
 }

@@ -34,7 +34,7 @@ public class MemberService {
     @Transactional
     public MemberResponseDto signUp(MemberRequestDto requestDto) {
 
-        if (memberRepository.existsByEmail(requestDto.email())) {
+        if (memberRepository.existsByEmailAndIsDeletedFalse(requestDto.email())) {
             throw new NoSuchElementException("이미 존재하는 이메일입니다.");
         }
 
@@ -50,7 +50,7 @@ public class MemberService {
 
     // ID로 회원 조회
     public MemberResponseDto getMemberById(int memberId) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return MemberResponseDto.from(member);
@@ -66,7 +66,7 @@ public class MemberService {
 
     // 모든 회원 조회(관리자)
     public List<MemberResponseDto> getAllMembers() {
-        List<Member> members = memberRepository.findAll();
+        List<Member> members = memberRepository.findAllActive();
         return members.stream()
                 .map(MemberResponseDto::from)
                 .collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class MemberService {
     // 회원 정보 수정
     @Transactional
     public MemberResponseDto updateMember(int memberId, MemberUpdateDto updateDto) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         member.updateProfile(updateDto.name(), updateDto.phoneNumber());
@@ -86,7 +86,7 @@ public class MemberService {
     // 비밀번호 변경
     @Transactional
     public MemberResponseDto changePassword(int memberId, String newPassword, String currentPassword) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // 현재 비밀번호 검증
@@ -104,16 +104,26 @@ public class MemberService {
     // 회원 탈퇴
     @Transactional
     public void deleteMember(int memberId) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         memberRepository.delete(member);
     }
 
+    // 회원 소프트 삭제 (관리자 기능)
+    @Transactional
+    public void softDeleteMember(int memberId) {
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        member.softDelete();
+        memberRepository.save(member);
+    }
+
     // 회원 비활성화 (관리자 기능)
     @Transactional
     public MemberResponseDto deactivateMember(int memberId) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         member.deactivate(); // 비활성화 메서드 호출
@@ -124,7 +134,7 @@ public class MemberService {
     // 회원 활성화 (관리자 기능)
     @Transactional
     public MemberResponseDto activateMember(int memberId) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdAndNotDeleted(memberId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         member.activate(); // 활성화 메서드 호출
@@ -142,6 +152,6 @@ public class MemberService {
 
     // 이메일 중복 검사
     public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+        return memberRepository.existsByEmailAndIsDeletedFalse(email);
     }
 }
