@@ -11,6 +11,8 @@ import com.back.domain.member.entity.Snapshot;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.SnapshotRepository;
 import com.back.domain.member.repository.MemberRepository;
+import com.back.domain.notices.entity.Notice;
+import com.back.domain.notices.repository.NoticeRepository;
 import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.entity.Transaction;
 import com.back.domain.transactions.entity.TransactionType;
@@ -41,6 +43,7 @@ public class BaseInitData {
     private final GoalRepository goalRepository;
     private final AccountTransactionRepository accountTransactionRepository;
     private final SnapshotRepository snapshotRepository;
+    private final NoticeRepository noticeRepository;
 
     @Autowired
     @Lazy
@@ -51,20 +54,48 @@ public class BaseInitData {
     @Bean
     ApplicationRunner baseInitDataApplicationRunner() {
         return args -> {
-            self.createAuthTestMembers();  // 인증용 테스트 계정들
-            self.memberInit();             // 기존 테스트 데이터
-            self.accountInit();
-            self.assetInit();
-            self.transactionInit();
-            self.accountTransactionInit();
-            self.snapShotInit();
-            self.goalInit();
+            self.initializeAllData();
         };
     }
 
     @Transactional
     @Profile("!test")
-    public void createAuthTestMembers() {
+    public void initializeAllData() {
+        try {
+            // 1. 인증용 테스트 계정들 (최우선)
+            createAuthTestMembers();
+            
+            // 2. 기존 테스트 데이터
+            memberInit();
+            
+            // 3. 계정 데이터 (member에 의존)
+            accountInit();
+            
+            // 4. 자산 데이터 (member에 의존)
+            assetInit();
+            
+            // 5. 거래 내역 데이터 (asset에 의존)
+            transactionInit();
+            accountTransactionInit();
+            
+            // 6. 스냅샷 데이터 (member에 의존)
+            snapShotInit();
+            
+            // 7. 목표 데이터 (member에 의존)
+            goalInit();
+            
+            // 8. 공지사항 데이터 (member에 의존)
+            noticeInit();
+            
+            System.out.println("모든 초기 데이터가 성공적으로 생성되었습니다.");
+        } catch (Exception e) {
+            System.err.println("초기 데이터 생성 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("초기 데이터 생성 실패", e);
+        }
+    }
+
+    private void createAuthTestMembers() {
         // 관리자 계정 생성
         if (!memberRepository.existsByEmail("admin@test.com")) {
             Member admin = Member.builder()
@@ -105,9 +136,7 @@ public class BaseInitData {
         }
     }
 
-    @Transactional
-    @Profile("!test")
-    public void memberInit() {
+    private void memberInit() {
         // 기존 테스트 데이터가 있으면 건너뛰기
         if(memberRepository.existsByEmail("user1@user.com"))
             return;
@@ -127,9 +156,7 @@ public class BaseInitData {
         memberRepository.save(user[0]);
     }
 
-    @Transactional
-    @Profile("!test")
-    public void accountInit() {
+    private void accountInit() {
         if(accountRepository.count() > 0)
             return;
 
@@ -146,9 +173,7 @@ public class BaseInitData {
         accountRepository.save(new Account(user[3], "3-222", (long)20000, "3-계좌2"));
     }
 
-    @Transactional
-    @Profile("!test")
-    public void assetInit() {
+    private void assetInit() {
         if(assetRepository.count() > 0)
             return;
 
@@ -173,9 +198,7 @@ public class BaseInitData {
         assetRepository.save(new Asset(user[3], "3-부동산1", AssetType.REAL_ESTATE, 30000L, true));
     }
 
-    @Transactional
-    @Profile("!test")
-    public void transactionInit() {
+    private void transactionInit() {
         if(transactionRepository.count() > 0)
             return;
 
@@ -196,9 +219,7 @@ public class BaseInitData {
         transactionRepository.save(new Transaction(asset5, TransactionType.ADD, 71000L, "3입금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 
-    @Transactional
-    @Profile("!test")
-    public void accountTransactionInit() {
+    private void accountTransactionInit() {
         if(accountTransactionRepository.count() > 0)
             return;
 
@@ -218,9 +239,7 @@ public class BaseInitData {
         accountTransactionRepository.save(new AccountTransaction(account3, TransactionType.REMOVE, 30000L, "3출금", LocalDateTime.of(2025, 7, 1, 0, 0, 0)));
     }
 
-    @Transactional
-    @Profile("!test")
-    public void snapShotInit() {
+    private void snapShotInit() {
         if(snapshotRepository.count() > 0)
             return;
 
@@ -267,9 +286,7 @@ public class BaseInitData {
         }
     }
 
-    @Transactional
-    @Profile("!test")
-    public void goalInit() {
+    private void goalInit() {
         if(goalRepository.count() > 0)
             return;
 
@@ -284,5 +301,226 @@ public class BaseInitData {
         //유저3
         goalRepository.save(new Goal(user[3], "3-목표1", 10, 1000, LocalDateTime.of(2100, 1, 1, 0, 0, 0)));
         goalRepository.save(new Goal(user[3], "3-목표2", 20, 2000, LocalDateTime.of(2200, 1, 1, 0, 0, 0)));
+    }
+
+    private void noticeInit() {
+        // 공지사항 데이터 초기화
+        if (noticeRepository.count() == 0) {
+            // 관리자 계정 찾기
+            Member admin = memberRepository.findByEmail("admin@test.com")
+                    .orElse(memberRepository.findByEmail("admin@admin.com")
+                            .orElse(null));
+
+            if (admin != null) {
+                // 기존 5개 공지사항
+                Notice notice1 = Notice.builder()
+                        .title("자산관리 서비스 오픈 안내")
+                        .content("안녕하세요! 자산관리 서비스가 정식 오픈되었습니다.\n\n" +
+                                "이제 여러분의 자산을 체계적으로 관리할 수 있습니다.\n" +
+                                "주요 기능:\n" +
+                                "- 자산 등록 및 관리\n" +
+                                "- 거래 내역 기록\n" +
+                                "- 목표 설정 및 추적\n" +
+                                "- 월별 스냅샷 기능\n\n" +
+                                "많은 관심과 이용 부탁드립니다!")
+                        .views(156)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice1);
+
+                Notice notice2 = Notice.builder()
+                        .title("시스템 점검 안내")
+                        .content("시스템 점검이 예정되어 있습니다.\n\n" +
+                                "점검 시간: 2025년 1월 15일 오전 2시 ~ 4시\n" +
+                                "점검 내용: 서버 업그레이드 및 성능 개선\n\n" +
+                                "점검 시간 동안 서비스 이용이 제한될 수 있습니다.\n" +
+                                "불편을 드려 죄송합니다.")
+                        .views(89)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice2);
+
+                Notice notice3 = Notice.builder()
+                        .title("새로운 기능 업데이트")
+                        .content("새로운 기능이 추가되었습니다!\n\n" +
+                                "추가된 기능:\n" +
+                                "1. 공지사항 시스템\n" +
+                                "2. 실시간 알림 기능\n" +
+                                "3. 데이터 백업 기능\n" +
+                                "4. 모바일 최적화\n\n" +
+                                "더 나은 서비스를 위해 계속 노력하겠습니다.")
+                        .views(203)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice3);
+
+                Notice notice4 = Notice.builder()
+                        .title("개인정보 보호 정책 업데이트")
+                        .content("개인정보 보호 정책이 업데이트되었습니다.\n\n" +
+                                "주요 변경사항:\n" +
+                                "- 데이터 암호화 강화\n" +
+                                "- 개인정보 수집 동의 절차 개선\n" +
+                                "- 데이터 보관 기간 명시\n\n" +
+                                "자세한 내용은 개인정보처리방침을 참고해 주세요.")
+                        .views(67)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice4);
+
+                Notice notice5 = Notice.builder()
+                        .title("고객센터 운영 시간 안내")
+                        .content("고객센터 운영 시간을 안내드립니다.\n\n" +
+                                "운영 시간:\n" +
+                                "- 평일: 오전 9시 ~ 오후 6시\n" +
+                                "- 토요일: 오전 9시 ~ 오후 1시\n" +
+                                "- 일요일 및 공휴일: 휴무\n\n" +
+                                "문의사항이 있으시면 언제든 연락주세요.")
+                        .views(342)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice5);
+
+                // 추가 10개 공지사항
+                Notice notice6 = Notice.builder()
+                        .title("계좌 등록 방법 안내")
+                        .content("계좌를 등록하는 방법을 안내드립니다.\n\n" +
+                                "등록 방법:\n" +
+                                "1. 마이페이지 > 계좌 목록으로 이동\n" +
+                                "2. '계좌 추가' 버튼 클릭\n" +
+                                "3. 계좌 정보 입력 (은행명, 계좌번호, 잔액)\n" +
+                                "4. 저장 버튼 클릭\n\n" +
+                                "계좌 등록 후 거래 내역도 함께 관리할 수 있습니다.")
+                        .views(134)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice6);
+
+                Notice notice7 = Notice.builder()
+                        .title("자산 추가 기능 업데이트")
+                        .content("자산 추가 기능이 업데이트되었습니다.\n\n" +
+                                "개선된 기능:\n" +
+                                "1. 자동 완성 기능\n" +
+                                "2. 실시간 검증\n" +
+                                "3. 일괄 등록 기능\n" +
+                                "4. 데이터 백업\n\n" +
+                                "이제 더욱 직관적이고 편리하게 자산을 관리할 수 있습니다.")
+                        .views(178)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice7);
+
+                Notice notice8 = Notice.builder()
+                        .title("목표 설정 가이드")
+                        .content("자산 관리의 목표를 설정하는 방법을 안내드립니다.\n\n" +
+                                "목표 설정 방법:\n" +
+                                "1. 구체적이고 달성 가능한 목표 설정\n" +
+                                "2. 기한과 목표 금액 설정\n" +
+                                "3. 정기적인 목표 점검\n" +
+                                "4. 목표 달성 시 축하 메시지\n\n" +
+                                "더욱 효과적인 자산 관리를 해보세요.")
+                        .views(95)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice8);
+
+                Notice notice9 = Notice.builder()
+                        .title("모바일 앱 출시 안내")
+                        .content("자산관리 서비스 모바일 앱이 출시되었습니다!\n\n" +
+                                "모바일 앱 특징:\n" +
+                                "- 언제 어디서나 자산 확인\n" +
+                                "- 푸시 알림 기능\n" +
+                                "- 생체 인증 지원\n" +
+                                "- 오프라인 모드\n\n" +
+                                "앱스토어에서 다운로드하세요.")
+                        .views(267)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice9);
+
+                Notice notice10 = Notice.builder()
+                        .title("데이터 백업 서비스 안내")
+                        .content("데이터 백업 서비스가 시작되었습니다.\n\n" +
+                                "백업 서비스 특징:\n" +
+                                "- 자동 백업 (매일 오전 3시)\n" +
+                                "- 클라우드 저장소 활용\n" +
+                                "- 데이터 암호화\n" +
+                                "- 복원 기능 제공\n\n" +
+                                "안전한 데이터 보관을 약속드립니다.")
+                        .views(112)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice10);
+
+                Notice notice11 = Notice.builder()
+                        .title("보안 강화 업데이트")
+                        .content("보안이 강화되었습니다.\n\n" +
+                                "보안 강화 내용:\n" +
+                                "1. 2단계 인증 추가\n" +
+                                "2. 로그인 시도 제한\n" +
+                                "3. 의심스러운 활동 감지\n" +
+                                "4. 자동 로그아웃 기능\n\n" +
+                                "더욱 안전한 서비스 이용이 가능합니다.")
+                        .views(189)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice11);
+
+                Notice notice12 = Notice.builder()
+                        .title("API 서비스 오픈")
+                        .content("API 서비스가 오픈되었습니다.\n\n" +
+                                "API 서비스 특징:\n" +
+                                "- RESTful API 제공\n" +
+                                "- JSON 형식 데이터\n" +
+                                "- 인증 토큰 기반\n" +
+                                "- 상세한 문서 제공\n\n" +
+                                "개발자분들의 많은 관심 부탁드립니다.")
+                        .views(76)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice12);
+
+                Notice notice13 = Notice.builder()
+                        .title("성능 최적화 완료")
+                        .content("서비스 성능이 최적화되었습니다.\n\n" +
+                                "최적화 내용:\n" +
+                                "1. 페이지 로딩 속도 개선\n" +
+                                "2. 데이터베이스 쿼리 최적화\n" +
+                                "3. 캐싱 시스템 도입\n" +
+                                "4. CDN 서비스 적용\n\n" +
+                                "더욱 빠른 서비스 이용이 가능합니다.")
+                        .views(145)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice13);
+
+                Notice notice14 = Notice.builder()
+                        .title("사용자 피드백 반영")
+                        .content("사용자분들의 소중한 피드백을 반영했습니다.\n\n" +
+                                "반영된 피드백:\n" +
+                                "1. UI/UX 개선\n" +
+                                "2. 기능 추가 요청\n" +
+                                "3. 버그 수정\n" +
+                                "4. 성능 개선\n\n" +
+                                "앞으로도 많은 피드백 부탁드립니다.")
+                        .views(98)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice14);
+
+                Notice notice15 = Notice.builder()
+                        .title("연말 감사 인사")
+                        .content("2024년 한 해 동안 많은 관심과 사랑을 주셔서 감사합니다.\n\n" +
+                                "2024년 주요 성과:\n" +
+                                "- 서비스 오픈\n" +
+                                "- 사용자 10,000명 달성\n" +
+                                "- 기능 확장\n" +
+                                "- 보안 강화\n\n" +
+                                "2025년에도 더 나은 서비스로 보답하겠습니다.")
+                        .views(234)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice15);
+            }
+        }
     }
 }
