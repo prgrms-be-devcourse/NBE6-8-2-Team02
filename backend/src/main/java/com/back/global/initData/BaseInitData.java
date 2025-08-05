@@ -520,6 +520,215 @@ public class BaseInitData {
                         .member(admin)
                         .build();
                 noticeRepository.save(notice15);
+
+                // 추가 공지사항들 (16-30)
+                Notice notice16 = Notice.builder()
+                        .title("2025년 신년 인사")
+                        .content("새해 복 많이 받으세요!\n\n" +
+                                "2025년에도 자산관리 서비스와 함께\n" +
+                                "건강하고 풍요로운 한 해 되시기 바랍니다.\n\n" +
+                                "새로운 기능과 개선사항으로\n" +
+                                "더욱 편리한 서비스를 제공하겠습니다.")
+                        .views(567)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice16);
+
+                Notice notice17 = Notice.builder()
+                        .title("월별 리포트 기능 추가")
+                        .content("월별 자산 리포트 기능이 추가되었습니다.\n\n" +
+                                "새로운 기능:\n" +
+                                "1. 월별 자산 변화 그래프\n" +
+                                "2. 수입/지출 분석\n" +
+                                "3. 목표 달성률 확인\n" +
+                                "4. PDF 다운로드\n\n" +
+                                "더욱 체계적인 자산 관리가 가능합니다.")
+                        .views(189)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice17);
+
+                Notice notice18 = Notice.builder()
+                        .title("알림 설정 방법 안내")
+                        .content("알림 설정 방법을 안내드립니다.\n\n" +
+                                "설정 가능한 알림:\n" +
+                                "1. 목표 달성 알림\n" +
+                                "2. 거래 내역 알림\n" +
+                                "3. 시스템 점검 알림\n" +
+                                "4. 보안 알림\n\n" +
+                                "설정 > 알림에서 원하는 알림을 선택하세요.")
+                        .views(123)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice18);
+
+                Notice notice19 = Notice.builder()
+                        .title("데이터 내보내기 기능")
+                        .content("데이터 내보내기 기능이 추가되었습니다.\n\n" +
+                                "지원 형식:\n" +
+                                "1. Excel (.xlsx)\n" +
+                                "2. CSV (.csv)\n" +
+                                "3. PDF (.pdf)\n" +
+                                "4. JSON (.json)\n\n" +
+                                "마이페이지 > 설정에서 이용하세요.")
+                        .views(156)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice19);
+
+                Notice notice20 = Notice.builder()
+                        .title("다크 모드 지원")
+                        .content("다크 모드가 지원됩니다.\n\n" +
+                                "다크 모드 특징:\n" +
+                                "1. 눈의 피로도 감소\n" +
+                                "2. 배터리 절약\n" +
+                                "3. 세련된 디자인\n" +
+                                "4. 자동 전환 기능\n\n" +
+                                "설정에서 테마를 변경하세요.")
+                        .views(234)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice20);
+
+                Notice notice21 = Notice.builder()
+                        .title("키보드 단축키 안내")
+                        .content("키보드 단축키를 안내드립니다.\n\n" +
+                                "주요 단축키:\n" +
+                                "Ctrl + N: 새 공지사항\n" +
+                                "Ctrl + S: 저장\n" +
+                                "Ctrl + F: 검색\n" +
+                                "Ctrl + Z: 실행 취소\n\n" +
+                                "더욱 빠른 작업이 가능합니다.")
+                        .views(98)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice21);
+
+                Notice notice22 = Notice.builder()
+                        .title("브라우저 호환성 개선")
+                        .content("브라우저 호환성이 개선되었습니다.\n\n" +
+                                "지원 브라우저:\n" +
+                                "1. Chrome (최신 버전)\n" +
+                                "2. Firefox (최신 버전)\n" +
+                                "3. Safari (최신 버전)\n" +
+                                "4. Edge (최신 버전)\n\n" +
+                                "모든 브라우저에서 원활한 이용이 가능합니다.")
+                        .views(145)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice22);
+
+                Notice notice23 = Notice.builder()
+                        .title("접근성 개선")
+                        .content("접근성이 개선되었습니다.\n\n" +
+                                "개선 사항:\n" +
+                                "1. 스크린 리더 지원\n" +
+                                "2. 키보드 네비게이션\n" +
+                                "3. 고대비 모드\n" +
+                                "4. 폰트 크기 조절\n\n" +
+                                "모든 사용자가 편리하게 이용할 수 있습니다.")
+                        .views(167)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice23);
+
+                Notice notice24 = Notice.builder()
+                        .title("실시간 채팅 지원")
+                        .content("실시간 채팅 지원이 시작되었습니다.\n\n" +
+                                "채팅 지원 특징:\n" +
+                                "1. 24시간 운영\n" +
+                                "2. 즉시 응답\n" +
+                                "3. 파일 첨부 가능\n" +
+                                "4. 화면 공유 기능\n\n" +
+                                "더욱 편리한 고객 지원을 제공합니다.")
+                        .views(289)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice24);
+
+                Notice notice25 = Notice.builder()
+                        .title("소셜 로그인 추가")
+                        .content("소셜 로그인이 추가되었습니다.\n\n" +
+                                "지원 서비스:\n" +
+                                "1. Google 로그인\n" +
+                                "2. Facebook 로그인\n" +
+                                "3. Apple 로그인\n" +
+                                "4. Kakao 로그인\n\n" +
+                                "더욱 간편한 로그인이 가능합니다.")
+                        .views(198)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice25);
+
+                Notice notice26 = Notice.builder()
+                        .title("자동 백업 스케줄")
+                        .content("자동 백업 스케줄이 설정되었습니다.\n\n" +
+                                "백업 스케줄:\n" +
+                                "1. 매일 오전 3시\n" +
+                                "2. 매주 일요일 오전 2시\n" +
+                                "3. 매월 1일 오전 1시\n" +
+                                "4. 수동 백업 가능\n\n" +
+                                "안전한 데이터 보관을 약속드립니다.")
+                        .views(134)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice26);
+
+                Notice notice27 = Notice.builder()
+                        .title("데이터 분석 리포트")
+                        .content("데이터 분석 리포트 기능이 추가되었습니다.\n\n" +
+                                "분석 내용:\n" +
+                                "1. 자산 변화 추이\n" +
+                                "2. 수입/지출 패턴\n" +
+                                "3. 목표 달성 분석\n" +
+                                "4. 예측 모델 제공\n\n" +
+                                "더욱 과학적인 자산 관리가 가능합니다.")
+                        .views(223)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice27);
+
+                Notice notice28 = Notice.builder()
+                        .title("모바일 최적화 완료")
+                        .content("모바일 최적화가 완료되었습니다.\n\n" +
+                                "최적화 내용:\n" +
+                                "1. 반응형 디자인\n" +
+                                "2. 터치 인터페이스\n" +
+                                "3. 빠른 로딩 속도\n" +
+                                "4. 오프라인 모드\n\n" +
+                                "모바일에서도 편리한 이용이 가능합니다.")
+                        .views(345)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice28);
+
+                Notice notice29 = Notice.builder()
+                        .title("보안 인증 강화")
+                        .content("보안 인증이 강화되었습니다.\n\n" +
+                                "강화된 보안:\n" +
+                                "1. 2단계 인증 (SMS, 이메일)\n" +
+                                "2. 생체 인증 지원\n" +
+                                "3. 로그인 시도 제한\n" +
+                                "4. 의심스러운 활동 감지\n\n" +
+                                "더욱 안전한 서비스 이용이 가능합니다.")
+                        .views(178)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice29);
+
+                Notice notice30 = Notice.builder()
+                        .title("고객 만족도 조사")
+                        .content("고객 만족도 조사에 참여해 주세요.\n\n" +
+                                "조사 내용:\n" +
+                                "1. 서비스 만족도\n" +
+                                "2. 기능 개선 제안\n" +
+                                "3. 추가 기능 요청\n" +
+                                "4. 불편사항 신고\n\n" +
+                                "여러분의 소중한 의견을 기다립니다.")
+                        .views(267)
+                        .member(admin)
+                        .build();
+                noticeRepository.save(notice30);
             }
         }
     }

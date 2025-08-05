@@ -9,8 +9,8 @@ import com.back.domain.member.entity.Member;
 import com.back.domain.member.entity.Member.MemberRole;
 import com.back.domain.notices.dto.UpdateNoticeRequestDto;
 import com.back.domain.notices.dto.DeleteNoticeRequestDto;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +41,18 @@ public class NoticeService {
         return NoticeResponseDto.from(savedNotice);
     }
 
-    public List<NoticeResponseDto> getAllNotices() {
-        List<Notice> notices = noticeRepository.findAll();
-        return notices.stream()
-                .map(NoticeResponseDto::from)
-                .collect(Collectors.toList());
+    public Page<NoticeResponseDto> getAllNotices(String search, Pageable pageable) {
+        Page<Notice> notices;
+        
+        if (search != null && !search.trim().isEmpty()) {
+            // 검색어가 있으면 제목으로만 검색 (페이징 적용)
+            notices = noticeRepository.findByTitleContainingIgnoreCase(search.trim(), pageable);
+        } else {
+            // 검색어가 없으면 전체 조회 (페이징 적용)
+            notices = noticeRepository.findAll(pageable);
+        }
+        
+        return notices.map(NoticeResponseDto::from);
     }
 
     public NoticeResponseDto getNoticeById(int id) {

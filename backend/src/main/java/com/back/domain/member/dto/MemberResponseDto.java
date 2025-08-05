@@ -6,7 +6,8 @@ public record MemberResponseDto(
         int id, //
         String email,
         String name,
-        String phoneNumber
+        String phoneNumber,
+        String role
 
 ) {
     // Member 엔티티를 받아서 MemberResponseDto를 생성하는 팩토리 메서드
@@ -15,7 +16,8 @@ public record MemberResponseDto(
                 member.getId(),
                 member.getEmail(),
                 member.getName(),
-                member.getPhoneNumber()
+                member.getPhoneNumber(),
+                member.getRole().name()
         );
     }
 }

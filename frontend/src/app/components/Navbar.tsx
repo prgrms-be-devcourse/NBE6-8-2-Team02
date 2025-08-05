@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="space-x-4 flex items-center">
         <button
           className="flex items-center gap-2 hover:underline bg-transparent border-none outline-none cursor-pointer text-white px-3 py-2 rounded transition-colors duration-150 hover:bg-gray-700"
-          onClick={() => alert("미구현")}
+          onClick={() => navigate("/mypage/notices")}
         >
           <Megaphone className="w-5 h-5 text-yellow-400" />
           공지사항

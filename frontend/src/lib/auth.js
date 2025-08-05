@@ -384,6 +384,36 @@ export const authAPI = {
     }
   },
 
+  // 현재 사용자 정보 가져오기
+  async getCurrentUser() {
+    try {
+      const token = await this.getValidAccessToken();
+      
+      if (!token) {
+        throw new Error("토큰이 없습니다.");
+      }
+
+      const response = await fetch("http://localhost:8080/api/v1/members/me", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const userData = await response.json();
+      return userData;
+    } catch (error) {
+      console.error("사용자 정보 가져오기 실패:", error);
+      return null;
+    }
+  },
+
   // 로그아웃
   async logout() {
     try {
