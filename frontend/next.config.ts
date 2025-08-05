@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: false, // 여기에 추가
 
   env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
+    NEXT_PUBLIC_API_BASE_URL:
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
   },
 
   async redirects() {
@@ -16,16 +17,6 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/signup",
-        destination: "/",
-        permanent: false,
-      },
-      {
-        source: "/mypage",
-        destination: "/",
-        permanent: false,
-      },
-      {
-        source: "/mypage/assets",
         destination: "/",
         permanent: false,
       },

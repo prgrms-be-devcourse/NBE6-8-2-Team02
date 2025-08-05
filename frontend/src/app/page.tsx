@@ -1,59 +1,14 @@
 'use client';
 
 import { AnimatePresence } from "framer-motion";
-import { Router, useRouter } from "@/app/components/Router";
-import { routes } from "@/app/config/routes";
-import Navbar from "@/app/components/Navbar";
+import { WelcomePage } from "@/app/components/WelcomePage";
 
-function matchPath(pattern: string, pathname: string): boolean {
-  const patternParts = pattern.split("/").filter(Boolean);
-  const pathParts = pathname.split("/").filter(Boolean);
-  if (patternParts.length !== pathParts.length) return false;
-
-  return patternParts.every((part, i) =>
-    part.startsWith(":") ? true : part === pathParts[i]
-  );
-}
-
-function AppContent() {
-  const { currentPath } = useRouter();
-
-  // 현재 경로에 해당하는 라우트 찾기
-  const currentRoute = routes.find((route) =>
-    matchPath(route.path, currentPath)
-  );
-
-  if (!currentRoute) {
-    // 404 처리 (기본적으로 홈으로 리다이렉트)
-    return <div>페이지를 찾을 수 없습니다.</div>;
-  }
-
-  const Component = currentRoute.component;
-
-  // 레이아웃에 따라 다른 래퍼 적용
-  if (currentRoute.layout === "full") {
-    return (
-      <>
-        <Navbar />
-        <Component />
-      </>
-    );
-  }
-
-  // 기본 auth 레이아웃 (중앙 정렬)
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4 relative overflow-hidden">
       <AnimatePresence mode="wait">
-        <Component />
+        <WelcomePage />
       </AnimatePresence>
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <Router initialPath="/">
-      <AppContent />
-    </Router>
   );
 }
