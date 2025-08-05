@@ -4,7 +4,7 @@ import { useRouter } from "../Router";
 import { Bell, Plus, Search, Calendar, Eye, User } from 'lucide-react';
 import { useEffect, useState, useCallback } from "react";
 import { SideBar } from "../SideBar";
-import { apiFetch } from '../../lib/backend/client';
+import { apiFetch } from '../../../lib/backend/client';
 import { motion } from 'framer-motion';
 import { CreateNoticeModal } from "./CreateNoticeModal";
 

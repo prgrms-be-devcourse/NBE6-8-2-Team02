@@ -4,9 +4,9 @@ import { useRouter } from "../Router";
 import { Bell, ArrowLeft, Eye, Calendar, User, SquarePen, SquareXIcon } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { SideBar } from "../SideBar";
-import { apiFetch } from '../../lib/backend/client';
+import { apiFetch } from '../../../lib/backend/client';
 import { motion } from 'framer-motion';
-import { useParams } from '../../lib/useParams';
+import { useParams } from '../../../lib/useParams';
 import { EditNoticeModal } from "./EditNoticeModal";
 
 
