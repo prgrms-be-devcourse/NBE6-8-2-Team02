@@ -1,334 +1,216 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import {
-    Search,
-    Filter,
-    UserPlus,
-    UserCheck,
-    UserX,
-    Edit,
-    Trash2,
-    Eye,
-    MoreHorizontal
-} from "lucide-react";
+import { Label } from "@/app/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
+import { AdminApiService, AdminMemberDto } from "@/lib/backend/adminApi";
 
-interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: 'USER' | 'ADMIN';
-    status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-    createdAt: string;
-    lastLoginAt: string;
-    totalAssets: number;
-}
-
-export function AdminUsersPage() {
-    const router = useRouter();
-    const [users, setUsers] = useState<User[]>([]);
-    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<string>("all");
-    const [roleFilter, setRoleFilter] = useState<string>("all");
-    const [isLoading, setIsLoading] = useState(true);
+export default function UsersPage() {
+    const [members, setMembers] = useState<AdminMemberDto[]>([]);
+    const [filteredMembers, setFilteredMembers] = useState<AdminMemberDto[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("ALL");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // 관리자 권한 확인
-        const userRole = localStorage.getItem('userRole');
-        if (userRole !== 'ADMIN') {
-            alert('관리자 권한이 필요합니다.');
-            router.push('/auth/login');
-            return;
+        loadMembers();
+    }, []);
+
+    useEffect(() => {
+        filterMembers();
+    }, [members, searchQuery, statusFilter]);
+
+    const loadMembers = async () => {
+        try {
+            setLoading(true);
+            const membersData = await AdminApiService.getAllMembers();
+            setMembers(membersData);
+        } catch (error) {
+            setError("회원 목록을 불러오는 중 오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
         }
-
-        loadUsers();
-    }, [router]);
-
-    useEffect(() => {
-        filterUsers();
-    }, [users, searchTerm, statusFilter, roleFilter]);
-
-    const loadUsers = async () => {
-        // 실제로는 API에서 데이터를 가져와야 함
-        const mockUsers: User[] = [
-            {
-                id: "1",
-                email: "user1@example.com",
-                name: "김철수",
-                role: "USER",
-                status: "ACTIVE",
-                createdAt: "2024-01-15",
-                lastLoginAt: "2024-01-20",
-                totalAssets: 5
-            },
-            {
-                id: "2",
-                email: "user2@example.com",
-                name: "이영희",
-                role: "USER",
-                status: "ACTIVE",
-                createdAt: "2024-01-10",
-                lastLoginAt: "2024-01-19",
-                totalAssets: 3
-            },
-            {
-                id: "3",
-                email: "admin@example.com",
-                name: "관리자",
-                role: "ADMIN",
-                status: "ACTIVE",
-                createdAt: "2024-01-01",
-                lastLoginAt: "2024-01-20",
-                totalAssets: 0
-            },
-            {
-                id: "4",
-                email: "user3@example.com",
-                name: "박민수",
-                role: "USER",
-                status: "INACTIVE",
-                createdAt: "2024-01-05",
-                lastLoginAt: "2024-01-10",
-                totalAssets: 1
-            }
-        ];
-
-        setUsers(mockUsers);
-        setIsLoading(false);
     };
 
-    const filterUsers = () => {
-        let filtered = users;
+    const filterMembers = () => {
+        let filtered = members;
 
         // 검색 필터
-        if (searchTerm) {
-            filtered = filtered.filter(user =>
-                user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        if (searchQuery) {
+            filtered = filtered.filter(
+                (member) =>
+                    member.maskedEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    member.maskedName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    member.maskedPhone.includes(searchQuery)
             );
         }
 
         // 상태 필터
-        if (statusFilter !== "all") {
-            filtered = filtered.filter(user => user.status === statusFilter);
+        if (statusFilter !== "ALL") {
+            filtered = filtered.filter((member) => member.status === statusFilter);
         }
 
-        // 역할 필터
-        if (roleFilter !== "all") {
-            filtered = filtered.filter(user => user.role === roleFilter);
-        }
-
-        setFilteredUsers(filtered);
+        setFilteredMembers(filtered);
     };
 
-    const handleStatusChange = async (userId: string, newStatus: string) => {
-        // 실제로는 API 호출
-        setUsers(prev => prev.map(user =>
-            user.id === userId ? { ...user, status: newStatus as User['status'] } : user
-        ));
-    };
+    const handleStatusChange = async (memberId: number, newStatus: "ACTIVE" | "INACTIVE") => {
+        try {
+            let success = false;
+            if (newStatus === "ACTIVE") {
+                success = await AdminApiService.activateMember(memberId);
+            } else {
+                success = await AdminApiService.deactivateMember(memberId);
+            }
 
-    const handleRoleChange = async (userId: string, newRole: string) => {
-        // 실제로는 API 호출
-        setUsers(prev => prev.map(user =>
-            user.id === userId ? { ...user, role: newRole as User['role'] } : user
-        ));
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'ACTIVE': return 'text-green-600 bg-green-100';
-            case 'INACTIVE': return 'text-gray-600 bg-gray-100';
-            case 'SUSPENDED': return 'text-red-600 bg-red-100';
-            default: return 'text-gray-600 bg-gray-100';
+            if (success) {
+                await loadMembers();
+            } else {
+                setError("상태 변경에 실패했습니다.");
+            }
+        } catch (error) {
+            setError("상태 변경 중 오류가 발생했습니다.");
         }
     };
 
-    const getRoleColor = (role: string) => {
-        switch (role) {
-            case 'ADMIN': return 'text-purple-600 bg-purple-100';
-            case 'USER': return 'text-blue-600 bg-blue-100';
-            default: return 'text-gray-600 bg-gray-100';
+    const handleSearch = async () => {
+        if (!searchQuery.trim()) {
+            await loadMembers();
+            return;
+        }
+
+        try {
+            const searchResults = await AdminApiService.searchMember(searchQuery);
+            setMembers(searchResults);
+        } catch (error) {
+            setError("검색 중 오류가 발생했습니다.");
         }
     };
 
-    if (isLoading) {
+    if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-lg">로딩 중...</div>
             </div>
         );
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50 pt-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-8"
-                >
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">사용자 관리</h1>
-                    <p className="text-gray-600">전체 사용자 목록 및 관리</p>
-                </motion.div>
-
-                {/* 필터 및 검색 */}
-                <Card className="mb-6">
-                    <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <Input
-                                        placeholder="사용자 검색..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="all">모든 상태</option>
-                                    <option value="ACTIVE">활성</option>
-                                    <option value="INACTIVE">비활성</option>
-                                    <option value="SUSPENDED">정지</option>
-                                </select>
-                                <select
-                                    value={roleFilter}
-                                    onChange={(e) => setRoleFilter(e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="all">모든 역할</option>
-                                    <option value="USER">사용자</option>
-                                    <option value="ADMIN">관리자</option>
-                                </select>
-                                <Button className="flex items-center gap-2">
-                                    <UserPlus className="w-4 h-4" />
-                                    새 사용자
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* 통계 */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-blue-600">{users.length}</div>
-                            <div className="text-sm text-gray-600">총 사용자</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-green-600">
-                                {users.filter(u => u.status === 'ACTIVE').length}
-                            </div>
-                            <div className="text-sm text-gray-600">활성 사용자</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-purple-600">
-                                {users.filter(u => u.role === 'ADMIN').length}
-                            </div>
-                            <div className="text-sm text-gray-600">관리자</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-orange-600">
-                                {users.reduce((sum, user) => sum + user.totalAssets, 0)}
-                            </div>
-                            <div className="text-sm text-gray-600">총 자산 수</div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* 사용자 목록 */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>사용자 목록</CardTitle>
-                        <CardDescription>
-                            총 {filteredUsers.length}명의 사용자가 있습니다.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left py-3 px-4">사용자</th>
-                                        <th className="text-left py-3 px-4">역할</th>
-                                        <th className="text-left py-3 px-4">상태</th>
-                                        <th className="text-left py-3 px-4">가입일</th>
-                                        <th className="text-left py-3 px-4">마지막 로그인</th>
-                                        <th className="text-left py-3 px-4">자산 수</th>
-                                        <th className="text-left py-3 px-4">작업</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredUsers.map((user) => (
-                                        <tr key={user.id} className="border-b hover:bg-gray-50">
-                                            <td className="py-3 px-4">
-                                                <div>
-                                                    <div className="font-medium">{user.name}</div>
-                                                    <div className="text-sm text-gray-500">{user.email}</div>
-                                                </div>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                                                    {user.role === 'ADMIN' ? '관리자' : '사용자'}
-                                                </span>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
-                                                    {user.status === 'ACTIVE' ? '활성' :
-                                                        user.status === 'INACTIVE' ? '비활성' : '정지'}
-                                                </span>
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-600">
-                                                {new Date(user.createdAt).toLocaleDateString('ko-KR')}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-600">
-                                                {new Date(user.lastLoginAt).toLocaleDateString('ko-KR')}
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className="text-sm font-medium">{user.totalAssets}</span>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <div className="flex items-center space-x-2">
-                                                    <Button size="sm" variant="outline">
-                                                        <Eye className="w-4 h-4" />
-                                                    </Button>
-                                                    <Button size="sm" variant="outline">
-                                                        <Edit className="w-4 h-4" />
-                                                    </Button>
-                                                    <Button size="sm" variant="outline" className="text-red-600">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </CardContent>
-                </Card>
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-red-500 text-lg">{error}</div>
             </div>
+        );
+    }
+
+    return (
+        <div className="container mx-auto p-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">사용자 관리</h1>
+                <Button onClick={loadMembers} variant="outline">
+                    새로고침
+                </Button>
+            </div>
+
+            {/* 검색 및 필터 */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>검색 및 필터</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex-1">
+                            <Label htmlFor="search">검색</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    id="search"
+                                    placeholder="이메일, 이름, 전화번호로 검색"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                                />
+                                <Button onClick={handleSearch}>검색</Button>
+                            </div>
+                        </div>
+                        <div className="w-full md:w-48">
+                            <Label htmlFor="status">상태 필터</Label>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="상태 선택" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">전체</SelectItem>
+                                    <SelectItem value="ACTIVE">활성</SelectItem>
+                                    <SelectItem value="INACTIVE">비활성</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* 회원 목록 */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>회원 목록 ({filteredMembers.length}명)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {filteredMembers.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                                회원이 없습니다.
+                            </div>
+                        ) : (
+                            filteredMembers.map((member) => (
+                                <Card key={member.id} className="border-l-4 border-l-blue-500">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <div className="font-medium text-lg">{member.maskedName}</div>
+                                                <div className="text-sm text-gray-600">{member.maskedEmail}</div>
+                                                <div className="text-sm text-gray-600">{member.maskedPhone}</div>
+                                                <div className="text-xs text-gray-400">
+                                                    가입일: {new Date(member.createdAt).toLocaleDateString()}
+                                                    {member.updatedAt !== member.createdAt && (
+                                                        <span className="ml-2">
+                                                            | 수정일: {new Date(member.updatedAt).toLocaleDateString()}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${member.status === "ACTIVE"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : "bg-red-100 text-red-800"
+                                                        }`}
+                                                >
+                                                    {member.status === "ACTIVE" ? "활성" : "비활성"}
+                                                </span>
+                                                <Button
+                                                    variant={member.status === "ACTIVE" ? "destructive" : "default"}
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleStatusChange(
+                                                            member.id,
+                                                            member.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
+                                                        )
+                                                    }
+                                                >
+                                                    {member.status === "ACTIVE" ? "비활성화" : "활성화"}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 } 
