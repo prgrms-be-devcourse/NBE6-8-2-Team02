@@ -1,14 +1,14 @@
 'use client';
 
-import { useRouter } from "./Router";
+import { useRouter } from "../Router";
 import { Bell, ArrowLeft, Eye, Calendar, User, SquarePen, SquareXIcon } from 'lucide-react';
 import { useEffect, useState } from "react";
-import { SideBar } from "./SideBar";
-import { apiFetch } from '../lib/backend/client';
+import { SideBar } from "../SideBar";
+import { apiFetch } from '../../lib/backend/client';
 import { motion } from 'framer-motion';
-import { useParams } from '../lib/useParams';
+import { useParams } from '../../lib/useParams';
 import { EditNoticeModal } from "./EditNoticeModal";
-import { authAPI } from '../../lib/auth';
+
 
 type Notice = {
   id: number;
@@ -32,19 +32,22 @@ export function NoticeDetailPage() {
   const params = useParams();
   const noticeId = params?.id;
 
+
+
   // 현재 사용자 정보 가져오기
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const userData = await authAPI.getCurrentUser();
-        console.log("사용자 정보:", userData);
-        console.log("사용자 정보 타입:", typeof userData);
-        console.log("사용자 정보 키들:", userData ? Object.keys(userData) : 'null');
+        const userData = await fetch('http://localhost:8080/api/v1/members/me', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }).then(res => res.json());
         if (userData) {
           setCurrentUser(userData);
           const isAdminUser = userData.role === 'ADMIN';
-          console.log("사용자 역할:", userData.role);
-          console.log("관리자 여부:", isAdminUser);
           setIsAdmin(isAdminUser);
         }
       } catch (error) {
@@ -75,10 +78,7 @@ export function NoticeDetailPage() {
     }
   }, [noticeId, reloadTrigger]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-  };
+
 
   const handleDelete = async () => {
     if (!notice || !confirm('정말로 이 공지사항을 삭제하시겠습니까?')) return;
@@ -161,7 +161,7 @@ export function NoticeDetailPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(notice.createDate)}</span>
+                        <span>{new Date(notice.createDate).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Eye className="w-4 h-4" />

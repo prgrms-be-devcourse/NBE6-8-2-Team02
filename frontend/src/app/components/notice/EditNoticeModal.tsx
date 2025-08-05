@@ -1,43 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { apiFetch } from '../lib/backend/client';
+import { apiFetch } from '../../lib/backend/client';
 
-interface CreateNoticeModalProps {
+interface EditNoticeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  noticeId: number;
+  initialData: {
+    title: string;
+    content: string;
+  };
 }
 
-export function CreateNoticeModal({ open, onOpenChange, onSuccess }: CreateNoticeModalProps) {
+export function EditNoticeModal({ open, onOpenChange, onSuccess, noticeId, initialData }: EditNoticeModalProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (open && initialData) {
+      setTitle(initialData.title);
+      setContent(initialData.content);
+    }
+  }, [open, initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await apiFetch('/api/v1/notices', {
-        method: 'POST',
+      await apiFetch(`/api/v1/notices/${noticeId}`, {
+        method: 'PUT',
         body: JSON.stringify({
           title,
           content,
         }),
       });
 
-      setTitle('');
-      setContent('');
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error('공지사항 생성 실패:', error);
+      console.error('공지사항 수정 실패:', error);
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +57,7 @@ export function CreateNoticeModal({ open, onOpenChange, onSuccess }: CreateNotic
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>공지사항 작성</DialogTitle>
+          <DialogTitle>공지사항 수정</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -81,7 +91,7 @@ export function CreateNoticeModal({ open, onOpenChange, onSuccess }: CreateNotic
               취소
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? '작성 중...' : '작성'}
+              {isLoading ? '수정 중...' : '수정'}
             </Button>
           </div>
         </form>

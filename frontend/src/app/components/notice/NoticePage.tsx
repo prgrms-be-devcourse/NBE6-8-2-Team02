@@ -1,13 +1,13 @@
 'use client';
 
-import { useRouter } from "./Router";
+import { useRouter } from "../Router";
 import { Bell, Plus, Search, Calendar, Eye, User } from 'lucide-react';
 import { useEffect, useState, useCallback } from "react";
-import { SideBar } from "./SideBar";
-import { apiFetch } from '../lib/backend/client';
+import { SideBar } from "../SideBar";
+import { apiFetch } from '../../lib/backend/client';
 import { motion } from 'framer-motion';
 import { CreateNoticeModal } from "./CreateNoticeModal";
-import { authAPI } from '../../lib/auth';
+
 
 type Notice = {
   id: number;
@@ -43,19 +43,22 @@ export function NoticePage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const { navigate } = useRouter();
 
+
+
   // 현재 사용자 정보 가져오기
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const userData = await authAPI.getCurrentUser();
-        console.log("사용자 정보:", userData);
-        console.log("사용자 정보 타입:", typeof userData);
-        console.log("사용자 정보 키들:", userData ? Object.keys(userData) : 'null');
+        const userData = await fetch('http://localhost:8080/api/v1/members/me', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        }).then(res => res.json());
         if (userData) {
           setCurrentUser(userData);
           const isAdminUser = userData.role === 'ADMIN';
-          console.log("사용자 역할:", userData.role);
-          console.log("관리자 여부:", isAdminUser);
           setIsAdmin(isAdminUser);
         }
       } catch (error) {
@@ -102,10 +105,7 @@ export function NoticePage() {
     fetchNotices();
   }, [debouncedSearchTerm, currentPage]); // debouncedSearchTerm과 currentPage가 변경될 때 실행
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
+
 
   // Backend에서 검색하므로 Frontend 필터링 제거
   // const filteredNotices = notices.filter(...) 제거
@@ -221,7 +221,7 @@ export function NoticePage() {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-3 h-3" />
-                            <span>{formatDate(notice.createDate)}</span>
+                            <span>{new Date(notice.createDate).toLocaleDateString()}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Eye className="w-3 h-3" />
