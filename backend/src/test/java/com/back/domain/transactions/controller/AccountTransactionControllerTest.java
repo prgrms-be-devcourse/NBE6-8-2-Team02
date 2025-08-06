@@ -5,7 +5,9 @@ import com.back.domain.account.repository.AccountRepository;
 import com.back.domain.member.repository.MemberRepository;
 import com.back.domain.transactions.entity.AccountTransaction;
 import com.back.domain.transactions.repository.AccountTransactionRepository;
+import com.back.global.security.jwt.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +17,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,7 +43,17 @@ class AccountTransactionControllerTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private JwtUtil jwtutil;
+
+    private String token;
+
     ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() {
+        token = jwtutil.generateToken("user1@user.com", 4,"USER");
+    }
 
     @Test
     @DisplayName("거래 등록")
@@ -56,15 +66,14 @@ class AccountTransactionControllerTest {
                 "type", "ADD",
                 "amount", 1,
                 "content", "입금",
-                "date", "2021-01-01T00:00:00"
+                "date", "2023-10-01T10:00:00"
         );
 
         var createResult = mvc.perform(post("/api/v1/transactions/account")
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").value("입금"))
-                .andReturn();
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -72,9 +81,7 @@ class AccountTransactionControllerTest {
     @WithMockUser
     void findAccTransactionAll() throws Exception {
         var findAllResult = mvc.perform(get("/api/v1/transactions/account"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("거래 목록을 조회했습니다."))
-                .andReturn();
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(7));
     }
 
     @Test
@@ -107,9 +114,10 @@ class AccountTransactionControllerTest {
     @DisplayName("특정 계좌의 거래 목록 조회")
     @WithMockUser
     void findAccTransactionById() throws Exception {
-        var findSpecificResult = mvc.perform(get("/api/v1/transactions/account/search/1"))
+        var findSpecificResult = mvc.perform(get("/api/v1/transactions/account/search/1")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("1번 계좌의 거래 목록을 조회했습니다."))
+                .andExpect(jsonPath("$.length()").value(5))
                 .andReturn();
     }
 }

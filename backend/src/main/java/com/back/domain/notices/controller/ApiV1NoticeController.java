@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/v1/notices")
@@ -24,9 +26,14 @@ public class ApiV1NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping
-    @Operation(summary = "공지사항 전체 조회")
-    public RsData<List<NoticeResponseDto>> getAllNotices() {
-        List<NoticeResponseDto> notices = noticeService.getAllNotices();
+    @Operation(summary = "공지사항 전체 조회 (검색 기능 + 페이징 포함)")
+    public RsData<Page<NoticeResponseDto>> getAllNotices(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NoticeResponseDto> notices = noticeService.getAllNotices(search, pageable);
 
         return new RsData<>(
                 "200-1",

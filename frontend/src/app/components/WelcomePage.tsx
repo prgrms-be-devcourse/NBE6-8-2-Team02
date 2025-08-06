@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { useRouter } from "./Router";
+import { useRouter } from "next/navigation";
 
 export function WelcomePage() {
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   const handleStart = () => {
-    navigate("/auth/login");
+    router.push("/auth/login");
   };
 
   return (

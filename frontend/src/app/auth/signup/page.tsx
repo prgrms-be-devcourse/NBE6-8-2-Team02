@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
 import { useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { useRouter } from "@/app/components/Router";
+import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
 import { validatePhoneNumber } from "@/lib/utils";
 
-export function SignupPage() {
+export default function SignupPage() {
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
     name: "",
-    phoneNumber: ""
+    phoneNumber: "",
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,7 +22,7 @@ export function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { navigate } = useRouter();
+  const router = useRouter();
 
   const handleSignup = useCallback(async () => {
     // 입력값 검증
@@ -92,10 +92,14 @@ export function SignupPage() {
       // API 응답 검증 - 201 CREATED 상태 코드 확인
       if (response && (response.id || response.email || response.userId)) {
         console.log("회원가입 성공:", response);
-        navigate("/auth/login");
+        router.push("/auth/login");
       } else {
         // 서버에서 에러 응답이 온 경우
-        setError(response.message || response.error || "회원가입에 실패했습니다. 다시 시도해주세요.");
+        setError(
+          response.message ||
+            response.error ||
+            "회원가입에 실패했습니다. 다시 시도해주세요."
+        );
       }
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -103,43 +107,58 @@ export function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [signupData, confirmPassword, navigate]);
+  }, [signupData, confirmPassword, router]);
 
   const handleBackToLogin = useCallback(() => {
-    navigate("/auth/login");
-  }, [navigate]);
+    router.push("/auth/login");
+  }, [router]);
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignupData(prev => ({ ...prev, email: e.target.value }));
-    setError("");
-  }, []);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSignupData((prev) => ({ ...prev, email: e.target.value }));
+      setError("");
+    },
+    []
+  );
 
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignupData(prev => ({ ...prev, password: e.target.value }));
-    setError("");
-  }, []);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSignupData((prev) => ({ ...prev, password: e.target.value }));
+      setError("");
+    },
+    []
+  );
 
-  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignupData(prev => ({ ...prev, name: e.target.value }));
-    setError("");
-  }, []);
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSignupData((prev) => ({ ...prev, name: e.target.value }));
+      setError("");
+    },
+    []
+  );
 
-  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignupData(prev => ({ ...prev, phoneNumber: e.target.value }));
-    setError("");
-  }, []);
+  const handlePhoneChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSignupData((prev) => ({ ...prev, phoneNumber: e.target.value }));
+      setError("");
+    },
+    []
+  );
 
-  const handleConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmPassword(e.target.value);
-    setError("");
-  }, []);
+  const handleConfirmPasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setConfirmPassword(e.target.value);
+      setError("");
+    },
+    []
+  );
 
   const handlePasswordToggle = useCallback(() => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   }, []);
 
   const handleConfirmPasswordToggle = useCallback(() => {
-    setShowConfirmPassword(prev => !prev);
+    setShowConfirmPassword((prev) => !prev);
   }, []);
 
   return (
@@ -167,9 +186,7 @@ export function SignupPage() {
             />
           </svg>
         </div>
-        <h2 className="text-2xl tracking-tight text-gray-900">
-          회원가입
-        </h2>
+        <h2 className="text-2xl tracking-tight text-gray-900">회원가입</h2>
       </div>
 
       <div className="space-y-4">
@@ -181,11 +198,11 @@ export function SignupPage() {
             placeholder="이름을 입력하세요 (2-20자)"
             value={signupData.name}
             onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-              setSignupData(prev => ({ ...prev, name: e.target.value }));
+              setSignupData((prev) => ({ ...prev, name: e.target.value }));
               setError(""); // 입력 시 에러 메시지 초기화
             }, [])}
             onKeyPress={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleSignup();
               }
             }}
@@ -203,7 +220,7 @@ export function SignupPage() {
               setError(""); // 입력 시 에러 메시지 초기화
             }}
             onKeyPress={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleSignup();
               }
             }}
@@ -218,12 +235,12 @@ export function SignupPage() {
             value={signupData.phoneNumber}
             onChange={(e) => {
               // 숫자만 입력 허용
-              const value = e.target.value.replace(/[^0-9]/g, '');
+              const value = e.target.value.replace(/[^0-9]/g, "");
               setSignupData({ ...signupData, phoneNumber: value });
               setError(""); // 입력 시 에러 메시지 초기화
             }}
             onKeyPress={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleSignup();
               }
             }}
@@ -242,7 +259,7 @@ export function SignupPage() {
                 setError(""); // 입력 시 에러 메시지 초기화
               }}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleSignup();
                 }
               }}
@@ -253,13 +270,38 @@ export function SignupPage() {
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
             >
               {showPassword ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                  />
                 </svg>
               ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
               )}
             </button>
@@ -278,7 +320,7 @@ export function SignupPage() {
                 setError(""); // 입력 시 에러 메시지 초기화
               }}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleSignup();
                 }
               }}
@@ -289,13 +331,38 @@ export function SignupPage() {
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
             >
               {showConfirmPassword ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                  />
                 </svg>
               ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
               )}
             </button>
@@ -308,7 +375,6 @@ export function SignupPage() {
           {error}
         </div>
       )}
-
 
       <Button
         onClick={handleSignup}
@@ -329,6 +395,4 @@ export function SignupPage() {
       </div>
     </motion.div>
   );
-};
-
-export default SignupPage;
+}

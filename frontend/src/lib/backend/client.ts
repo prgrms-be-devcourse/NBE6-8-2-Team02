@@ -14,55 +14,61 @@ const isTokenExpired = (token: string): boolean => {
   }
 };
 
-// Refresh Token으로 새로운 Access Token 발급
-const refreshAccessToken = async (): Promise<string | null> => {
+async function refreshAccessToken() {
   try {
     const refreshToken = localStorage.getItem("refreshToken");
 
     if (!refreshToken) {
-      throw new Error("Refresh token not found");
+      console.log("Refresh token not found in localStorage");
+      // Check if current access token is still valid
+      const currentToken = localStorage.getItem("authToken");
+      if (currentToken && !isTokenExpired(currentToken)) {
+        console.log("Current access token is still valid - no refresh needed");
+        return currentToken;
+      } else {
+        console.log("No valid tokens available - re-login required");
+        return null; // Indicate re-login is needed
+      }
     }
 
-    console.log("토큰 갱신 요청");
+    console.log("Token refresh request starting");
 
-    const response = await fetch(
-      `${NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/refresh`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
-        credentials: "include",
-      }
-    );
+    const response = await fetch("http://localhost:8080/api/v1/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      credentials: "include",
+    });
+
+    console.log("Token refresh response status:", response.status);
 
     const data = await response.json();
+    console.log("Token refresh response data:", data);
 
     if (!response.ok) {
+      console.log("Token refresh failed:", response.status, data);
       throw new Error(
         data.msg || data.message || `HTTP error! status: ${response.status}`
       );
     }
 
-    // 새로운 토큰 쌍 저장
-    if (data.accessToken && data.refreshToken) {
+    // Store new tokens
+    if (data.accessToken) {
       localStorage.setItem("authToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      console.log("토큰 갱신 성공");
-      return data.accessToken;
+      console.log("New access token stored");
     }
 
-    throw new Error("Invalid token response");
+    if (data.refreshToken) {
+      localStorage.setItem("refreshToken", data.refreshToken);
+      console.log("New refresh token stored");
+    }
+
+    return data.accessToken || localStorage.getItem("authToken");
   } catch (error) {
     console.error("Token refresh error:", error);
-    // Refresh token도 만료된 경우 로그아웃 처리
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userEmail");
-    window.location.href = "/login";
     throw error;
   }
-};
+}
 
 // 유효한 Access Token 가져오기 (만료 시 자동 갱신)
 const getValidAccessToken = async (): Promise<string | null> => {
@@ -72,6 +78,10 @@ const getValidAccessToken = async (): Promise<string | null> => {
     console.log("Access token expired, attempting refresh");
     try {
       accessToken = await refreshAccessToken();
+      if (accessToken === null) {
+        console.log("Token refresh returned null - re-login required");
+        return null;
+      }
     } catch (error) {
       console.error("Failed to refresh token:", error);
       return null;
@@ -100,7 +110,11 @@ export const apiFetch = async (url: string, options?: RequestInit) => {
         headers.set("Authorization", `Bearer ${token}`);
         console.log("토큰 추가됨:", token.substring(0, 20) + "...");
       } else {
-        console.log("유효한 토큰이 없음");
+        console.log("유효한 토큰이 없음 - 재로그인 필요");
+        // No valid token available - throw an error to indicate re-login is needed
+        throw new Error(
+          "No valid authentication token available - re-login required"
+        );
       }
     } catch (error) {
       console.error("Failed to get valid token:", error);
@@ -143,10 +157,30 @@ export const apiFetch = async (url: string, options?: RequestInit) => {
                 return responseText ? JSON.parse(responseText) : {};
               } else {
                 console.log("토큰 갱신 후 재시도 실패:", retryResponse.status);
+                // 권한 오류인 경우 에러를 던져서 호출자가 처리하도록 함
+                const errorText = await retryResponse.text();
+                const errorData = errorText
+                  ? JSON.parse(errorText)
+                  : { message: `HTTP error! status: ${retryResponse.status}` };
+                throw errorData;
               }
+            } else {
+              console.log("토큰 갱신 실패, 원본 에러 처리");
+              // 토큰 갱신 실패 시 원본 에러 처리
+              const responseText = await res.text();
+              const errorData = responseText
+                ? JSON.parse(responseText)
+                : { message: `HTTP error! status: ${res.status}` };
+              throw errorData;
             }
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
+            // 토큰 갱신 실패 시 원본 에러 처리
+            const responseText = await res.text();
+            const errorData = responseText
+              ? JSON.parse(responseText)
+              : { message: `HTTP error! status: ${res.status}` };
+            throw errorData;
           }
         }
 

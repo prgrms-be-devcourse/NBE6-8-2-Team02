@@ -8,36 +8,13 @@ import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
+import { SideBar } from "../../../components/SideBar";
 
-export function AccountDetailPage() {
+export default function AccountDetailPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = Number(params.accountId);
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (isNaN(accountId)) {
-      console.warn("잘못된 accountId:", params.accountId);
-      return;
-    }
-    const fetchAccountTransaction = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/v1/transactions/account/search/${accountId}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        ).then((res) => res.json());
-
-        setTransactions(response.data);
-      } catch (error) {
-        console.error("거래 목록 조회 요청에 실패했습니다.");
-      }
-    };
-    fetchAccountTransaction();
-  }, [accountId]);
-
   const { accounts, transactions, setTransactions, addTransaction } =
     useAccountContext();
 
@@ -55,6 +32,34 @@ export function AccountDetailPage() {
   if (!account) {
     return <div className="text-center py-20">계좌를 찾을 수 없습니다.</div>;
   }
+
+  useEffect(() => {
+    if (isNaN(accountId)) {
+      console.warn("잘못된 accountId:", params.accountId);
+      return;
+    }
+    const fetchAccountTransaction = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/transactions/account/search/${accountId}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (response.status == 200) {
+          const result = await response.json();
+          setTransactions(result);
+        } else {
+          console.log("거래 목록 조회 실패");
+        }
+      } catch (error) {
+        console.error("거래 목록 조회 요청에 실패했습니다.");
+      }
+    };
+    fetchAccountTransaction();
+  }, [accountId]);
 
   const handleAddTransaction = () => {
     if (!amount || isNaN(Number(amount))) return;
@@ -75,9 +80,9 @@ export function AccountDetailPage() {
             }),
             credentials: "include",
           }
-        ).then((res) => res.json());
+        );
 
-        if (response.resultCode === "200-1") {
+        if (response.status == 201) {
           console.log("거래가 정상적으로 등록되었습니다.");
           addTransaction({
             id: Date.now(),
@@ -94,7 +99,6 @@ export function AccountDetailPage() {
           setShowForm(false); // 등록 후 폼 닫기
         } else {
           console.log("거래 등록 실패");
-          alert(response.msg);
         }
       } catch (error) {
         console.error("거래 등록 요청에 실패했습니다.");
@@ -112,14 +116,14 @@ export function AccountDetailPage() {
             method: "DELETE",
             credentials: "include",
           }
-        ).then((res) => res.json());
+        );
 
-        if (response.resultCode === "200-1") {
-          console.log(response.msg);
-          router.push("/mypage/accounts");
+        if (response.status == 204) {
+          router.back();
           alert("계좌 연결 해제에 성공 했습니다.");
         } else {
-          console.log(response.msg);
+          const result = response.json();
+          console.log(result);
           alert("계좌 연결 해제에 실패했습니다.");
         }
       } catch (error) {
@@ -132,7 +136,8 @@ export function AccountDetailPage() {
 
   return (
     <div className="max-w-xl mx-auto py-10 space-y-6">
-      <div className="text-2xl font-bold">{account.name}</div>
+      <SideBar navigate={router.push} active="accounts" />
+      <div className="mt-15 text-2xl font-bold">{account.name}</div>
       <div className="text-gray-600 font-medium">{account.accountNumber}</div>
       <div className="text-lg">잔액: {account.balance.toLocaleString()}원</div>
 
@@ -247,5 +252,3 @@ export function AccountDetailPage() {
     </div>
   );
 }
-
-export default AccountDetailPage;

@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from "@/app/components/Router";
-import { useParams } from "@/lib/useParams";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/backend/client";
 import { CreateTransactionModal } from "@/app/mypage/assets/CreateTransactionModal";
@@ -17,10 +16,10 @@ type Asset = {
     assetValue: number;
     createDate: string;
     modifyDate: string;
-  };
+};
 
 export function AssetDetailPage() {
-    const { navigate } = useRouter();
+    const router = useRouter();
 
     const [reloadFlag, setReloadFlag] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -39,9 +38,9 @@ export function AssetDetailPage() {
         assetValue: 0,
         createDate: new Date().toISOString(),
         modifyDate: new Date().toISOString(),
-      });
+    });
 
-    const handleDeleteTransaction = async (id:number) => {
+    const handleDeleteTransaction = async (id: number) => {
         try {
             const deleteRes = await apiFetch(`/api/v1/transactions/asset/${id}`, {
                 method: "DELETE",
@@ -55,21 +54,21 @@ export function AssetDetailPage() {
 
             let newValue = assetRes.data?.assetValue;
 
-            if(type === "ADD"){
+            if (type === "ADD") {
                 newValue -= amount;
             }
-            else{
+            else {
                 newValue += amount;
             }
 
             await apiFetch(`/api/v1/assets/${assetId}`, {
                 method: "PUT",
                 body: JSON.stringify({
-                  id: assetId,
-                  name: assetRes.data?.name,
-                  assetType: assetRes.data?.assetType,
-                  assetValue: newValue
-                  
+                    id: assetId,
+                    name: assetRes.data?.name,
+                    assetType: assetRes.data?.assetType,
+                    assetValue: newValue
+
                 }),
             });
 
@@ -79,12 +78,12 @@ export function AssetDetailPage() {
         }
     }
 
-    const handleDeleteAsset = async (id:number) => {
+    const handleDeleteAsset = async (id: number) => {
         try {
             await apiFetch(`/api/v1/assets/${id}`, {
                 method: "DELETE",
             });
-            navigate('/mypage/assets');
+            router.push('/mypage/assets');
         } catch (error) {
             console.log("삭제 에러");
         }
@@ -101,7 +100,7 @@ export function AssetDetailPage() {
     }
 
     const [activities, setActivities] = useState<activity[]>([]);
-    useEffect (() => {
+    useEffect(() => {
         const fetchAssetDetail = async () => {
             try {
                 const assetRes = await apiFetch(`/api/v1/assets/${id}`);
@@ -117,19 +116,19 @@ export function AssetDetailPage() {
                     content: item.content,
                     assetType: assetType,
                     onDelete: handleDeleteTransaction
-                  }))
-                  .sort((a: { date: string }, b: { date: string }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                }))
+                    .sort((a: { date: string }, b: { date: string }) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
                 setActivities(assetTransaction);
                 setAsset(assetInfo);
-      
+
             } catch (error) {
                 console.log("에러 발생");
             }
         };
         fetchAssetDetail();
     }, [reloadFlag]);
-    
+
     return (
         <>
             <SideBar navigate={navigate} active="mypage" />
@@ -153,22 +152,22 @@ export function AssetDetailPage() {
                             <h1 className="text-2xl font-bold tracking-tight">거래 내역</h1>
                         </header>
                         <div className="flex ml-auto">
-                        <button
-                            onClick={handleCreate}
-                            className="text-green-600 hover:text-red-800 transition-colors duration-200"
-                            aria-label="생성성"
-                            type="button"
-                        >
-                        <SquarePlusIcon></SquarePlusIcon>
-                </button>
-            </div>
+                            <button
+                                onClick={handleCreate}
+                                className="text-green-600 hover:text-red-800 transition-colors duration-200"
+                                aria-label="생성성"
+                                type="button"
+                            >
+                                <SquarePlusIcon></SquarePlusIcon>
+                            </button>
+                        </div>
                     </div>
                     <section>
                         {activities.length === 0 ? (
-                        <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
+                            <div className="text-muted-foreground text-sm">*거래내역이 없습니다*</div>
                         ) : (
-                        <Style.ActivityListEditable 
-                            activities={activities}>
+                            <Style.ActivityListEditable
+                                activities={activities}>
                             </Style.ActivityListEditable>
                         )}
                     </section>
@@ -177,14 +176,12 @@ export function AssetDetailPage() {
 
                 </div>
             </div>
-            <CreateTransactionModal 
-            open={modalOpen} 
-            onOpenChange={setModalOpen}
-            onSuccess={() => setReloadFlag(prev => !prev)}
-            assetId={id}
+            <CreateTransactionModal
+                open={modalOpen}
+                onOpenChange={setModalOpen}
+                onSuccess={() => setReloadFlag(prev => !prev)}
+                assetId={id}
             />
         </>
     );
 }
-
-export default AssetDetailPage;

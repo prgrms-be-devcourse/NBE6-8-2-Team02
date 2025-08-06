@@ -1,17 +1,19 @@
-'use client';
+"use client";
 
 import { WelcomePage } from "@/app/components/WelcomePage";
-import { LoginPage } from "@/app/auth/login/page";
-import { SignupPage } from "@/app/auth/signup/page";
+import LoginPage from "@/app/auth/login/page";
+import SignupPage from "@/app/auth/signup/page";
 import { ForgotPasswordPage } from "@/app/auth/forgot-password/page";
-import { MyPage } from "@/app/mypage/page";
+import MyPage from "@/app/mypage/page";
 import { ProfilePage } from "@/app/mypage/profile/page";
-import { AssetPage } from "@/app/mypage/assets/page";
+import AssetPage from "@/app/mypage/assets/page";
 import { AssetDetailPage } from "@/app/mypage/assets/AssetDetailPage";
-import { AccountsPage }  from "@/app/mypage/accounts/page";
-import { GoalPage } from "@/app/mypage/goals/page";
+import AccountsPage from "@/app/mypage/accounts/page";
+import GoalPage from "@/app/mypage/goals/page";
+import { NoticePage } from "@/app/components/notice/NoticePage";
+import { NoticeDetailPage } from "@/app/components/notice/NoticeDetailPage";
 
-export interface RouteConfig {  
+export interface RouteConfig {
   path: string;
   component: React.ComponentType;
   layout?: "auth" | "full";
@@ -41,12 +43,12 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage",
     component: MyPage,
-    layout: "full"
+    layout: "full",
   },
   {
     path: "/mypage/profile",
     component: ProfilePage,
-    layout: "full"
+    layout: "full",
   },
   {
     path: "/mypage/goals",
@@ -58,6 +60,7 @@ export const routes: RouteConfig[] = [
     component: AccountsPage,
     layout: "full",
   },
+
   {
     path: "/mypage/assets",
     component: AssetPage,
@@ -66,6 +69,16 @@ export const routes: RouteConfig[] = [
   {
     path: "/mypage/assets/:id",
     component: AssetDetailPage,
-    layout: "full"
-  }
+    layout: "full",
+  },
+  {
+    path: "/mypage/notices",
+    component: NoticePage,
+    layout: "full",
+  },
+  {
+    path: "/mypage/notices/:id",
+    component: NoticeDetailPage,
+    layout: "full",
+  },
 ];
