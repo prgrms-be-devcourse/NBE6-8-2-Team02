@@ -8,6 +8,8 @@ import { Label } from "@/app/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
 import { AdminApiService, AdminMemberDto } from "@/lib/backend/adminApi";
 import { authAPI } from "@/lib/auth";
+import { Megaphone } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface DashboardStats {
     totalMembers: number;
@@ -16,6 +18,7 @@ interface DashboardStats {
 }
 
 export default function AdminPage() {
+    const router = useRouter();
     const [members, setMembers] = useState<AdminMemberDto[]>([]);
     const [filteredMembers, setFilteredMembers] = useState<AdminMemberDto[]>([]);
     const [stats, setStats] = useState<DashboardStats>({
@@ -161,9 +164,19 @@ export default function AdminPage() {
         <div className="container mx-auto p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">관리자 대시보드</h1>
-                <Button onClick={loadData} variant="outline">
-                    새로고침
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button 
+                        onClick={() => router.push("/mypage/notices")} 
+                        variant="outline"
+                        className="flex items-center gap-2"
+                    >
+                        <Megaphone className="w-4 h-4" />
+                        공지사항
+                    </Button>
+                    <Button onClick={loadData} variant="outline">
+                        새로고침
+                    </Button>
+                </div>
             </div>
 
             {/* 통계 카드 */}
