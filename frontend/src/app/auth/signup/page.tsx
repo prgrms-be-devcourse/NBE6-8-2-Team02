@@ -7,7 +7,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
-import { validatePhoneNumber } from "@/lib/utils";
+import { validatePhoneNumber, formatPhoneNumberForDisplay } from "@/lib/utils";
 
 export default function SignupPage() {
   const [signupData, setSignupData] = useState({
@@ -58,7 +58,7 @@ export default function SignupPage() {
 
     // 전화번호 형식 검증 (숫자만)
     if (!validatePhoneNumber(signupData.phoneNumber)) {
-      setError("올바른 전화번호 형식을 입력해주세요. (예: 01012345678)");
+      setError("올바른 전화번호 형식을 입력해주세요. (11자리 숫자, 010으로 시작)");
       return;
     }
 
@@ -85,8 +85,26 @@ export default function SignupPage() {
     setError("");
 
     try {
-      console.log("회원가입 시도:", signupData);
-      const response = await authAPI.signup(signupData);
+      // 전화번호를 하이픈이 있는 형식으로 변환 (직접 구현)
+      const phoneNumber = signupData.phoneNumber.replace(/[^0-9]/g, "");
+      let formattedPhone;
+
+      if (phoneNumber.length === 11 && phoneNumber.startsWith("010")) {
+        formattedPhone = phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+      } else {
+        formattedPhone = phoneNumber; // 형식이 맞지 않으면 원본 사용
+      }
+
+      const signupDataWithFormattedPhone = {
+        ...signupData,
+        phoneNumber: formattedPhone
+      };
+
+      console.log("원본 전화번호:", signupData.phoneNumber);
+      console.log("정리된 전화번호:", phoneNumber);
+      console.log("변환된 전화번호:", formattedPhone);
+      console.log("회원가입 시도:", signupDataWithFormattedPhone);
+      const response = await authAPI.signup(signupDataWithFormattedPhone);
       console.log("회원가입 응답:", response);
 
       // API 응답 검증 - 201 CREATED 상태 코드 확인
@@ -97,8 +115,8 @@ export default function SignupPage() {
         // 서버에서 에러 응답이 온 경우
         setError(
           response.message ||
-            response.error ||
-            "회원가입에 실패했습니다. 다시 시도해주세요."
+          response.error ||
+          "회원가입에 실패했습니다. 다시 시도해주세요."
         );
       }
     } catch (error) {
@@ -232,7 +250,7 @@ export default function SignupPage() {
             <Input
               id="signup-phone"
               type="tel"
-              placeholder="전화번호를 입력하세요 (01012345678)"
+              placeholder="전화번호를 입력하세요 (11자리 숫자)"
               value={signupData.phoneNumber}
               onChange={(e) => {
                 // 숫자만 입력 허용
