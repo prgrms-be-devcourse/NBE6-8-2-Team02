@@ -4,6 +4,16 @@
 
 이 프로젝트는 개인의 자산을 체계적으로 관리하고 목표를 설정하여 재무 계획을 수립할 수 있는 웹 애플리케이션입니다. 사용자는 계좌, 자산, 거래 내역을 관리하고 재무 목표를 설정하여 달성도를 추적할 수 있습니다.
 
+## 👥 팀원
+
+|이름|직책|작업|
+|------|---|---|
+|박영진|팀장|//개별 작성, 큰 거 4~5개 정도?|
+|이준모|팀원|//개별 작성, 큰 거 4~5개 정도?|
+|김태경|팀원|//개별 작성, 큰 거 4~5개 정도?|
+|이재균|팀원|//개별 작성, 큰 거 4~5개 정도?|
+|정의진|팀원|프로젝트 기획, Git 관리, [BE] 자산 도메인, [FE] 사용자 & 대시보드 페이지|
+
 ## 🚀 주요 기능
 
 ### 👤 사용자 관리
@@ -413,26 +423,7 @@ npm run build
 - Rate Limiting 구현
 - 입력 데이터 검증
 
-## 🤝 기여 방법
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다.
 
-## 👥 팀원
-
-- Team02 멤버들
-
-## 📞 문의
-
-프로젝트에 대한 문의사항이 있으시면 이슈를 생성해 주세요.
-
----
-
-**NBE6-8-2-Team02** - 개인 자산 관리 시스템
