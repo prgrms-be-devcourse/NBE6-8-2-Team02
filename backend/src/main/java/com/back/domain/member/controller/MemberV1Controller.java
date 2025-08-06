@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
 @Tag(name = "Member", description = "회원 관련 API")
+@Slf4j
 public class MemberV1Controller {
 
     private final MemberService memberService;
@@ -30,8 +32,16 @@ public class MemberV1Controller {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
     public ResponseEntity<MemberResponseDto> signUp(@Valid @RequestBody MemberRequestDto requestDto) {
-        MemberResponseDto memberResponseDto = memberService.signUp(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberResponseDto);
+        log.info("회원가입 요청 시작 - 이메일: {}, 이름: {}", requestDto.email(), requestDto.name());
+        
+        try {
+            MemberResponseDto memberResponseDto = memberService.signUp(requestDto);
+            log.info("회원가입 성공 - 이메일: {}, 회원ID: {}", requestDto.email(), memberResponseDto.id());
+            return ResponseEntity.status(HttpStatus.CREATED).body(memberResponseDto);
+        } catch (Exception e) {
+            log.error("회원가입 실패 - 이메일: {}, 오류: {}", requestDto.email(), e.getMessage(), e);
+            throw e; // GlobalExceptionHandler에서 처리되도록 재throw
+        }
     }
 
     // 4. 회원 정보 수정
