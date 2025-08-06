@@ -168,7 +168,8 @@ class AuthControllerTest {
                                         {
                                             "email": "admin@test.com",
                                             "name": "관리자",
-                                            "phoneNumber": "010-0000-0000"
+                                            "phoneNumber": "010-0000-0000",
+                                            "newPassword": "newPassword123"
                                         }
                                         """)
                 )
@@ -190,7 +191,8 @@ class AuthControllerTest {
                                         {
                                             "email": "wrong@test.com",
                                             "name": "관리자",
-                                            "phoneNumber": "010-1234-5678"
+                                            "phoneNumber": "010-1234-5678",
+                                            "newPassword": "newPassword123"
                                         }
                                         """)
                 )
