@@ -24,8 +24,18 @@ public class JwtUtil {
 
     // JWT 토큰 생성
     public String generateToken(String email, int userId, String role) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일은 필수입니다.");
+        }
+        if (role == null || role.trim().isEmpty()) {
+            throw new IllegalArgumentException("역할은 필수입니다.");
+        }
+        
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getAccessTokenValidity());
+
+        log.debug("JWT 토큰 생성 - 이메일: {}, 사용자 ID: {}, 역할: {}, 만료시간: {}", 
+                email, userId, role, expiryDate);
 
         return Jwts.builder()
                 .setSubject(email)
@@ -81,8 +91,18 @@ public class JwtUtil {
 
     // 리프레시 토큰 생성
     public String generateRefreshToken(String email, int userId, String role) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("이메일은 필수입니다.");
+        }
+        if (role == null || role.trim().isEmpty()) {
+            throw new IllegalArgumentException("역할은 필수입니다.");
+        }
+        
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getRefreshTokenValidity());
+
+        log.debug("리프레시 토큰 생성 - 이메일: {}, 사용자 ID: {}, 역할: {}, 만료시간: {}", 
+                email, userId, role, expiryDate);
 
         return Jwts.builder()
                 .setSubject(email)

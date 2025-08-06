@@ -85,17 +85,25 @@ public class AuthService {
 
 
     public Member authenticateUser(String email, String password) {
+        log.debug("사용자 인증 시작 - 이메일: {}", email);
+        
         Member member = memberRepository.findByEmailAndNotDeleted(email)
-                .orElseThrow(() -> new AuthenticationException("존재하지 않는 이메일입니다."));
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 이메일로 로그인 시도: {}", email);
+                    return new AuthenticationException("존재하지 않는 이메일입니다.");
+                });
 
         if (!member.isActive()) {
+            log.warn("비활성화된 계정으로 로그인 시도 - 이메일: {}, 사용자 ID: {}", email, member.getId());
             throw new AuthenticationException("비활성화된 계정입니다.");
         }
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
+            log.warn("비밀번호 불일치 - 이메일: {}", email);
             throw new AuthenticationException("비밀번호가 일치하지 않습니다.");
         }
 
+        log.debug("사용자 인증 성공 - 이메일: {}, 사용자 ID: {}", email, member.getId());
         return member;
     }
 

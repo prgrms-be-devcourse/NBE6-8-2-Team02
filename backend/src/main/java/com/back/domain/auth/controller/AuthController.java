@@ -35,22 +35,36 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인 후 JWT 토큰을 발급받음.")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+        
+        log.info("로그인 요청 시작 - 이메일: {}", loginRequest.email());
+        
+        try {
+            // 1. 사용자 인증
+            Member member = authService.authenticateUser(loginRequest.email(), loginRequest.password());
+            log.info("사용자 인증 성공 - 사용자 ID: {}, 이메일: {}", member.getId(), member.getEmail());
 
-        // 1. 사용자 인증
-        Member member = authService.authenticateUser(loginRequest.email(), loginRequest.password());
+            // 2. JWT 토큰 쌍 생성(Access Token과 Refresh Token)
+            // Access Token은 이메일과 사용자 ID를 포함
+            TokenPairDto tokenPair = authService.createTokenPair(member);
+            log.info("JWT 토큰 생성 완료");
 
-        // 2. JWT 토큰 쌍 생성(Access Token과 Refresh Token)
-        // Access Token은 이메일과 사용자 ID를 포함
-        TokenPairDto tokenPair = authService.createTokenPair(member);
-
-        // 3. 응답 DTO 생성
-        LoginResponseDto response = LoginResponseDto.of(
-                tokenPair.accessToken(),
-                jwtProperties.getAccessTokenValidity() / 1000, // 초 단위로 변환
-                member
-        );
-
-        return createTokenCookieResponse(tokenPair, response);
+            // 3. 응답 DTO 생성
+            LoginResponseDto response = LoginResponseDto.of(
+                    tokenPair.accessToken(),
+                    jwtProperties.getAccessTokenValidity() / 1000, // 초 단위로 변환
+                    member
+            );
+            
+            log.info("로그인 성공 - 사용자: {}", member.getEmail());
+            return createTokenCookieResponse(tokenPair, response);
+            
+        } catch (AuthenticationException e) {
+            log.error("로그인 실패 - 이메일: {}, 사유: {}", loginRequest.email(), e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("로그인 중 예상치 못한 오류 발생 - 이메일: {}", loginRequest.email(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/find-account")
@@ -164,6 +178,8 @@ public class AuthController {
 
     // 토큰 쌍을 쿠키에 설정하고 응답을 반환하는 메서드
     private ResponseEntity<LoginResponseDto> createTokenCookieResponse(TokenPairDto tokenPair, LoginResponseDto response) {
+        log.debug("토큰 쿠키 설정 시작");
+        
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenPair.accessToken())
                 .httpOnly(true)
                 .secure(false) // 로컬 개발 중이면 false, 배포 환경에선 true + HTTPS
@@ -179,6 +195,9 @@ public class AuthController {
                 .maxAge(jwtProperties.getRefreshTokenValidity() / 1000)
                 .sameSite("Lax")
                 .build();
+
+        log.debug("토큰 쿠키 설정 완료 - AccessToken 만료시간: {}초, RefreshToken 만료시간: {}초", 
+                jwtProperties.getAccessTokenValidity() / 1000, jwtProperties.getRefreshTokenValidity() / 1000);
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", accessCookie.toString())
