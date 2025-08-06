@@ -9,9 +9,10 @@ import {
 
 interface SideBarProps {
   active?: "mypage" | "goals" | "accounts" | "assets";
+  isAdminMode?: boolean;
 }
 
-export default function SideBar({active}: SideBarProps) {
+export default function SideBar({active, isAdminMode = false}: SideBarProps) {
   const router = useRouter();
 
   return (
@@ -32,30 +33,40 @@ export default function SideBar({active}: SideBarProps) {
         <h1 className="text-2xl font-bold tracking-tight">메뉴
         </h1>
       </header>
-      <section
-        onClick={() => router.push("/mypage")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "mypage" ? "bg-gray-100" : ""}`}
-      >
-        <LayoutDashboard className="text-black-500" />대시 보드
-      </section>
-      <section
-        onClick={() => router.push("/mypage/goals")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "goals" ? "bg-gray-100" : ""}`}
-      >
-        <Target className="text-black-500" />나의 목표
-      </section>
-      <section
-        onClick={() => router.push("/mypage/accounts")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "accounts" ? "bg-gray-100" : ""}`}
-      >
-        <CreditCard className="text-black-500" />계좌 목록
-      </section>
-      <section
-        onClick={() => router.push("/mypage/assets")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "assets" ? "bg-gray-100" : ""}`}
-      >
-        <HandCoins className="text-black-500" />자산 목록
-      </section>
+      {!isAdminMode && (
+        <>
+          <section
+            onClick={() => router.push("/mypage")}
+            className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "mypage" ? "bg-gray-100" : ""}`}
+          >
+            <LayoutDashboard className="text-black-500" />대시 보드
+          </section>
+          <section
+            onClick={() => router.push("/mypage/goals")}
+            className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "goals" ? "bg-gray-100" : ""}`}
+          >
+            <Target className="text-black-500" />나의 목표
+          </section>
+          <section
+            onClick={() => router.push("/mypage/accounts")}
+            className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "accounts" ? "bg-gray-100" : ""}`}
+          >
+            <CreditCard className="text-black-500" />계좌 목록
+          </section>
+          <section
+            onClick={() => router.push("/mypage/assets")}
+            className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "assets" ? "bg-gray-100" : ""}`}
+          >
+            <HandCoins className="text-black-500" />자산 목록
+          </section>
+        </>
+      )}
+      {isAdminMode && (
+        <section className="flex items-center p-2 gap-4 text-gray-400 bg-gray-50 rounded-md">
+          <LayoutDashboard className="text-gray-400" />
+          <span className="text-sm">관리자 모드 - 공지사항 관리</span>
+        </section>
+      )}
     </div>
   );
 }; 

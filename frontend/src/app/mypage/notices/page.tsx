@@ -136,7 +136,7 @@ export default function NoticePage() {
     return (
       <div className="min-h-screen pt-[64px] grid grid-cols-[1fr_auto_1fr]">
         <div></div>
-        <SideBar active="mypage" />
+        <SideBar active="mypage" isAdminMode={isAdmin} />
         <div className="flex flex-col min-h-screen p-6 mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-gray-500">로딩 중...</div>
