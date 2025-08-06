@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   CreditCard,
@@ -7,11 +8,12 @@ import {
 } from "lucide-react";
 
 interface SideBarProps {
-  navigate: (path: string) => void;
   active?: "mypage" | "goals" | "accounts" | "assets";
 }
 
-export const SideBar: React.FC<SideBarProps> = ({ navigate, active }) => {
+export default function SideBar({active}: SideBarProps) {
+  const router = useRouter();
+
   return (
     <div
       className="flex flex-col p-6 space-y-6 border-r bg-white"
@@ -31,26 +33,26 @@ export const SideBar: React.FC<SideBarProps> = ({ navigate, active }) => {
         </h1>
       </header>
       <section
-        onClick={() => navigate("/mypage")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "mypage" ? "bg-gray-100" : ""}`}
+        onClick={() => router.push("/mypage")}
+        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "mypage" ? "bg-gray-100" : ""}`}
       >
         <LayoutDashboard className="text-black-500" />대시 보드
       </section>
       <section
-        onClick={() => navigate("/mypage/goals")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "goals" ? "bg-gray-100" : ""}`}
+        onClick={() => router.push("/mypage/goals")}
+        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "goals" ? "bg-gray-100" : ""}`}
       >
         <Target className="text-black-500" />나의 목표
       </section>
       <section
-        onClick={() => navigate("/mypage/accounts")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "accounts" ? "bg-gray-100" : ""}`}
+        onClick={() => router.push("/mypage/accounts")}
+        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "accounts" ? "bg-gray-100" : ""}`}
       >
         <CreditCard className="text-black-500" />계좌 목록
       </section>
       <section
-        onClick={() => navigate("/mypage/assets")}
-        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active === "assets" ? "bg-gray-100" : ""}`}
+        onClick={() => router.push("/mypage/assets")}
+        className={`flex items-center p-2 gap-4 text-gray-500 hover:bg-gray-100 rounded-md cursor-pointer ${active == "assets" ? "bg-gray-100" : ""}`}
       >
         <HandCoins className="text-black-500" />자산 목록
       </section>

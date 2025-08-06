@@ -8,7 +8,8 @@ import { apiFetch } from "@/lib/backend/client";
 import { authAPI } from "@/lib/auth";
 import { Asset } from "next/font/google";
 import * as Style from "@/app/components/ui/styles";
-import { SideBar } from "@/app/components/SideBar";
+import { motion } from "framer-motion";
+import SideBar from "@/app/components/SideBar";
 
 type Asset = {
   id: number;
@@ -299,7 +300,13 @@ export default function MyPage() {
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div></div>
-      <SideBar navigate={router.push} active="mypage" />
+      <SideBar active="mypage" />
+      <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+      >
       <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">자산 가치</h1>
@@ -387,6 +394,7 @@ export default function MyPage() {
         </section>
       </div>
       <div></div>
+      </motion.div>
     </div>
   );
 }

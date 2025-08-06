@@ -8,7 +8,7 @@ import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { SideBar } from "../../../components/SideBar";
+import SideBar from "../../../components/SideBar";
 
 export default function AccountDetailPage() {
   const router = useRouter();
@@ -136,7 +136,7 @@ export default function AccountDetailPage() {
 
   return (
     <div className="max-w-xl mx-auto py-10 space-y-6">
-      <SideBar navigate={router.push} active="accounts" />
+      <SideBar active="accounts" />
       <div className="mt-15 text-2xl font-bold">{account.name}</div>
       <div className="text-gray-600 font-medium">{account.accountNumber}</div>
       <div className="text-lg">잔액: {account.balance.toLocaleString()}원</div>
