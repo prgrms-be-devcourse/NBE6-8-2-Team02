@@ -162,237 +162,239 @@ export default function SignupPage() {
   }, []);
 
   return (
-    <motion.div
-      key="signup"
-      initial={{ opacity: 0, y: 100 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -100 }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="text-center space-y-6 max-w-sm w-full"
-    >
-      <div className="space-y-4">
-        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto">
-          <svg
-            className="w-6 h-6 text-primary-foreground"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-            />
-          </svg>
-        </div>
-        <h2 className="text-2xl tracking-tight text-gray-900">회원가입</h2>
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-name">이름</Label>
-          <Input
-            id="signup-name"
-            type="text"
-            placeholder="이름을 입력하세요 (2-20자)"
-            value={signupData.name}
-            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-              setSignupData((prev) => ({ ...prev, name: e.target.value }));
-              setError(""); // 입력 시 에러 메시지 초기화
-            }, [])}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSignup();
-              }
-            }}
-          />
-        </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-email">이메일</Label>
-          <Input
-            id="signup-email"
-            type="email"
-            placeholder="이메일을 입력하세요"
-            value={signupData.email}
-            onChange={(e) => {
-              setSignupData({ ...signupData, email: e.target.value });
-              setError(""); // 입력 시 에러 메시지 초기화
-            }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSignup();
-              }
-            }}
-          />
-        </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-phone">전화번호</Label>
-          <Input
-            id="signup-phone"
-            type="tel"
-            placeholder="전화번호를 입력하세요 (01012345678)"
-            value={signupData.phoneNumber}
-            onChange={(e) => {
-              // 숫자만 입력 허용
-              const value = e.target.value.replace(/[^0-9]/g, "");
-              setSignupData({ ...signupData, phoneNumber: value });
-              setError(""); // 입력 시 에러 메시지 초기화
-            }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSignup();
-              }
-            }}
-          />
-        </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-password">비밀번호</Label>
-          <div className="relative">
-            <Input
-              id="signup-password"
-              type={showPassword ? "text" : "password"}
-              placeholder="비밀번호를 입력하세요 (6-20자)"
-              value={signupData.password}
-              onChange={(e) => {
-                setSignupData({ ...signupData, password: e.target.value });
-                setError(""); // 입력 시 에러 메시지 초기화
-              }}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  handleSignup();
-                }
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              {showPassword ? (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="signup-confirm-password">비밀번호 확인</Label>
-          <div className="relative">
-            <Input
-              id="signup-confirm-password"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="비밀번호를 재입력하세요"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                setError(""); // 입력 시 에러 메시지 초기화
-              }}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  handleSignup();
-                }
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              {showConfirmPassword ? (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-      {/* 에러 메시지 표시 */}
-      {error && (
-        <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <Button
-        onClick={handleSignup}
-        size="lg"
-        className="w-full"
-        disabled={isLoading}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <motion.div
+        key="signup"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -100 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        className="text-center space-y-6 max-w-sm w-full bg-white p-8 rounded-lg shadow-lg"
       >
-        {isLoading ? "회원가입 중..." : "회원가입"}
-      </Button>
+        <div className="space-y-4">
+          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto">
+            <svg
+              className="w-6 h-6 text-primary-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl tracking-tight text-gray-900">회원가입</h2>
+        </div>
 
-      <div className="text-center">
-        <button
-          onClick={handleBackToLogin}
-          className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer py-1 px-2 rounded hover:bg-gray-50"
+        <div className="space-y-4">
+          <div className="space-y-2 text-left">
+            <Label htmlFor="signup-name">이름</Label>
+            <Input
+              id="signup-name"
+              type="text"
+              placeholder="이름을 입력하세요 (2-20자)"
+              value={signupData.name}
+              onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+                setSignupData((prev) => ({ ...prev, name: e.target.value }));
+                setError(""); // 입력 시 에러 메시지 초기화
+              }, [])}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSignup();
+                }
+              }}
+            />
+          </div>
+          <div className="space-y-2 text-left">
+            <Label htmlFor="signup-email">이메일</Label>
+            <Input
+              id="signup-email"
+              type="email"
+              placeholder="이메일을 입력하세요"
+              value={signupData.email}
+              onChange={(e) => {
+                setSignupData({ ...signupData, email: e.target.value });
+                setError(""); // 입력 시 에러 메시지 초기화
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSignup();
+                }
+              }}
+            />
+          </div>
+          <div className="space-y-2 text-left">
+            <Label htmlFor="signup-phone">전화번호</Label>
+            <Input
+              id="signup-phone"
+              type="tel"
+              placeholder="전화번호를 입력하세요 (01012345678)"
+              value={signupData.phoneNumber}
+              onChange={(e) => {
+                // 숫자만 입력 허용
+                const value = e.target.value.replace(/[^0-9]/g, "");
+                setSignupData({ ...signupData, phoneNumber: value });
+                setError(""); // 입력 시 에러 메시지 초기화
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSignup();
+                }
+              }}
+            />
+          </div>
+          <div className="space-y-2 text-left">
+            <Label htmlFor="signup-password">비밀번호</Label>
+            <div className="relative">
+              <Input
+                id="signup-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="비밀번호를 입력하세요 (6-20자)"
+                value={signupData.password}
+                onChange={(e) => {
+                  setSignupData({ ...signupData, password: e.target.value });
+                  setError(""); // 입력 시 에러 메시지 초기화
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleSignup();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                {showPassword ? (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2 text-left">
+            <Label htmlFor="signup-confirm-password">비밀번호 확인</Label>
+            <div className="relative">
+              <Input
+                id="signup-confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="비밀번호를 재입력하세요"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setError(""); // 입력 시 에러 메시지 초기화
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleSignup();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                {showConfirmPassword ? (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* 에러 메시지 표시 */}
+        {error && (
+          <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+            {error}
+          </div>
+        )}
+
+        <Button
+          onClick={handleSignup}
+          size="lg"
+          className="w-full"
+          disabled={isLoading}
         >
-          이미 계정이 있나요?
-        </button>
-      </div>
-    </motion.div>
+          {isLoading ? "회원가입 중..." : "회원가입"}
+        </Button>
+
+        <div className="text-center">
+          <button
+            onClick={handleBackToLogin}
+            className="text-sm text-muted-foreground hover:text-primary hover:font-semibold transition-all duration-200 cursor-pointer py-1 px-2 rounded hover:bg-gray-50"
+          >
+            이미 계정이 있나요?
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 }

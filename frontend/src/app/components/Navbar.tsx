@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Megaphone, User, LogOut } from "lucide-react";
-import { authAPI } from "../../lib/auth";
+import { authAPI } from "@/lib/auth";
 import { useState } from "react";
 
 export default function Navbar() {

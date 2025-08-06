@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { authAPI } from "@/lib/auth";
-import { SideBar } from "@/app/components/SideBar";
+import SideBar from "@/app/components/SideBar";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -25,8 +25,8 @@ import {
   Lock,
   Eye,
   EyeOff,
-  AlertTriangle,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { formatPhoneNumberForDisplay } from "@/lib/utils";
 
 interface UserInfo {
@@ -39,7 +39,7 @@ interface UserInfo {
   modifyDate: string;
 }
 
-export function ProfilePage() {
+export default function ProfilePage() {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -238,8 +238,13 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen pl-[240px] pt-[64px]">
-      <SideBar navigate={router.push} active="mypage" />
-
+      <SideBar active="mypage" />
+      <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+      >
       <div className="p-6 max-w-4xl mx-auto space-y-6">
         <header className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">내 정보</h1>
@@ -557,6 +562,7 @@ export function ProfilePage() {
           </div>
         )}
       </div>
+      </motion.div>
     </div>
   );
 }
