@@ -1,5 +1,6 @@
 package com.back.domain.member.controller;
 
+import com.back.domain.member.dto.MemberDeleteResponseDto;
 import com.back.domain.member.dto.MemberPasswordChangeDto;
 import com.back.domain.member.dto.MemberRequestDto;
 import com.back.domain.member.dto.MemberResponseDto;
@@ -62,7 +63,7 @@ public class MemberV1Controller {
     // 5. 회원 삭제
     @DeleteMapping("/{memberId}")
     @Operation(summary = "회원 삭제", description = "회원 정보를 삭제합니다.")
-    public ResponseEntity<Void> deleteMember(@PathVariable int memberId) {
+    public ResponseEntity<MemberDeleteResponseDto> deleteMember(@PathVariable int memberId) {
         
         // 현재 로그인한 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -80,7 +81,7 @@ public class MemberV1Controller {
         }
         
         memberService.softDeleteMember(memberId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MemberDeleteResponseDto.of(true));
     }
 
 

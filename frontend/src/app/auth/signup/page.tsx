@@ -58,7 +58,7 @@ export default function SignupPage() {
 
     // 전화번호 형식 검증 (숫자만)
     if (!validatePhoneNumber(signupData.phoneNumber)) {
-      setError("올바른 전화번호 형식을 입력해주세요. (11자리 숫자, 010으로 시작)");
+      setError("올바른 전화번호 형식을 입력해주세요. (예: 01012345678)");
       return;
     }
 
@@ -250,7 +250,7 @@ export default function SignupPage() {
             <Input
               id="signup-phone"
               type="tel"
-              placeholder="전화번호를 입력하세요 (11자리 숫자)"
+              placeholder="전화번호를 입력하세요 (01012345678)"
               value={signupData.phoneNumber}
               onChange={(e) => {
                 // 숫자만 입력 허용

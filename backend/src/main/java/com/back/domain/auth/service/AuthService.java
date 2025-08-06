@@ -1,6 +1,7 @@
 package com.back.domain.auth.service;
 
 import com.back.domain.auth.dto.FindAccountResponseDto;
+import com.back.domain.auth.dto.ResetPasswordRequestDto;
 import com.back.domain.auth.dto.ResetPasswordResponseDto;
 import com.back.domain.auth.dto.TokenPairDto;
 import com.back.domain.auth.entity.RefreshToken;
@@ -16,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 
@@ -57,15 +57,15 @@ public class AuthService {
 
 
     @Transactional
-    public ResetPasswordResponseDto resetPassword(String email, String name, String phoneNumber, String ipAddress) {
+    public ResetPasswordResponseDto resetPassword(ResetPasswordRequestDto request, String ipAddress) {
         // Rate limit 체크
         if (!rateLimitService.isAllowed(ipAddress)) {
             rateLimitService.recordAttempt(ipAddress);
             throw new AuthenticationException("잦은 시도로 일시적으로 차단되었습니다. 30분 후 다시 시도해주세요.");
         }
 
-
-        Member member = memberRepository.findByEmailAndNameAndPhoneNumberAndNotDeleted(email, name, phoneNumber)
+        Member member = memberRepository.findByEmailAndNameAndPhoneNumberAndNotDeleted(
+                request.email(), request.name(), request.phoneNumber())
                 .orElseThrow(() -> {
                     rateLimitService.recordAttempt(ipAddress); // 실패시 시도 기록
                     return new AuthenticationException("일치하는 회원 정보를 찾을 수 없습니다.");
@@ -76,33 +76,13 @@ public class AuthService {
             throw new AuthenticationException("비활성화된 계정입니다.");
         }
 
-        // 임시 비밀번호 생성 (8자리)
-        String temporaryPassword = generateTemporaryPassword();
-        String encodedPassword = passwordEncoder.encode(temporaryPassword);
-
-        // 비밀번호 변경
+        // 사용자가 입력한 새 비밀번호로 변경
+        String encodedPassword = passwordEncoder.encode(request.newPassword());
         member.changePassword(encodedPassword);
-
-        // 실제 서비스에서는 임시 비밀번호를 이메일이나 SMS로 전송해야 함
-        // 여기서는 로그로만 출력 (개발/테스트 용도)
-        System.out.println("임시 비밀번호가 생성되었습니다: " + temporaryPassword);
-        System.out.println("이메일(" + email + ")로 임시 비밀번호를 전송했습니다.");
 
         return ResetPasswordResponseDto.of(true);
     }
 
-    // 임시 비밀번호 생성 메서드
-    private String generateTemporaryPassword() {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
-
-        for (int i = 0; i < 8; i++) {
-            password.append(chars.charAt(random.nextInt(chars.length())));
-        }
-
-        return password.toString();
-    }
 
     public Member authenticateUser(String email, String password) {
         Member member = memberRepository.findByEmailAndNotDeleted(email)

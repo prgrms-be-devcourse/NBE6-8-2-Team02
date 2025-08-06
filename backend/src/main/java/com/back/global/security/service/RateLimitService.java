@@ -26,12 +26,13 @@ public class RateLimitService {
         }
 
         // 30분이 지났으면 초기화
-        if (info.lastAttempt.isBefore(LocalDateTime.now().minusHours(RESET_TIME))) {
+        if (info.lastAttempt.isBefore(LocalDateTime.now().minusMinutes(RESET_TIME))) {
             attemptMap.remove(ipAddress);
             return true;
         }
 
         return info.attemptCount < MAX_ATTEMPTS;
+
     }
 
     // IP 주소로 시도 횟수를 기록
@@ -43,7 +44,7 @@ public class RateLimitService {
             attemptMap.put(ipAddress, new AttemptInfo(1, LocalDateTime.now()));
         } else {
             // 30분이 지났으면 초기화
-            if (info.lastAttempt.isBefore(LocalDateTime.now().minusHours(RESET_TIME))) {
+            if (info.lastAttempt.isBefore(LocalDateTime.now().minusMinutes(RESET_TIME))) {
                 attemptMap.put(ipAddress, new AttemptInfo(1, LocalDateTime.now()));
             } else {
                 info.attemptCount++;
@@ -64,7 +65,7 @@ public class RateLimitService {
         }
 
         // 30분이 지났으면 초기화
-        if (info.lastAttempt.isBefore(LocalDateTime.now().minusHours(RESET_TIME))) {
+        if (info.lastAttempt.isBefore(LocalDateTime.now().minusMinutes(RESET_TIME))) {
             return MAX_ATTEMPTS;
         }
 
