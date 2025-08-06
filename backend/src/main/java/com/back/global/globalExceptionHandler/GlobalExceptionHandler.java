@@ -53,6 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<RsData<Void>> handleAuthentication(AuthenticationException e) {
+        log.error("인증 실패: {}", e.getMessage());
         return new ResponseEntity<>(
                 new RsData<>(
                         "401-1",
@@ -63,7 +64,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-            public ResponseEntity<RsData<Void>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<RsData<Void>> handleValidationException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -71,6 +72,7 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .orElse("입력값이 올바르지 않습니다.");
 
+        log.error("유효성 검증 실패: {}", errorMessage);
         return new ResponseEntity<>(
                 new RsData<>(
                         "400-2",
@@ -94,10 +96,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RsData<Void>> handleGeneralException(Exception e) {
+        log.error("서버 내부 오류: ", e);
         return new ResponseEntity<>(
                 new RsData<>(
                         "500-1",
-                        e.getMessage()
+                        "서버 내부 오류가 발생했습니다. 관리자에게 문의해주세요."
                 ),
                 INTERNAL_SERVER_ERROR
         );
