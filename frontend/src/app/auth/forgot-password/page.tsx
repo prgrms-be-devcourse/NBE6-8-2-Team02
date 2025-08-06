@@ -128,14 +128,16 @@ export default function ForgotPasswordPage() {
                 formattedPhone = phoneNumber;
             }
 
-            const resetPasswordDataWithFormattedPhone = {
-                ...resetPasswordData,
+            // 1단계: 계정 확인 (findAccount API 사용)
+            const accountVerificationData = {
+                name: resetPasswordData.name,
                 phoneNumber: formattedPhone
             };
 
-            console.log("비밀번호 재설정 시도:", resetPasswordDataWithFormattedPhone);
-            const response = await authAPI.resetPassword(resetPasswordDataWithFormattedPhone);
+            console.log("계정 확인 시도:", accountVerificationData);
+            const response = await authAPI.findAccount(accountVerificationData);
 
+            // 계정 확인 성공 시 2단계로 진행
             setIsPasswordResetMode(true);
             setSuccess("계정을 확인했습니다. 새 비밀번호를 입력해주세요.");
             setIsLoading(false);
@@ -171,17 +173,26 @@ export default function ForgotPasswordPage() {
         setError("");
 
         try {
-            // 실제 API 호출
-            const userId = localStorage.getItem('userId');
-            if (!userId) {
-                setError("사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
-                setIsLoading(false);
-                return;
+            // 전화번호를 하이픈이 있는 형식으로 변환
+            const phoneNumber = resetPasswordData.phoneNumber.replace(/[^0-9]/g, "");
+            let formattedPhone;
+
+            if (phoneNumber.length === 11 && phoneNumber.startsWith("010")) {
+                formattedPhone = phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+            } else {
+                formattedPhone = phoneNumber;
             }
 
-            console.log("비밀번호 변경 시도:", { userId, newPassword });
-            const response = await authAPI.changePassword(parseInt(userId), newPassword);
-            console.log("비밀번호 변경 응답:", response);
+            // 비밀번호 재설정 API 호출 (새 비밀번호 포함)
+            const resetPasswordDataWithNewPassword = {
+                ...resetPasswordData,
+                phoneNumber: formattedPhone,
+                newPassword: newPassword
+            };
+
+            console.log("비밀번호 재설정 시도:", resetPasswordDataWithNewPassword);
+            const response = await authAPI.resetPassword(resetPasswordDataWithNewPassword);
+            console.log("비밀번호 재설정 응답:", response);
 
             setSuccess("비밀번호가 성공적으로 변경되었습니다!");
             setIsLoading(false);
@@ -194,7 +205,7 @@ export default function ForgotPasswordPage() {
             setError(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.");
             setIsLoading(false);
         }
-    }, [newPassword, confirmPassword, router]);
+    }, [newPassword, confirmPassword, resetPasswordData, router]);
 
     const handleBackToLogin = useCallback(() => {
         router.push("/auth/login");

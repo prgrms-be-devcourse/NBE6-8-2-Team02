@@ -69,12 +69,7 @@ public class AuthController {
             @Valid @RequestBody ResetPasswordRequestDto request,
             HttpServletRequest httpRequest) {
         String ipAddress = getClientIpAddress(httpRequest);
-        ResetPasswordResponseDto response = authService.resetPassword(
-                request.email(),
-                request.name(),
-                request.phoneNumber(),
-                ipAddress
-        );
+        ResetPasswordResponseDto response = authService.resetPassword(request, ipAddress);
         return ResponseEntity.ok(response);
     }
 
