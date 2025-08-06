@@ -53,7 +53,7 @@ export default function AssetPage() {
   useEffect(() => {
     const fetchAssetInfo = async () => {
       try {
-        const allAssetRes = await apiFetch("/api/v1/assets");
+        const allAssetRes = await apiFetch('/api/v1/assets/member');
         const myAssets: Asset[] = allAssetRes.data;
 
         const deposits = myAssets

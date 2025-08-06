@@ -125,7 +125,7 @@ export default function MyPage() {
         apiFetch("/api/v1/assets/member"),
       ]);
 
-      const myAccounts: Account[] = allAccountRes.data || [];
+      const myAccounts: Account[] = allAccountRes || [];
       const myAssets: Asset[] = allAssetRes.data || [];
 
       // 자산, 계좌 id 추출
@@ -298,14 +298,13 @@ export default function MyPage() {
   };
 
   return (
-    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
-      <div></div>
+    <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[auto_auto_auto]">
       <SideBar active="mypage" />
       <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+          className="flex flex-col p-6 min-h-screen max-w-6xl mx-auto space-y-6"
       >
       <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6">
         <header className="flex items-center justify-between">
@@ -348,7 +347,6 @@ export default function MyPage() {
             description={Style.formatCount(
               barChartDataRaw.find((d) => d.type === "deposit")?.count ?? 0
             )}
-            onClick={() => router.push("/mypage/assets")}
           />
           <Style.Card
             icon={<House className="w-6 h-6 text-orange-500" />}
@@ -359,7 +357,6 @@ export default function MyPage() {
             description={Style.formatCount(
               barChartDataRaw.find((d) => d.type === "real_estate")?.count ?? 0
             )}
-            onClick={() => router.push("/mypage/assets")}
           />
           <Style.Card
             icon={<BarChart2 className="w-6 h-6 text-purple-500" />}
@@ -370,7 +367,6 @@ export default function MyPage() {
             description={Style.formatCount(
               barChartDataRaw.find((d) => d.type === "stock")?.count ?? 0
             )}
-            onClick={() => router.push("/mypage/assets")}
           />
         </section>
 
@@ -378,7 +374,8 @@ export default function MyPage() {
           <Style.ChartBarHorizontal barChartData={barChartData} />
         </section>
       </div>
-      <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6 border-l">
+      </motion.div>
+      <div className="flex flex-col min-h-screen p-12 max-w-6xl mx-auto space-y-6 border-l">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">최근 거래</h1>
         </header>
@@ -393,8 +390,6 @@ export default function MyPage() {
           )}
         </section>
       </div>
-      <div></div>
-      </motion.div>
     </div>
   );
 }
