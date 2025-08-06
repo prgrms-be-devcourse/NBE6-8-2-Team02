@@ -96,11 +96,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RsData<Void>> handleGeneralException(Exception e) {
-        log.error("서버 내부 오류: ", e);
+        log.error("서버 내부 오류: {}", e.getMessage(), e);
+        
+        // 개발 환경에서는 상세한 오류 메시지 포함
+        String message = "서버 내부 오류가 발생했습니다. 관리자에게 문의해주세요.";
+        if (log.isDebugEnabled()) {
+            message = e.getMessage() != null ? e.getMessage() : message;
+        }
+        
         return new ResponseEntity<>(
                 new RsData<>(
                         "500-1",
-                        "서버 내부 오류가 발생했습니다. 관리자에게 문의해주세요."
+                        message
                 ),
                 INTERNAL_SERVER_ERROR
         );

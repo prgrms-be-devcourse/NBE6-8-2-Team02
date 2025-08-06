@@ -6,6 +6,7 @@ import com.back.domain.member.dto.MemberUpdateDto;
 import com.back.domain.member.entity.Member;
 import com.back.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,19 +35,33 @@ public class MemberService {
     // 회원 가입
     @Transactional
     public MemberResponseDto signUp(MemberRequestDto requestDto) {
+        log.info("MemberService.signUp 시작 - 이메일: {}", requestDto.email());
+        
+        try {
+            // 이메일 중복 체크
+            if (memberRepository.existsByEmailAndIsDeletedFalse(requestDto.email())) {
+                log.warn("회원가입 실패: 이미 존재하는 이메일 - {}", requestDto.email());
+                throw new NoSuchElementException("이미 존재하는 이메일입니다.");
+            }
+            log.debug("이메일 중복 체크 통과 - {}", requestDto.email());
 
-        if (memberRepository.existsByEmailAndIsDeletedFalse(requestDto.email())) {
-            throw new NoSuchElementException("이미 존재하는 이메일입니다.");
+            // 비밀번호 암호화
+            String encodedPassword = passwordEncoder.encode(requestDto.password());
+            log.debug("비밀번호 암호화 완료");
+
+            // 멤버 객체 생성
+            Member member = requestDto.toEntity(encodedPassword);
+            log.debug("Member 엔티티 생성 완료");
+            
+            // 데이터베이스 저장
+            Member savedMember = memberRepository.save(member);
+            log.info("회원가입 성공: ID={}, 이메일={}", savedMember.getId(), savedMember.getEmail());
+
+            return MemberResponseDto.from(savedMember);
+        } catch (Exception e) {
+            log.error("회원가입 중 오류 발생 - 이메일: {}, 오류: {}", requestDto.email(), e.getMessage(), e);
+            throw e;
         }
-
-        // 비밀번호 암호화 추가
-        String encodedPassword = passwordEncoder.encode(requestDto.password());
-
-        // 멤버 객체 생성
-        Member member = requestDto.toEntity(encodedPassword);
-        Member savedMember = memberRepository.save(member);
-
-        return MemberResponseDto.from(savedMember);
     }
 
     // ID로 회원 조회
