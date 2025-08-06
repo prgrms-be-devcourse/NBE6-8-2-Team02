@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
-import { validatePhoneNumber } from "@/lib/utils";
+import { validatePhoneNumber, formatPhoneNumberForDisplay } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {
     const [findAccountData, setFindAccountData] = useState({
@@ -54,7 +54,23 @@ export default function ForgotPasswordPage() {
         setSuccess("");
 
         try {
-            const response = await authAPI.findAccount(findAccountData);
+            // 전화번호를 하이픈이 있는 형식으로 변환
+            const phoneNumber = findAccountData.phoneNumber.replace(/[^0-9]/g, "");
+            let formattedPhone;
+
+            if (phoneNumber.length === 11 && phoneNumber.startsWith("010")) {
+                formattedPhone = phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+            } else {
+                formattedPhone = phoneNumber;
+            }
+
+            const findAccountDataWithFormattedPhone = {
+                ...findAccountData,
+                phoneNumber: formattedPhone
+            };
+
+            console.log("계정찾기 시도:", findAccountDataWithFormattedPhone);
+            const response = await authAPI.findAccount(findAccountDataWithFormattedPhone);
 
             setFoundAccount({
                 email: response.email,
@@ -102,7 +118,23 @@ export default function ForgotPasswordPage() {
         setSuccess("");
 
         try {
-            const response = await authAPI.resetPassword(resetPasswordData);
+            // 전화번호를 하이픈이 있는 형식으로 변환
+            const phoneNumber = resetPasswordData.phoneNumber.replace(/[^0-9]/g, "");
+            let formattedPhone;
+
+            if (phoneNumber.length === 11 && phoneNumber.startsWith("010")) {
+                formattedPhone = phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+            } else {
+                formattedPhone = phoneNumber;
+            }
+
+            const resetPasswordDataWithFormattedPhone = {
+                ...resetPasswordData,
+                phoneNumber: formattedPhone
+            };
+
+            console.log("비밀번호 재설정 시도:", resetPasswordDataWithFormattedPhone);
+            const response = await authAPI.resetPassword(resetPasswordDataWithFormattedPhone);
 
             setIsPasswordResetMode(true);
             setSuccess("계정을 확인했습니다. 새 비밀번호를 입력해주세요.");
