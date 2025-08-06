@@ -19,8 +19,8 @@ import {
 import { authAPI } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "../../../lib/backend/client";
-import { SideBar } from "../../components/SideBar";
+import { apiFetch } from "@/lib/backend/client";
+import SideBar from "@/app/components/SideBar";
 
 interface Goal {
   id: number;
@@ -355,7 +355,7 @@ export default function GoalPage() {
   if (loading) {
     return (
       <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-        <SideBar navigate={router.push} active="goals" />
+        <SideBar active="goals" />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -373,7 +373,7 @@ export default function GoalPage() {
   if (error) {
     return (
       <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-        <SideBar navigate={router.push} active="goals" />
+        <SideBar active="goals" />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -390,7 +390,7 @@ export default function GoalPage() {
 
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_1fr] gap-x-4">
-      <SideBar navigate={router.push} active="goals" />
+      <SideBar active="goals" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

@@ -13,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { SideBar } from "@/app/components/SideBar";
+import SideBar from "@/app/components/SideBar";
 
 export default function AccountsPage() {
   const { accounts, setAccounts, addAccount, updateAccount, deleteAccount } =
@@ -77,7 +78,13 @@ export default function AccountsPage() {
   return (
     <div className="min-h-screen pl-[240px] pt-[64px] grid grid-cols-[1fr_auto_auto_auto_1fr] gap-x-4">
       <div></div>
-      <SideBar navigate={router.push} active="accounts" />
+      <SideBar active="accounts"/>
+      <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+      >
       <div className="max-w-2xl mx-auto py-10 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">내 계좌 목록</h1>
@@ -209,6 +216,7 @@ export default function AccountsPage() {
             ))}
         </div>
       </div>
+      </motion.div>
     </div>
   );
 }

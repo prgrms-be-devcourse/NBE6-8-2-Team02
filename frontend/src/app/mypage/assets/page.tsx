@@ -8,7 +8,8 @@ import * as React from "react";
 import { apiFetch } from "@/lib/backend/client";
 import { Asset } from "next/font/google";
 import * as Style from "@/app/components/ui/styles";
-import { SideBar } from "@/app/components/SideBar";
+import { motion } from "framer-motion";
+import SideBar from "@/app/components/SideBar";
 
 type Asset = {
   id: number;
@@ -113,7 +114,13 @@ export default function AssetPage() {
     <>
       <div className="min-h-screen pt-[64px] grid grid-cols-[1fr_auto_1fr]">
         <div></div>
-        <SideBar navigate={router.push} active="assets" />
+        <SideBar active="assets" />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6"
+        >
         <div className="flex flex-col min-h-screen p-6 mx-auto">
           <div className="flex flex-row mr-auto gap-2">
             <header className="flex items-center justify-between">
@@ -195,6 +202,7 @@ export default function AssetPage() {
           </div>
         </div>
         <div></div>
+        </motion.div>
       </div>
       <CreateAssetModal
         open={modalOpen}

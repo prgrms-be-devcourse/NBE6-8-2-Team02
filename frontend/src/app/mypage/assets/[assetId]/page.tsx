@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/backend/client";
 import { CreateTransactionModal } from "@/app/mypage/assets/CreateTransactionModal";
 import { SquarePlusIcon } from 'lucide-react';
 import * as Style from "@/app/components/ui/styles"
-import { SideBar } from "@/app/components/SideBar";
+import SideBar from "@/app/components/SideBar";
 
 type Asset = {
     id: number;
@@ -18,7 +18,7 @@ type Asset = {
     modifyDate: string;
 };
 
-export function AssetDetailPage() {
+export default function AssetDetailPage() {
     const router = useRouter();
 
     const [reloadFlag, setReloadFlag] = useState(false);
@@ -29,7 +29,7 @@ export function AssetDetailPage() {
 
     const params = useParams();
 
-    const id = Number(params.id);
+    const id = Number(params.assetId);
     const [asset, setAsset] = useState<Asset>({
         id: 0,
         memberId: 0,
@@ -131,7 +131,7 @@ export function AssetDetailPage() {
 
     return (
         <>
-            <SideBar navigate={navigate} active="mypage" />
+            <SideBar active="mypage" />
             <div className="min-h-screen pt-[64px] grid grid-cols-[1fr_auto_1fr]">
                 <div></div>
                 <div className="flex flex-col min-h-screen p-6 max-w-6xl mx-auto space-y-6">

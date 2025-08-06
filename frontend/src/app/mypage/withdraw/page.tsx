@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { authAPI } from '@/lib/auth';
-import { SideBar } from "@/app/components/SideBar";
+import SideBar from "@/app/components/SideBar";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -119,7 +119,7 @@ export default function WithdrawPage() {
 
     return (
         <div className="min-h-screen pl-[240px] pt-[64px]">
-            <SideBar navigate={router.push} active="mypage" />
+            <SideBar active="mypage" />
 
             <div className="p-6 max-w-4xl mx-auto space-y-6">
                 {/* 헤더 */}
